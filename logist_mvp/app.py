@@ -121,7 +121,7 @@ def reset_all_requests():
     
     db.session.commit()
     
-    return redirect(url_for('requests'))
+    return redirect(url_for('list_requests'))
 
 @app.route('/api/smart_optimize', methods=['POST'])
 def smart_optimize_route():
