@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{% if request_obj %}Редактирование{% else %}Новая{% endif %} заявка</h2>
+
+<!-- Модальное окно выбора товара -->
+<div class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Выберите товар из справочника</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="productSearch" class="form-control mb-3" placeholder="Поиск по названию или артикулу">
+        <table class="table table-sm" id="productTable">
+          <thead><tr><th>Название</th><th>Артикул</th><th>Вес, кг</th><th>Габариты, м</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="post" id="requestForm">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label>Отправитель (название)</label>
+      <input name="sender_name" class="form-control" value="{{ request_obj.sender_name if request_obj else '' }}" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label>Адрес отправителя</label>
+      <input name="sender_address" class="form-control" value="{{ request_obj.sender_address if request_obj else '' }}" required>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label>Получатель (название)</label>
+      <input name="receiver_name" class="form-control" value="{{ request_obj.receiver_name if request_obj else '' }}" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label>Адрес получателя</label>
+      <input name="receiver_address" class="form-control" value="{{ request_obj.receiver_address if request_obj else '' }}" required>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <label>Желаемая дата доставки</label>
+      <input type="date" name="delivery_date" class="form-control" value="{{ request_obj.delivery_date if request_obj else '' }}">
+    </div>
+  </div>
+
+  <h4>Позиции заявки</h4>
+  <div id="items-container">
+    <!-- динамические строки -->
+  </div>
+  <button type="button" class="btn btn-secondary" onclick="addItemRow()">+ Добавить товар</button>
+  <hr>
+  <button type="submit" class="btn btn-success">Сохранить заявку</button>
+  <a href="/requests" class="btn btn-secondary">Отмена</a>
+</form>
+
+<script>
+// если редактирование – наполним существующими позициями
+const existingItems = [
+  {% if request_obj %}
+    {% for item in request_obj.items %}
+      {
+        product_id: '{{ item.product_id or "" }}',
+        cargo_name: '{{ item.cargo_name|escape }}',
+        quantity: {{ item.quantity }},
+        weight: {{ item.weight }},
+        length: {{ item.length }},
+        width: {{ item.width }},
+        height: {{ item.height }}
+      }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  {% endif %}
+];
+
+let currentRowIndex = null;
+
+function createRow(data = {}) {
+  const row = document.createElement('div');
+  row.className = 'row mb-2 item-row';
+  row.innerHTML = `
+    <div class="col-md-3">
+      <label>Товар</label>
+      <div class="input-group">
+        <input type="text" name="cargo_name[]" class="form-control" value="${data.cargo_name || ''}" required>
+        <button type="button" class="btn btn-outline-secondary pick-product">📋</button>
+      </div>
+    </div>
+    <div class="col-md-1">
+      <label>Кол-во</label>
+      <input type="number" name="quantity[]" class="form-control" value="${data.quantity || 1}" min="1">
+    </div>
+    <div class="col-md-2">
+      <label>Вес 1 места, кг</label>
+      <input type="number" step="0.1" name="weight[]" class="form-control" value="${data.weight || ''}" required>
+    </div>
+    <div class="col-md-1">
+      <label>Длина, м</label>
+      <input type="number" step="0.01" name="length[]" class="form-control" value="${data.length || ''}" required>
+    </div>
+    <div class="col-md-1">
+      <label>Ширина, м</label>
+      <input type="number" step="0.01" name="width[]" class="form-control" value="${data.width || ''}" required>
+    </div>
+    <div class="col-md-1">
+      <label>Высота, м</label>
+      <input type="number" step="0.01" name="height[]" class="form-control" value="${data.height || ''}" required>
+    </div>
+    <div class="col-md-1">
+      <label>&nbsp;</label>
+      <button type="button" class="btn btn-danger btn-sm remove-row">✕</button>
+    </div>
+    <input type="hidden" name="product_id[]" value="${data.product_id || ''}">
+  `;
+
+  // открыть модалку при клике на 📋
+  row.querySelector('.pick-product').addEventListener('click', function(e) {
+    currentRowIndex = Array.from(document.querySelectorAll('.item-row')).indexOf(row);
+    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+    modal.show();
+    loadProducts();
+  });
+
+  row.querySelector('.remove-row').addEventListener('click', function() {
+    row.remove();
+  });
+
+  return row;
+}
+
+window.addItemRow = function(data = {}) {
+  document.getElementById('items-container').appendChild(createRow(data));
+};
+
+// Работа с модальным окном
+function loadProducts(query = '') {
+  fetch('/api/search_product?q=' + encodeURIComponent(query))
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.querySelector('#productTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.article || ''}</td>
+          <td>${p.weight}</td>
+          <td>${p.length}x${p.width}x${p.height}</td>
+          <td><button type="button" class="btn btn-sm btn-primary select-product"
+                data-product='${JSON.stringify(p)}'>Выбрать</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.select-product').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const p = JSON.parse(this.dataset.product);
+          if (currentRowIndex !== null) {
+            const rows = document.querySelectorAll('.item-row');
+            const row = rows[currentRowIndex];
+            row.querySelector('input[name="cargo_name[]"]').value = p.name;
+            row.querySelector('input[name="weight[]"]').value = p.weight;
+            row.querySelector('input[name="length[]"]').value = p.length;
+            row.querySelector('input[name="width[]"]').value = p.width;
+            row.querySelector('input[name="height[]"]').value = p.height;
+            row.querySelector('input[name="product_id[]"]').value = p.id;
+          }
+          bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+        });
+      });
+    });
+}
+
+document.getElementById('productSearch').addEventListener('input', function() {
+  clearTimeout(this._timer);
+  this._timer = setTimeout(() => loadProducts(this.value), 300);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (existingItems.length > 0) {
+    existingItems.forEach(item => addItemRow(item));
+  } else {
+    addItemRow(); // одна пустая строка по умолчанию
+  }
+
+  document.getElementById('productModal').addEventListener('show.bs.modal', function () {
+    document.getElementById('productSearch').value = '';
+    loadProducts('');
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Автопарк</h2>
+<a href="/vehicle/new" class="btn btn-primary mb-3">Добавить машину</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th><th>Название</th><th>Госномер</th><th>Грузоподъёмность, кг</th><th>Кузов (ДxШxВ), м</th><th>Статус</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in vehicles %}
+    <tr>
+      <td>{{ v.id }}</td>
+      <td>{{ v.name }}</td>
+      <td>{{ v.plate }}</td>
+      <td>{{ v.max_weight }}</td>
+      <td>{{ v.length }}x{{ v.width }}x{{ v.height }}</td>
+      <td>{{ v.status }}</td>
+      <td>
+        <a href="/vehicle/{{ v.id }}/edit" class="btn btn-sm btn-warning">✏️</a>
+        <form action="/vehicle/{{ v.id }}/delete" method="post" style="display:inline">
+          <button class="btn btn-sm btn-danger" onclick="return confirm('Удалить машину?')">🗑️</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{% if vehicle %}Редактирование{% else %}Новая{% endif %} машина</h2>
+<form method="post">
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <label>Марка/модель</label>
+      <input name="name" class="form-control" value="{{ vehicle.name if vehicle else '' }}" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Госномер</label>
+      <input name="plate" class="form-control" value="{{ vehicle.plate if vehicle else '' }}" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Грузоподъёмность, кг</label>
+      <input type="number" step="1" name="max_weight" class="form-control" value="{{ vehicle.max_weight if vehicle else '' }}" required>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <label>Длина кузова, м</label>
+      <input type="number" step="0.01" name="length" class="form-control" value="{{ vehicle.length if vehicle else '' }}" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Ширина кузова, м</label>
+      <input type="number" step="0.01" name="width" class="form-control" value="{{ vehicle.width if vehicle else '' }}" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Высота кузова, м</label>
+      <input type="number" step="0.01" name="height" class="form-control" value="{{ vehicle.height if vehicle else '' }}" required>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <label>Длина паллеты, м</label>
+      <input type="number" step="0.01" name="pallet_length" class="form-control" value="{{ vehicle.pallet_length if vehicle else '1.2' }}">
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Ширина паллеты, м</label>
+      <input type="number" step="0.01" name="pallet_width" class="form-control" value="{{ vehicle.pallet_width if vehicle else '0.8' }}">
+    </div>
+  </div>
+  <button type="submit" class="btn btn-success">Сохранить</button>
+  <a href="/vehicles" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}

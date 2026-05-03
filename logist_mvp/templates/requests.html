@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Все заявки</h2>
+<a href="/request/new" class="btn btn-primary mb-3">Добавить заявку</a>
+<table class="table table-striped">
+  <thead>
+    <tr><th>ID</th><th>Позиций</th><th>Отправитель</th><th>Получатель</th><th>Дата</th><th>Статус</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for r in requests %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.items|length }}</td>
+      <td>{{ r.sender_address|truncate(25) }}</td>
+      <td>{{ r.receiver_address|truncate(25) }}</td>
+      <td>{{ r.delivery_date }}</td>
+      <td>{{ r.status }}</td>
+      <td>
+        <a href="/request/{{ r.id }}/edit" class="btn btn-sm btn-warning">✏️</a>
+        <form action="/request/{{ r.id }}/delete" method="post" style="display:inline">
+          <button class="btn btn-sm btn-danger" onclick="return confirm('Удалить заявку?')">🗑️</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

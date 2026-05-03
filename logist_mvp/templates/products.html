@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Справочник товаров</h2>
+<a href="/product/new" class="btn btn-primary mb-3">Добавить товар</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th><th>Артикул</th><th>Название</th><th>Вес 1 места, кг</th><th>Габариты, м</th><th>Упаковка</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.article }}</td>
+      <td>{{ p.name }}</td>
+      <td>{{ p.weight }}</td>
+      <td>{{ p.length }}x{{ p.width }}x{{ p.height }}</td>
+      <td>{{ p.package_type }}</td>
+      <td>
+        <a href="/product/{{ p.id }}/edit" class="btn btn-sm btn-warning">✏️</a>
+        <form action="/product/{{ p.id }}/delete" method="post" style="display:inline">
+          <button class="btn btn-sm btn-danger" onclick="return confirm('Удалить товар?')">🗑️</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
