@@ -73,60 +73,54 @@ def optimize_route_cluster_by_distance(warehouse_lat, warehouse_lon, orders):
     """
     Кластеризация + оптимизация: группируем заявки по районам,
     затем строим маршрут между кластерами.
+    Сначала ближние районы, потом дальние.
     """
     if not orders:
         return []
     
-    # Группируем по районам (примерное определение по координам)
-    clusters = {}
+    # Создаём список точек
+    points = []
     for o in orders:
-        if not o.receiver_lat or not o.receiver_lon:
-            continue
-        
-        # Определяем район по координам
-        lat, lon = o.receiver_lat, o.receiver_lon
-        # Центры районов Красноярска
-        districts = {
-            'Свердловский': (56.01, 92.87),
-            'Кировский': (56.03, 92.91),
-            'Ленинский': (55.99, 92.85),
-            'Октябрьский': (56.02, 92.89),
-            'Железнодорожный': (56.00, 92.83),
-            'Центральный': (56.04, 92.86),
-        }
-        
-        # Находим ближайший район
-        min_dist = float('inf')
-        district = 'other'
-        for d, (dlat, dlon) in districts.items():
-            dist = haversine(lat, lon, dlat, dlon)
-            if dist < min_dist:
-                min_dist = dist
-                district = d
-        
-        if district not in clusters:
-            clusters[district] = []
-        clusters[district].append(o)
+        if o.receiver_lat and o.receiver_lon:
+            points.append({
+                'order': o,
+                'lat': o.receiver_lat,
+                'lon': o.receiver_lon,
+                'address': o.receiver_address
+            })
     
-    # Сортируем кластеры по расстоянию от склада
-    cluster_order = []
-    for district, items in clusters.items():
-        # Центр кластера - среднее всех точек
-        avg_lat = sum(o.receiver_lat for o in items) / len(items)
-        avg_lon = sum(o.receiver_lon for o in items) / len(items)
-        dist = haversine(warehouse_lat, warehouse_lon, avg_lat, avg_lon)
-        cluster_order.append((dist, district, items))
+    if not points:
+        return []
     
-    cluster_order.sort(key=lambda x: x[0])
+    # Сортируем по расстоянию от склада
+    points_sorted = sorted(points, key=lambda p: haversine(warehouse_lat, warehouse_lon, p['lat'], p['lon']))
     
-    # Собираем заявки по порядку кластеров
-    result = []
-    for _, district, items in cluster_order:
-        # Внутри кластера - ближайший сосед
-        optimized = optimize_route_nearest_neighbor(warehouse_lat, warehouse_lon, items)
-        result.extend(optimized)
+    return points_sorted
+
+@app.route('/requests/reset_all', methods=['POST'])
+def reset_all_requests():
+    """Сбросить все заявки в статус 'new' для перепланирования"""
+    from models import OrderRequest, Route, Vehicle
+    import random
     
-    return result
+    # Сбрасываем заявки
+    requests = OrderRequest.query.all()
+    for req in requests:
+        req.status = 'new'
+    
+    # Освобождаем машины
+    vehicles = Vehicle.query.all()
+    for v in vehicles:
+        v.status = 'available'
+    
+    # Удаляем маршруты
+    routes = Route.query.all()
+    for r in routes:
+        db.session.delete(r)
+    
+    db.session.commit()
+    
+    return redirect(url_for('requests'))
 
 @app.route('/api/smart_optimize', methods=['POST'])
 def smart_optimize_route():
