@@ -697,8 +697,8 @@ def generate_requests():
         order = OrderRequest(
             sender_name='Склад РОЗНИЦА',
             sender_address='г. Красноярск, ул. Норильская, 9/20',
-            sender_lat=56.0,
-            sender_lon=92.9,
+            sender_lat=56.055437,
+            sender_lon=92.719343,
             receiver_name=f'{shop[0]} ({district_name})',
             receiver_address=f'Красноярск, {shop[1]}',
             receiver_lat=lat + random.uniform(-0.005, 0.005),
