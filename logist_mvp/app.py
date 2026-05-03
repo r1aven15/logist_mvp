@@ -104,43 +104,53 @@ def ai():
     
     return jsonify({'text': resp})
 
-# ------------------ Геокодирование (Яндекс - приоритет) ------------------
+# ------------------ Геокодирование (Яндекс - точное) ------------------
 def geocode(addr):
-    """Геокодирование через Яндекс с приоритетом Красноярска"""
+    """Точное геокодирование через Яндекс для Красноярска"""
     if not addr: 
         return None, None
     
-    # Пробуем Яндекс сregionalным поиском
-    if YANDEX_GEOCODER_KEY:
+    if not YANDEX_GEOCODER_KEY:
+        return None, None
+    
+    # Нормализуем адрес - добавляем регион
+    original = addr.strip()
+    
+    # Пробуем с разными вариантами
+    search_variants = [
+        f"{original}, Красноярск",           # Конкретно Красноярск
+        f"{original}, Красноярский край",   # Красноярский край
+        f"{original}, Ачинск",             # Ачинск
+        original                          # Как есть
+    ]
+    
+    for search_addr in search_variants:
         try:
-            # Добавляем регион для точности
-            search_addr = addr
-            if not any(city.lower() in addr.lower() for city in ['красноярск', 'ачинск', 'козулька']):
-                search_addr = f"{addr}, Красноярский край"
-            
             url = "https://geocode-maps.yandex.ru/1.x"
             params = {'geocode': search_addr, 'format': 'json', 'apikey': YANDEX_GEOCODER_KEY, 'results': 5}
-            r = requests.get(url, params=params, timeout=10)
+            r = requests.get(url, params=params, timeout=8)
             if r.status_code == 200:
                 data = r.json()
                 geo = data['response']['GeoObjectCollection']['featureMember']
                 if geo:
-                    # Берём первый точный результат
                     for g in geo:
                         obj = g['GeoObject']
                         point = obj['Point']['pos']
                         lon, lat = map(float, point.split())
                         meta = obj.get('metaDataProperty', {}).get('GeocoderMetaData', {})
                         kind = meta.get('kind', '')
-                        # Приоритет: house > street > district > area
-                        if kind in ['house', 'street', 'district']:
-                            return lat, lon
-                    # Иначе первый попавшийся
-                    point = geo[0]['GeoObject']['Point']['pos']
-                    lon, lat = map(float, point.split())
-                    return lat, lon
-        except Exception as e:
-            print(f"Yandex geocode error: {e}")
+                        text = meta.get('text', '')
+                        
+                        # Проверяем что это нужный регион
+                        region = text.lower()
+                        if any(city in region for city in ['красноярск', 'ачинск', 'козулька']):
+                            # Приоритет по точности
+                            if kind == 'house':
+                                return lat, lon
+                            elif kind == 'street':
+                                return lat, lon
+        except:
+            pass
     
     return None, None
 
