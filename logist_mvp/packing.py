@@ -96,56 +96,45 @@ def pack_items_to_pallets(items, pallet_l, pallet_w, max_h):
 
 def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
     """
-    Размещение паллет по порядку маршрута:
-    - П1 (первая точка) - у двери (сзади)
-    - П2, П3... - далее к кабине
-    Водитель открывает двери и разгружает по порядку: П1 → П2 → П3...
+    Размещение паллет по 2 в ряд, от двери к кабине:
+    - П1, П2 - у двери (сзади)
+    - П3, П4 - следующий ряд
+    - и т.д.
     """
     
     PALLET_L = 1.2
     PALLET_W = 0.8
-    MARGIN = 0.3  # отступ от стен
+    MARGIN = 0.3
     
-    per_row = int(truck_l / PALLET_L)  # 5
-    
+    # 2 паллеты в ряд по длине
+    per_row = 2
     result = []
     
     for idx, pdata in enumerate(pallets_data):
         h = pdata['height']
         
-        # П1 у двери (сзади truck_l), П2, П3... к кабине (спереди 0)
+        # П1, П2 у двери (x = truck_l), П3, П4 ближе к кабине (x = truck_l - 2*PALLET_L)
         row = idx // per_row
         in_row = idx % per_row
         
-        # Z: у левой или правой стены с отступом
-        z = MARGIN if row % 2 == 0 else truck_w - PALLET_W - MARGIN
+        # Z: чередование слева/справа
+        z = MARGIN + in_row * PALLET_W
         
-        # X: П1 у двери (truck_l), П2 ближе к кабине
-        x = truck_l - PALLET_L - (in_row * PALLET_L)
+        # X: от двери к кабине
+        x = truck_l - MARGIN - (row + 1) * PALLET_L
         
-        if x + PALLET_L <= truck_l and z + PALLET_W <= truck_w and h <= truck_h:
-            conflict = False
-            for e in result:
-                ex, ey, ez = e['position']
-                ew, eh, ed = e['size']
-                if (x < ex + ew and x + PALLET_L > ex and
-                    z < ez + ed and z + PALLET_W > ez):
-                    conflict = True
-                    break
-            
-            if not conflict:
-                result.append({
-                    'pallet_index': idx,
-                    'position': [x, 0, z],
-                    'size': [PALLET_L, h, PALLET_W],
-                    'address': pdata.get('address', ''),
-                    'items_count': pdata.get('items_count', 1)
-                })
-                continue
-        
-        # Fallback
-        z = MARGIN
-        if x + PALLET_L <= truck_l and z + PALLET_W <= truck_w:
+        if x >= 0 and z + PALLET_W <= truck_w and h <= truck_h:
+            result.append({
+                'pallet_index': idx,
+                'position': [x, 0, z],
+                'size': [PALLET_L, h, PALLET_W],
+                'address': pdata.get('address', ''),
+                'items_count': pdata.get('items_count', 1)
+            })
+        else:
+            # Fallback - простая укладка
+            z = MARGIN + (idx % 2) * PALLET_W
+            x = truck_l - MARGIN - ((idx // 2) + 1) * PALLET_L
             result.append({
                 'pallet_index': idx,
                 'position': [x, 0, z],

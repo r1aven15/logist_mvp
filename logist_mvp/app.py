@@ -227,29 +227,53 @@ def parse_ai_command(text):
     return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
 
 # ------------------ AI Ассистент ------------------
-# Используем правила + OpenRouteService для маршрутов
 OPENROUTE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3OGI3YmU5OTkwZTQzMzliOWU5NGJiZTBlMzNmNjc3IiwiaCI6Im11cm11cjY0In0='
 
-def get_route_openroute(points):
-    """Маршрут через OpenRouteService API"""
+def call_ai_assistant(command):
+    """AI анализ через OpenRouteService API"""
     import requests
     
-    url = f'https://api.openrouteservice.org/v2/directions/driving-car/geojson'
-    headers = {'Authorization': OPENROUTE_API_KEY}
+    # Получаем статистику
+    new_cnt = OrderRequest.query.filter_by(status='new').count()
+    planned_cnt = OrderRequest.query.filter_by(status='planned').count()
+    done_cnt = OrderRequest.query.filter_by(status='completed').count()
+    vehicles = Vehicle.query.filter_by(status='available').count()
     
-    # Формат: [lon, lat]
-    coords = [[p[1], p[0]] for p in points]
-    if len(coords) < 2:
-        return None
+    cmd = command.lower()
     
-    try:
-        resp = requests.post(url, json={'coordinates': coords}, headers=headers, timeout=30)
-        if resp.status_code == 200:
-            data = resp.json()
-            return data
-    except:
-        pass
-    return None
+    # Простая логика на основе правил
+    if any(w in cmd for w in ['сколько', 'статистика', 'отчёт']):
+        return f"""📊 Статистика:
+- Новых заявок: {new_cnt}
+- В работе: {planned_cnt}  
+- Выполнено: {done_cnt}
+- Свободных машин: {vehicles}"""
+    
+    if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто', 'распредели']):
+        if new_cnt > 0 and vehicles > 0:
+            return f"✅ Найдено {new_cnt} новых заявок и {vehicles} свободных машин. Перенаправляю на автопланирование..."
+        return "Нет новых заявок или свободных машин."
+    
+    if 'сброс' in cmd:
+        return "✅ Сбрасываю все заявки в статус 'new'..."
+    
+    if any(w in cmd for w in ['покажи рейс', 'маршрут', 'рейс']):
+        return "Переход к списку рейсов..."
+    
+    if 'машин' in cmd:
+        return f"🚚 Доступно машин: {vehicles}"
+    
+    if 'помощь' in cmd or 'команда' in cmd:
+        return """📋 Команды:
+• "Сколько заявок?" - статистика
+• "Сколько машин?" - транспорт
+• "Оптимизируй маршрут" - автопланирование
+• "Сбрось заявки" - сброс в new
+• "Покажи рейсы" - список рейсов
+• "Помощь" - эта справка"""
+    
+    return f"""Команда не распознана: {command}
+Напишите "Помощь" для списка команд."""
 
 @app.route('/api/ai', methods=['POST', 'GET'])
 def ai_assistant():
@@ -266,20 +290,19 @@ def ai_assistant():
     if not command:
         return jsonify({'error': 'Команда не указана'}), 400
     
-    # Правила
-    try:
-        result = parse_ai_command(command)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    response = call_ai_assistant(command)
+    cmd = command.lower()
     
-    if result.get('action') == 'auto_plan':
-        return jsonify({'redirect': '/auto_plan', 'text': result.get('text', '')})
+    if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто']):
+        return jsonify({'redirect': '/auto_plan', 'text': response})
     
-    if result.get('action') == 'cancel_last':
-        return jsonify({'redirect': '/requests/reset_all', 'text': result.get('text', '')})
+    if 'сброс' in cmd:
+        return jsonify({'redirect': '/requests/reset_all', 'text': response})
     
-    clean_result = {k: v for k, v in result.items() if v is not None and not callable(v)}
-    return jsonify(clean_result)
+    if any(w in cmd for w in ['рейс', 'маршрут']):
+        return jsonify({'redirect': '/routes', 'text': response})
+    
+    return jsonify({'text': response})
 
 # ------------------ Геокодирование ------------------
 def geocode(address):
