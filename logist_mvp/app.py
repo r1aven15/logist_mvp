@@ -10,10 +10,68 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///logist.db'
 app.config['SECRET_KEY'] = 'dev-secret-123'
 
-# Яндекс.Карты API ключ (необязательно). Если не задан, используется Leaflet + OSRM.
-app.config['YANDEX_MAPS_API_KEY'] = '701850c2-981b-4999-befb-22881237994f'
+# API Keys
+OPENROUTE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3OGI3YmU5OTkwZTQzMzliOWU5NGJiZTBlMzNmNjc3IiwiaCI6Im11cm11cjY0In0='
+YANDEX_GEOCODER_KEY = 'e60a6693-9447-4ce2-9bde-548cbbe0a23d'
+YANDEX_MAP_KEY = 'fe837480-2945-4bd9-9cfb-b987101b2305'
+OLLAMA_KEY = 'fdb2e393a19f4adca924f6a4a8d4bb3b.QT78Pv7JLQDC9SnpWEyxozuA'
+
+app.config['YANDEX_MAPS_API_KEY'] = YANDEX_MAP_KEY
 
 db.init_app(app)
+
+# ------------------ AI Ассистент ------------------
+def call_ai_rules(cmd):
+    new = OrderRequest.query.filter_by(status='new').count()
+    cars = Vehicle.query.filter_by(status='available').count()
+    routes = Route.query.count()
+    c = cmd.lower()
+    if 'помощь' in c: return "Команды: Статистика, Машины, Оптимизируй, Сброс, Рейсы"
+    if 'статистика' in c: return f"📊 Заявок: {new}, Машин: {cars}, Рейсов: {routes}"
+    if 'машин' in c: return f"🚚 Машин: {cars}"
+    if 'оптимизируй' in c: return f"✅ Автопланирование: {new} заявок, {cars} машин" if new and cars else "❌ Нет данных"
+    if 'сброс' in c: return "✅ Сбрасываю..."
+    if 'рейс' in c: return f"📍 Рейсов: {routes}"
+    return "Напишите 'Помощь' для списка команд"
+
+def call_ai(cmd):
+    if OLLAMA_KEY:
+        try:
+            r = requests.post('http://localhost:11434/api/chat', json={'model':'llama3','messages':[{'role':'user','content':cmd}]}, headers={'Authorization':f'Bearer {OLLAMA_KEY}'}, timeout=30)
+            if r.status_code==200: return r.json().get('message',{}).get('content','')
+        except: pass
+    return call_ai_rules(cmd)
+
+@app.route('/api/ai', methods=['POST'])
+def ai():
+    cmd = (request.json or {}).get('command', '')
+    if not cmd: return jsonify({'error':'Укажите команду'}), 400
+    resp = call_ai(cmd)
+    c = cmd.lower()
+    if 'оптимизируй' in c: return jsonify({'redirect':'/auto_plan','text':resp})
+    if 'сброс' in c: return jsonify({'redirect':'/requests/reset_all','text':resp})
+    return jsonify({'text':resp})
+
+# ------------------ Геокодирование (Яндекс) ------------------
+def geocode(addr):
+    if not addr or not YANDEX_GEOCODER_KEY: return None,None
+    try:
+        r = requests.get('https://geocode-maps.yandex.ru/1.x', params={'geocode':addr,'format':'json','apikey':YANDEX_GEOCODER_KEY}, timeout=10)
+        if r.status_code==200:
+            data = r.json()
+            geo = data['response']['GeoObjectCollection']['featureMember']
+            if geo:
+                lon,lat = map(float, geo[0]['GeoObject']['Point']['pos'].split())
+                return lat,lon
+    except: pass
+    return None,None
+
+@app.route('/api/geocode', methods=['POST'])
+def geo():
+    addr = (request.json or {}).get('address','')
+    lat,lon = geocode(addr)
+    if lat: return jsonify({'lat':lat,'lon':lon})
+    return jsonify({'error':'Не найдено'}),404
 
 # ------------------ Умная маршрутизация ------------------
 def haversine(lat1, lon1, lat2, lon2):
