@@ -13,6 +13,17 @@
     <h2>Рейс #{{ route.id }} | {{ vehicle.name }} {{ vehicle.plate }}</h2>
     <p>Кузов: {{ truck_size[0] }}×{{ truck_size[1] }}×{{ truck_size[2] }} м</p>
     <p>Паллет: {{ placed_pallets|length }} шт.</p>
+    <hr>
+    <p><strong>Порядок разгрузки:</strong></p>
+    <div style="max-height: 200px; overflow-y: auto;">
+    {% for p in placed_pallets %}
+    {% if p.address %}
+    <div style="margin: 5px 0; padding: 3px; background: {{ ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6'][loop.index0 % 5] }}; border-radius: 3px;">
+        <strong>П{{ loop.index }}:</strong> {{ p.address[:30] }}...
+    </div>
+    {% endif %}
+    {% endfor %}
+    </div>
     <small>ЛКМ - вращать | ПКМ - двигать | Колёсико - масштаб</small>
 </div>
 
@@ -91,6 +102,49 @@ scene.add(createEdge(0,0,0, el,0,0));
 scene.add(createEdge(0,0,ew, el,0,ew));
 scene.add(createEdge(0,eh,0, el,eh,0));
 scene.add(createEdge(0,eh,ew, el,eh,ew));
+
+// НАДПИСИ: КАБИНА (спереди x=0) и ДВЕРИ (сзади x=truck_l)
+// Кабина - передняя стенка
+const cabGeom = new THREE.PlaneGeometry(el * 0.4, eh * 0.2);
+const cabMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+const cab = new THREE.Mesh(cabGeom, cabMat);
+cab.position.set(0.1, eh * 0.8, ew / 2);
+cab.rotation.y = Math.PI / 2;
+scene.add(cab);
+
+// Двери - задняя стенка
+const doorGeom = new THREE.PlaneGeometry(el * 0.4, eh * 0.2);
+const doorMat = new THREE.MeshBasicMaterial({ color: 0xff6600, side: THREE.DoubleSide });
+const door = new THREE.Mesh(doorGeom, doorMat);
+door.position.set(el - 0.1, eh * 0.8, ew / 2);
+door.rotation.y = -Math.PI / 2;
+scene.add(door);
+
+// Текстовые метки (используем спrayт)
+function createTextSprite(text, color) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.font = 'bold 36px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, 128, 46);
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMat = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.scale.set(1.5, 0.4, 1);
+    return sprite;
+}
+
+// Добавляем метки
+const cabLabel = createTextSprite('КАБИНА', '#00ff00');
+cabLabel.position.set(0.3, eh * 0.9, ew / 2);
+scene.add(cabLabel);
+
+const doorLabel = createTextSprite('ДВЕРИ', '#ff6600');
+doorLabel.position.set(el - 0.3, eh * 0.9, ew / 2);
+scene.add(doorLabel);
 
 // Цвета для разных паллет (хорошо различимые)
 const colors = [

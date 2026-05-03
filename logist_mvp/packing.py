@@ -76,14 +76,22 @@ def pack_items_to_pallets(items, pallet_l, pallet_w, max_h):
         pallets.append(pallet_bin.items)
         remaining = pallet_bin.unfitted[:]
     result = []
-    for pal in pallets:
+    for idx, pal in enumerate(pallets):
         h = 0.0
+        # Получаем адрес первого предмета на паллете
+        address = ''
         for item in pal:
+            if hasattr(item, 'name') and item.name:
+                # Пробуем найти в original items
+                for it in items:
+                    if it.get('name') == item.name:
+                        address = it.get('address', '')
+                        break
+                break
             top = item.pos[1] + item.h
             if top > h:
                 h = top
-        # В результат кладём только высоту, без списка предметов (чтобы избежать несериализуемых объектов)
-        result.append({'height': min(max_h, h)})
+        result.append({'height': min(max_h, h), 'address': address, 'items_count': len(pal)})
     return result
 
 def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
@@ -130,7 +138,9 @@ def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
                 result.append({
                     'pallet_index': idx,
                     'position': [x, 0, z],
-                    'size': [PALLET_L, h, PALLET_W]
+                    'size': [PALLET_L, h, PALLET_W],
+                    'address': pdata.get('address', ''),
+                    'items_count': pdata.get('items_count', 1)
                 })
                 continue
         
@@ -140,7 +150,9 @@ def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
             result.append({
                 'pallet_index': idx,
                 'position': [x, 0, z],
-                'size': [PALLET_L, h, PALLET_W]
+                'size': [PALLET_L, h, PALLET_W],
+                'address': pdata.get('address', ''),
+                'items_count': pdata.get('items_count', 1)
             })
     
     return result
