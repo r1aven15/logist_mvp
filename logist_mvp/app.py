@@ -226,16 +226,38 @@ def parse_ai_command(text):
     # Не поняли
     return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
 
-# ------------------ AI Ассистент (правила) ------------------
-# DeepSeek ключ не работает (нет баланса), используем правила
+# ------------------ AI Ассистент (Google AI) ------------------
+# Ключ не работает (нет квоты), используем правила
+GOOGLE_API_KEY = 'AIzaSyAX2NhmuuzXWhtw5vnTxz5tiD5eANjDleU'
+
+def call_google_ai(prompt):
+    """Вызов Google Gemini AI"""
+    import requests
+    
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}'
+    
+    try:
+        resp = requests.post(
+            url,
+            json={
+                'contents': [{'parts': [{'text': prompt}]}]
+            },
+            headers={'Content-Type': 'application/json'},
+            timeout=30
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            return data['candidates'][0]['content']['parts'][0]['text']
+    except:
+        pass
+    return None
 
 @app.route('/api/ai', methods=['POST', 'GET'])
 def ai_assistant():
-    """AI ассистент для управления логистикой - использует правила"""
+    """AI ассистент для управления логистикой"""
     if request.method == 'GET':
         return jsonify({'error': 'Use POST method'})
     
-    # Поддержка JSON и form-data
     if request.is_json:
         data = request.json
         command = data.get('command', '') if data else ''
@@ -245,7 +267,17 @@ def ai_assistant():
     if not command:
         return jsonify({'error': 'Команда не указана'}), 400
     
-    # Используем правила
+    # Пробуем Google AI
+    ai_response = call_google_ai(f"Ответь кратко по-русски: {command}")
+    if ai_response:
+        cmd = command.lower()
+        if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто']):
+            return jsonify({'redirect': '/auto_plan', 'text': ai_response})
+        if 'сброс' in cmd:
+            return jsonify({'redirect': '/requests/reset_all', 'text': ai_response})
+        return jsonify({'text': ai_response})
+    
+    # Fallback - правила
     try:
         result = parse_ai_command(command)
     except Exception as e:
@@ -254,7 +286,6 @@ def ai_assistant():
     if result.get('action') == 'auto_plan':
         return jsonify({'redirect': '/auto_plan', 'text': result.get('text', '')})
     
-    # Убираем несериализуемые объекты
     clean_result = {k: v for k, v in result.items() if v is not None and not callable(v)}
     return jsonify(clean_result)
 
@@ -767,7 +798,8 @@ def auto_plan():
 def view_route(route_id):
     route = Route.query.get_or_404(route_id)
     vehicle = Vehicle.query.get(route.vehicle_id)
-    orders = OrderRequest.query.filter_by(route_id=route_id).all()
+    # Сортируем по ID (порядок добавления в маршрут)
+    orders = OrderRequest.query.filter_by(route_id=route_id).order_by(OrderRequest.id).all()
 
     # Все позиции и подсчёт паллет - convert to dicts for JSON serialization
     all_items = []
