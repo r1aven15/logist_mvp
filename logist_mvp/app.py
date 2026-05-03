@@ -101,22 +101,23 @@ def optimize_route_cluster_by_distance(warehouse_lat, warehouse_lon, orders):
 def reset_all_requests():
     """Сбросить все заявки в статус 'new' для перепланирования"""
     from models import OrderRequest, Route, Vehicle
-    import random
+    
+    # Удаляем пустые маршруты
+    for r in Route.query.all():
+        orders = OrderRequest.query.filter_by(route_id=r.id).count()
+        if orders == 0:
+            db.session.delete(r)
     
     # Сбрасываем заявки
     requests = OrderRequest.query.all()
     for req in requests:
         req.status = 'new'
+        req.route_id = None
     
     # Освобождаем машины
     vehicles = Vehicle.query.all()
     for v in vehicles:
         v.status = 'available'
-    
-    # Удаляем маршруты
-    routes = Route.query.all()
-    for r in routes:
-        db.session.delete(r)
     
     db.session.commit()
     
