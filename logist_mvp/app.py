@@ -226,14 +226,32 @@ def parse_ai_command(text):
     # Не поняли
     return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
 
-# ------------------ AI Ассистент ------------------
+# ------------------ AI Ассистент (OpenRouteService) ------------------
 OPENROUTE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3OGI3YmU5OTkwZTQzMzliOWU5NGJiZTBlMzNmNjc3IiwiaCI6Im11cm11cjY0In0='
 
-def call_ai_assistant(command):
-    """AI анализ через OpenRouteService API"""
+def get_ors_matrix(locations):
+    """Расчёт матрицы расстояний через OpenRouteService Matrix API"""
     import requests
     
-    # Получаем статистику
+    url = 'https://api.openrouteservice.org/v2/matrix/driving-car'
+    headers = {'Authorization': OPENROUTE_API_KEY}
+    
+    try:
+        resp = requests.post(
+            url,
+            json={'locations': locations, 'metrics': ['distance', 'duration']},
+            headers=headers,
+            timeout=30
+        )
+        if resp.status_code == 200:
+            return resp.json()
+    except:
+        pass
+    return None
+
+def call_ai_ors(command):
+    """AI ассистент через OpenRouteService API"""
+    # Статистика
     new_cnt = OrderRequest.query.filter_by(status='new').count()
     planned_cnt = OrderRequest.query.filter_by(status='planned').count()
     done_cnt = OrderRequest.query.filter_by(status='completed').count()
@@ -241,56 +259,79 @@ def call_ai_assistant(command):
     
     cmd = command.lower()
     
-    # Простая логика на основе правил
-    if any(w in cmd for w in ['сколько', 'статистика', 'отчёт']):
-        return f"""📊 Статистика:
-- Новых заявок: {new_cnt}
-- В работе: {planned_cnt}  
-- Выполнено: {done_cnt}
-- Свободных машин: {vehicles}"""
-    
+    # Проверка маршрутов
     if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто', 'распредели']):
-        if new_cnt > 0 and vehicles > 0:
-            return f"✅ Найдено {new_cnt} новых заявок и {vehicles} свободных машин. Перенаправляю на автопланирование..."
-        return "Нет новых заявок или свободных машин."
+        if new_cnt == 0:
+            return "Нет новых заявок для планирования."
+        if vehicles == 0:
+            return "Нет свободных машин."
+        
+        # Получаем координаты заявок
+        orders = OrderRequest.query.filter_by(status='new').limit(10).all()
+        locations = []
+        for o in orders:
+            if o.sender_lat and o.sender_lon:
+                locations.append([o.sender_lon, o.sender_lat])
+            if o.receiver_lat and o.receiver_lon:
+                locations.append([o.receiver_lon, o.receiver_lat])
+        
+        if locations:
+            # ORS Matrix для оптимизации
+            result = get_ors_matrix(locations[:5])
+            if result and result.get('distances'):
+                dists = result['distances']
+                total = sum(sum(row) for row in dists[:len(dists)//2])
+                return f"""✅ Найдено {new_cnt} заявок, {vehicles} машин.
+Вычисляю оптимальный маршрут...
+Общее расстояние: {total/1000:.1f} км
+Можно оптимизировать загрузку!"""
+        
+        return f"✅ Перенаправляю на автопланирование ({new_cnt} заявок, {vehicles} машин)..."
     
     if 'сброс' in cmd:
         return "✅ Сбрасываю все заявки в статус 'new'..."
     
-    if any(w in cmd for w in ['покажи рейс', 'маршрут', 'рейс']):
-        return "Переход к списку рейсов..."
+    if any(w in cmd for w in ['машин', 'транспорт']):
+        return f"🚚 Свободных машин: {vehicles}"
     
-    if 'машин' in cmd:
-        return f"🚚 Доступно машин: {vehicles}"
+    if any(w in cmd for w in ['сколько', 'статистика', 'отчёт']):
+        return f"""📊 Статистика:
+📦 Новых: {new_cnt}
+🚛 В работе: {planned_cnt}
+✅ Выполнено: {done_cnt}
+🚚 Машин: {vehicles}"""
     
-    if 'помощь' in cmd or 'команда' in cmd:
+    if 'помощь' in cmd:
         return """📋 Команды:
 • "Сколько заявок?" - статистика
 • "Сколько машин?" - транспорт
-• "Оптимизируй маршрут" - автопланирование
-• "Сбрось заявки" - сброс в new
-• "Покажи рейсы" - список рейсов
-• "Помощь" - эта справка"""
+• "Оптимизируй" - автопланирование
+• "Сбрось заявки" - сброс
+• "Помощь" - команды"""
     
-    return f"""Команда не распознана: {command}
+    if any(w in cmd for w in ['рейс', 'маршрут']):
+        routes = Route.query.count()
+        return f"📍 Всего рейсов: {routes}"
+    
+    return f"""Не понял: {command}
 Напишите "Помощь" для списка команд."""
 
 @app.route('/api/ai', methods=['POST', 'GET'])
 def ai_assistant():
-    """AI ассистент для управления логистикой"""
+    """AI ассистент через OpenRouteService"""
     if request.method == 'GET':
         return jsonify({'error': 'Use POST method'})
     
+    command = ''
     if request.is_json:
-        data = request.json
-        command = data.get('command', '') if data else ''
+        command = request.json.get('command', '') if request.json else ''
     else:
         command = request.form.get('command', '')
     
     if not command:
         return jsonify({'error': 'Команда не указана'}), 400
     
-    response = call_ai_assistant(command)
+    response = call_ai_ors(command)
     cmd = command.lower()
     
     if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто']):
@@ -298,9 +339,6 @@ def ai_assistant():
     
     if 'сброс' in cmd:
         return jsonify({'redirect': '/requests/reset_all', 'text': response})
-    
-    if any(w in cmd for w in ['рейс', 'маршрут']):
-        return jsonify({'redirect': '/routes', 'text': response})
     
     return jsonify({'text': response})
 

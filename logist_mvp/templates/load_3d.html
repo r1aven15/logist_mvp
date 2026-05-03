@@ -185,7 +185,7 @@ if (pallets && pallets.length > 0) {
         const edgeLine = new THREE.LineSegments(edgeGeom, new THREE.LineBasicMaterial({ color: 0x000000 }));
         mesh.add(edgeLine);
         
-        // Номер паллеты - текст на Canvas
+        // Номер паллеты - текст на Canvas (сверху)
         const canvas = document.createElement('canvas');
         canvas.width = 128;
         canvas.height = 64;
@@ -204,6 +204,24 @@ if (pallets && pallets.length > 0) {
         sprite.position.set(x + l/2, y + h + 0.15, z + w/2);
         sprite.scale.set(0.8, 0.4, 1);
         scene.add(sprite);
+        
+        // Номер внутри паллеты (на полу внутри коробки)
+        const canvas2 = document.createElement('canvas');
+        canvas2.width = 64;
+        canvas2.height = 64;
+        const ctx2 = canvas2.getContext('2d');
+        ctx2.fillStyle = 'white';
+        ctx2.font = 'bold 28px Arial';
+        ctx2.textAlign = 'center';
+        ctx2.textBaseline = 'middle';
+        ctx2.fillText(`${idx+1}`, 32, 32);
+        
+        const texture2 = new THREE.CanvasTexture(canvas2);
+        const spriteMat2 = new THREE.SpriteMaterial({ map: texture2 });
+        const sprite2 = new THREE.Sprite(spriteMat2);
+        sprite2.position.set(x + l/2, y + 0.01, z + w/2);
+        sprite2.scale.set(0.5, 0.5, 1);
+        scene.add(sprite2);
         
         console.log(`Pallet ${idx+1}: pos=(${x},${y},${z}), size=(${l},${h},${w})`);
     });
