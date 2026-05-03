@@ -1069,7 +1069,7 @@ def auto_plan():
 @app.route('/route/<int:route_id>')
 def view_route(route_id):
     route = Route.query.get_or_404(route_id)
-    vehicle = Vehicle.query.get(route.vehicle_id)
+    vehicle = db.session.get(Vehicle, route.vehicle_id)
     # Сортируем по ID (порядок добавления в маршрут)
     orders = OrderRequest.query.filter_by(route_id=route_id).order_by(OrderRequest.id).all()
 
@@ -1119,7 +1119,7 @@ def view_route(route_id):
 @app.route('/route/<int:route_id>/print_load')
 def print_load(route_id):
     route = Route.query.get_or_404(route_id)
-    vehicle = Vehicle.query.get(route.vehicle_id)
+    vehicle = db.session.get(Vehicle, route.vehicle_id)
     orders = OrderRequest.query.filter_by(route_id=route_id).all()
     cargo = []
     for o in orders:
@@ -1157,7 +1157,7 @@ def print_load(route_id):
 @app.route('/route/<int:route_id>/load_3d')
 def load_3d(route_id):
     route = Route.query.get_or_404(route_id)
-    vehicle = Vehicle.query.get(route.vehicle_id)
+    vehicle = db.session.get(Vehicle, route.vehicle_id)
     orders = OrderRequest.query.filter_by(route_id=route_id).order_by(OrderRequest.id.desc()).all()
 
     # Собираем все позиции с количеством
