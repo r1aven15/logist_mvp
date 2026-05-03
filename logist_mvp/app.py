@@ -226,119 +226,88 @@ def parse_ai_command(text):
     # Не поняли
     return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
 
-# ------------------ AI Ассистент (OpenRouteService) ------------------
-OPENROUTE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3OGI3YmU5OTkwZTQzMzliOWU5NGJiZTBlMzNmNjc3IiwiaCI6Im11cm11cjY0In0='
+# ------------------ AI Ассистент (упрощённый, без внешнего API) ------------------
+# AI работает на правилах - стабильно, без вылетов
 
-def get_ors_matrix(locations):
-    """Расчёт матрицы расстояний через OpenRouteService Matrix API"""
-    import requests
-    
-    url = 'https://api.openrouteservice.org/v2/matrix/driving-car'
-    headers = {'Authorization': OPENROUTE_API_KEY}
-    
-    try:
-        resp = requests.post(
-            url,
-            json={'locations': locations, 'metrics': ['distance', 'duration']},
-            headers=headers,
-            timeout=30
-        )
-        if resp.status_code == 200:
-            return resp.json()
-    except:
-        pass
-    return None
-
-def call_ai_ors(command):
-    """AI ассистент через OpenRouteService API"""
+def call_ai_simple(command):
+    """Простой AI на правилах без внешних вызовов"""
     # Статистика
     new_cnt = OrderRequest.query.filter_by(status='new').count()
     planned_cnt = OrderRequest.query.filter_by(status='planned').count()
     done_cnt = OrderRequest.query.filter_by(status='completed').count()
     vehicles = Vehicle.query.filter_by(status='available').count()
+    routes = Route.query.count()
     
-    cmd = command.lower()
+    cmd = command.lower().strip()
     
-    # Проверка маршрутов
-    if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто', 'распредели']):
-        if new_cnt == 0:
-            return "Нет новых заявок для планирования."
-        if vehicles == 0:
-            return "Нет свободных машин."
-        
-        # Получаем координаты заявок
-        orders = OrderRequest.query.filter_by(status='new').limit(10).all()
-        locations = []
-        for o in orders:
-            if o.sender_lat and o.sender_lon:
-                locations.append([o.sender_lon, o.sender_lat])
-            if o.receiver_lat and o.receiver_lon:
-                locations.append([o.receiver_lon, o.receiver_lat])
-        
-        if locations:
-            # ORS Matrix для оптимизации
-            result = get_ors_matrix(locations[:5])
-            if result and result.get('distances'):
-                dists = result['distances']
-                total = sum(sum(row) for row in dists[:len(dists)//2])
-                return f"""✅ Найдено {new_cnt} заявок, {vehicles} машин.
-Вычисляю оптимальный маршрут...
-Общее расстояние: {total/1000:.1f} км
-Можно оптимизировать загрузку!"""
-        
-        return f"✅ Перенаправляю на автопланирование ({new_cnt} заявок, {vehicles} машин)..."
+    # Точное совпадение для надёжности
+    if cmd in ['помощь', 'help', 'команды', '?', 'helpme']:
+        return """📋 Доступные команды:
+• "Статистика" - сколько заявок и машин
+• "Машины" - свободные машины
+• "Оптимизируй" - запустить автопланирование
+• "Сброс" - сбросить заявки в new
+• "Рейсы" - показать список рейсов
+• "Помощь" - эта справка"""
+    
+    if 'статистика' in cmd or cmd == 'сколько':
+        return f"""📊 Статистика:
+📦 Новых заявок: {new_cnt}
+🚛 В работе: {planned_cnt}
+✅ Выполнено: {done_cnt}
+🚚 Свободных машин: {vehicles}
+📍 Всего рейсов: {routes}"""
+    
+    if 'машин' in cmd and 'свободн' in cmd or cmd == 'машины':
+        return f"🚚 Свободных машин: {vehicles}"
+    
+    if 'оптимизируй' in cmd or 'спланируй' in cmd or cmd == 'оптимизация':
+        if new_cnt > 0 and vehicles > 0:
+            return f"✅ Запускаю автопланирование! Найдено: {new_cnt} заявок, {vehicles} машин."
+        elif new_cnt == 0:
+            return "❌ Нет новых заявок для планирования."
+        else:
+            return "❌ Нет свободных машин."
     
     if 'сброс' in cmd:
         return "✅ Сбрасываю все заявки в статус 'new'..."
     
-    if any(w in cmd for w in ['машин', 'транспорт']):
-        return f"🚚 Свободных машин: {vehicles}"
+    if 'рейс' in cmd or 'маршрут' in cmd:
+        return f"📍 Всего рейсов: {routes}. Переход к списку..."
     
-    if any(w in cmd for w in ['сколько', 'статистика', 'отчёт']):
-        return f"""📊 Статистика:
-📦 Новых: {new_cnt}
-🚛 В работе: {planned_cnt}
-✅ Выполнено: {done_cnt}
-🚚 Машин: {vehicles}"""
+    if cmd == 'заявки':
+        return f"📦 Новых заявок: {new_cnt}"
     
-    if 'помощь' in cmd:
-        return """📋 Команды:
-• "Сколько заявок?" - статистика
-• "Сколько машин?" - транспорт
-• "Оптимизируй" - автопланирование
-• "Сбрось заявки" - сброс
-• "Помощь" - команды"""
-    
-    if any(w in cmd for w in ['рейс', 'маршрут']):
-        routes = Route.query.count()
-        return f"📍 Всего рейсов: {routes}"
-    
-    return f"""Не понял: {command}
+    return f"""❓ Команда не распознана: "{command}"
 Напишите "Помощь" для списка команд."""
 
 @app.route('/api/ai', methods=['POST', 'GET'])
 def ai_assistant():
-    """AI ассистент через OpenRouteService"""
+    """Упрощённый AI ассистент"""
     if request.method == 'GET':
         return jsonify({'error': 'Use POST method'})
     
     command = ''
     if request.is_json:
-        command = request.json.get('command', '') if request.json else ''
+        command = request.json.get('command', '') or ''
     else:
-        command = request.form.get('command', '')
+        command = request.form.get('command', '') or ''
     
     if not command:
         return jsonify({'error': 'Команда не указана'}), 400
     
-    response = call_ai_ors(command)
-    cmd = command.lower()
+    response = call_ai_simple(command)
+    cmd = command.lower().strip()
     
-    if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто']):
+    # Редиректы
+    if 'оптимизируй' in cmd or 'спланируй' in cmd:
         return jsonify({'redirect': '/auto_plan', 'text': response})
     
     if 'сброс' in cmd:
         return jsonify({'redirect': '/requests/reset_all', 'text': response})
+    
+    if 'рейс' in cmd or 'маршрут' in cmd:
+        return jsonify({'redirect': '/routes', 'text': response})
     
     return jsonify({'text': response})
 
