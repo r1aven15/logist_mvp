@@ -88,10 +88,10 @@ def pack_items_to_pallets(items, pallet_l, pallet_w, max_h):
 
 def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
     """
-    Размещение паллет ВДОЛЬ кузова (7m).
-    - Ряд 0: у левой стены (z=0.3)  
-    - Ряд 1: у правой стены (z=truck_w - 0.8 - 0.3)
-    Отступ от стен 0.3м чтобы не перекрывались.
+    Размещение паллет в обратном порядке маршрута:
+    - Паллета для ПОСЛЕДНЕЙ точки маршрута (ближайшей к двери) - у двери (x = truck_l - PALLET_L)
+    - Паллета для ПЕРВОЙ точки маршрута (ближайшей к кабине) - у кабины (x = 0)
+    Так водитель разгружает сначала ближайшую точку, потом далее по порядку.
     """
     
     PALLET_L = 1.2
@@ -105,13 +105,16 @@ def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
     for idx, pdata in enumerate(pallets_data):
         h = pdata['height']
         
-        row = idx // per_row
-        in_row = idx % per_row
+        # Инвертируем порядок: последняя точка маршрута - первая паллета
+        inv_idx = len(pallets_data) - 1 - idx
+        row = inv_idx // per_row
+        in_row = inv_idx % per_row
         
         # Z: у левой или правой стены с отступом
         z = MARGIN if row % 2 == 0 else truck_w - PALLET_W - MARGIN
         
-        x = in_row * PALLET_L
+        # x инвертирован: у двери ( truck_l - PALLET_L ) -> у кабины (0)
+        x = (per_row - 1 - in_row) * PALLET_L
         
         if x + PALLET_L <= truck_l and z + PALLET_W <= truck_w and h <= truck_h:
             conflict = False

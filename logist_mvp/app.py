@@ -226,6 +226,34 @@ def parse_ai_command(text):
     # Не поняли
     return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
 
+# Конфигурация AI
+DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
+
+def call_deepseek(prompt):
+    """Вызов DeepSeek API"""
+    if not DEEPSEEK_API_KEY:
+        return None
+    
+    import requests
+    try:
+        resp = requests.post(
+            'https://api.deepseek.com/v1/chat/completions',
+            headers={
+                'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'model': 'deepseek-chat',
+                'messages': [{'role': 'user', 'content': prompt}],
+                'max_tokens': 500
+            },
+            timeout=30
+        )
+        data = resp.json()
+        return data['choices'][0]['message']['content']
+    except Exception as e:
+        return f"Ошибка API: {e}"
+
 @app.route('/api/ai', methods=['POST', 'GET'])
 def ai_assistant():
     """AI ассистент для управления логистикой"""
@@ -242,6 +270,39 @@ def ai_assistant():
     if not command:
         return jsonify({'error': 'Команда не указана'}), 400
     
+    # Если есть DeepSeek ключ - используем AI
+    if DEEPSEEK_API_KEY:
+        # Формируем контекст
+        new_cnt = OrderRequest.query.filter_by(status='new').count()
+        planned_cnt = OrderRequest.query.filter_by(status='planned').count()
+        completed_cnt = OrderRequest.query.filter_by(status='completed').count()
+        available_cnt = Vehicle.query.filter_by(status='available').count()
+        
+        context = f"""Ты - AI ассистент для логистической компании.
+Текущее состояние:
+- Новых заявок: {new_cnt}
+- В работе: {planned_cnt}
+- Выполнено: {completed_cnt}
+- Свободных машин: {available_cnt}
+
+Команда пользователя: {command}
+
+Отвечай кратко по-русски. Если команда требует действия - верни JSON с redirect на нужную страницу."""
+
+        try:
+            ai_response = call_deepseek(context)
+            if ai_response:
+                # Проверяем, нужно ли действие
+                command_lower = command.lower()
+                if any(w in command_lower for w in ['оптимизируй', 'спланируй', 'авто']):
+                    return jsonify({'redirect': '/auto_plan', 'text': ai_response})
+                if 'сброс' in command_lower:
+                    return jsonify({'redirect': '/requests/reset_all', 'text': ai_response})
+                return jsonify({'text': ai_response})
+        except Exception as e:
+            pass
+    
+    # Иначе - правила
     try:
         result = parse_ai_command(command)
     except Exception as e:
@@ -851,7 +912,7 @@ def print_load(route_id):
 def load_3d(route_id):
     route = Route.query.get_or_404(route_id)
     vehicle = Vehicle.query.get(route.vehicle_id)
-    orders = OrderRequest.query.filter_by(route_id=route_id).all()
+    orders = OrderRequest.query.filter_by(route_id=route_id).order_by(OrderRequest.id.desc()).all()
 
     # Собираем все позиции с количеством
     all_items = []
@@ -863,7 +924,8 @@ def load_3d(route_id):
                 'length': item.length,
                 'width': item.width,
                 'height': item.height,
-                'weight': item.weight
+                'weight': item.weight,
+                'address': o.receiver_address  # Адрес для маркировки
             })
 
     # Размеры паллеты и кузова (в метрах)
