@@ -20,37 +20,89 @@ app.config['YANDEX_MAPS_API_KEY'] = YANDEX_MAP_KEY
 
 db.init_app(app)
 
-# ------------------ AI Ассистент ------------------
+# ------------------ AI Ассистент (стабильный) ------------------
 def call_ai_rules(cmd):
     new = OrderRequest.query.filter_by(status='new').count()
     cars = Vehicle.query.filter_by(status='available').count()
     routes = Route.query.count()
-    c = cmd.lower()
-    if 'помощь' in c: return "Команды: Статистика, Машины, Оптимизируй, Сброс, Рейсы"
-    if 'статистика' in c: return f"📊 Заявок: {new}, Машин: {cars}, Рейсов: {routes}"
-    if 'машин' in c: return f"🚚 Машин: {cars}"
-    if 'оптимизируй' in c: return f"✅ Автопланирование: {new} заявок, {cars} машин" if new and cars else "❌ Нет данных"
-    if 'сброс' in c: return "✅ Сбрасываю..."
-    if 'рейс' in c: return f"📍 Рейсов: {routes}"
-    return "Напишите 'Помощь' для списка команд"
+    pending = OrderRequest.query.filter_by(status='pending').count()
+    planned = OrderRequest.query.filter_by(status='planned').count()
+    done = OrderRequest.query.filter_by(status='completed').count()
+    
+    c = cmd.lower().strip()
+    
+    if c in ['помощь', 'help', '?']:
+        return "📋 Команды:\n• Статистика\n• Машины\n• Оптимизируй\n• Сброс\n• Рейсы"
+    
+    if 'статистика' in c or c == 'сколько':
+        return f"📊 Заявок: {new} новых, {pending} ожидает, {planned} в работе, {done} выполнено\n🚚 Машин: {cars}\n📍 Рейсов: {routes}"
+    
+    if 'машин' in c:
+        return f"🚚 Свободных машин: {cars}"
+    
+    if 'заявк' in c:
+        return f"📦 Новых заявок: {new}"
+    
+    if 'оптимизируй' in c or 'спланируй' in c or 'авто' in c:
+        if new > 0 and cars > 0:
+            return f"✅ Запускаю автопланирование! ({new} заявок, {cars} машин)"
+        elif new == 0:
+            return "❌ Нет новых заявок для планирования"
+        else:
+            return "❌ Нет свободных машин"
+    
+    if 'сброс' in c:
+        return "✅ Сбрасываю все заявки в статус 'new'..."
+    
+    if 'рейс' in c or 'маршрут' in c:
+        return f"📍 Рейсов: {routes}. Перехожу к списку..."
+    
+    if 'done' in c or 'выполнен' in c:
+        return f"✅ Выполнено заявок: {done}"
+    
+    return f"Не понял: '{cmd}'. Напишите 'Помощь' для списка команд."
 
 def call_ai(cmd):
-    if OLLAMA_KEY:
-        try:
-            r = requests.post('http://localhost:11434/api/chat', json={'model':'llama3','messages':[{'role':'user','content':cmd}]}, headers={'Authorization':f'Bearer {OLLAMA_KEY}'}, timeout=30)
-            if r.status_code==200: return r.json().get('message',{}).get('content','')
-        except: pass
+    """AI - пробуем Ollama, иначе правила (всегда работает)"""
+    # Если нет ключа Ollama - сразу правила
+    if not OLLAMA_KEY or 'localhost' in OLLAMA_KEY:
+        return call_ai_rules(cmd)
+    
+    try:
+        r = requests.post(
+            'http://localhost:11434/api/chat',
+            json={'model': 'llama3', 'messages': [{'role': 'user', 'content': f"Ответь кратко: {cmd}"}]},
+            timeout=15
+        )
+        if r.status_code == 200:
+            content = r.json().get('message', {}).get('content', '')
+            if content and len(content) > 5:
+                return content
+    except:
+        pass
+    
+    # Всегда fallback на правила
     return call_ai_rules(cmd)
 
 @app.route('/api/ai', methods=['POST'])
 def ai():
     cmd = (request.json or {}).get('command', '')
-    if not cmd: return jsonify({'error':'Укажите команду'}), 400
+    if not cmd:
+        return jsonify({'error': 'Укажите команду'}), 400
+    
     resp = call_ai(cmd)
     c = cmd.lower()
-    if 'оптимизируй' in c: return jsonify({'redirect':'/auto_plan','text':resp})
-    if 'сброс' in c: return jsonify({'redirect':'/requests/reset_all','text':resp})
-    return jsonify({'text':resp})
+    
+    if 'оптимизируй' in c or 'спланируй' in c:
+        return jsonify({'redirect': '/auto_plan', 'text': resp})
+    if 'сброс' in c:
+        return jsonify({'redirect': '/requests/reset_all', 'text': resp})
+    if 'рейс' in c or 'маршрут' in c:
+        return jsonify({'redirect': '/routes', 'text': resp})
+    if 'машин' in c:
+        return jsonify({'text': resp})
+    
+    return jsonify({'text': resp})
 
 # ------------------ Геокодирование (Яндекс - приоритет) ------------------
 def geocode(addr):
