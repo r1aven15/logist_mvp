@@ -1,3 +1,6 @@
+<!-- Подключаем Яндекс Карты для подсказок -->
+<script src="https://api-maps.yandex.ru/2.1/?apikey={{ config['YANDEX_MAPS_API_KEY'] }}&lang=ru_RU"></script>
+
 {% extends "base.html" %}
 {% block content %}
 <h2>{% if request_obj %}Редактирование{% else %}Новая{% endif %} заявка</h2>
@@ -22,6 +25,12 @@
 </div>
 
 <form method="post" id="requestForm">
+  <!-- Скрытые поля для координат -->
+  <input type="hidden" name="sender_lat" id="sender_lat" value="{{ request_obj.sender_lat if request_obj and request_obj.sender_lat else '' }}">
+  <input type="hidden" name="sender_lon" id="sender_lon" value="{{ request_obj.sender_lon if request_obj and request_obj.sender_lon else '' }}">
+  <input type="hidden" name="receiver_lat" id="receiver_lat" value="{{ request_obj.receiver_lat if request_obj and request_obj.receiver_lat else '' }}">
+  <input type="hidden" name="receiver_lon" id="receiver_lon" value="{{ request_obj.receiver_lon if request_obj and request_obj.receiver_lon else '' }}">
+  
   <div class="row">
     <div class="col-md-6 mb-3">
       <label>Отправитель (название)</label>
@@ -29,7 +38,9 @@
     </div>
     <div class="col-md-6 mb-3">
       <label>Адрес отправителя</label>
-      <input name="sender_address" class="form-control" value="{{ request_obj.sender_address if request_obj else '' }}" required>
+      <input type="text" id="sender_address_input" class="form-control" value="{{ request_obj.sender_address if request_obj else '' }}" 
+             placeholder="Начните вводить адрес..." required autocomplete="off">
+      <div id="sender_map" class="mt-2" style="width:100%;height:150px;display:none;"></div>
     </div>
   </div>
   <div class="row">
@@ -39,7 +50,9 @@
     </div>
     <div class="col-md-6 mb-3">
       <label>Адрес получателя</label>
-      <input name="receiver_address" class="form-control" value="{{ request_obj.receiver_address if request_obj else '' }}" required>
+      <input type="text" id="receiver_address_input" class="form-control" value="{{ request_obj.receiver_address if request_obj else '' }}" 
+             placeholder="Начните вводить адрес..." required autocomplete="off">
+      <div id="receiver_map" class="mt-2" style="width:100%;height:150px;display:none;"></div>
     </div>
   </div>
   <div class="row">
@@ -191,6 +204,68 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('productSearch').value = '';
     loadProducts('');
   });
+  
+  // ---------- Подсказки адресов Яндекс ----------
+  ymaps.ready(initAddressSuggest);
+  
+  function initAddressSuggest() {
+    var senderInput = document.getElementById('sender_address_input');
+    var receiverInput = document.getElementById('receiver_address_input');
+    if (!senderInput || !receiverInput) return;
+    
+    // Ограничиваем область поиска Красноярским краем
+    var KrasnoyarskBounds = [[55.0, 92.0], [56.5, 94.0]];
+    
+    // Подсказки для отправителя
+    var senderSuggest = new ymaps.SuggestView('sender_address_input', {
+      boundedBy: KrasnoyarskBounds,
+      provider: 'yandex#search'
+    });
+    senderSuggest.events.add('select', function(e) {
+      var address = e.get('item').value;
+      senderInput.value = address;
+      geocodeAddress(address, 'sender');
+    });
+    
+    // Подсказки для получателя  
+    var receiverSuggest = new ymaps.SuggestView('receiver_address_input', {
+      boundedBy: KrasnoyarskBounds,
+      provider: 'yandex#search'
+    });
+    receiverSuggest.events.add('select', function(e) {
+      var address = e.get('item').value;
+      receiverInput.value = address;
+      geocodeAddress(address, 'receiver');
+    });
+    
+    // Если есть начальные координаты - показываем на карте
+    if (document.getElementById('sender_lat').value) {
+      showMap('sender', parseFloat(document.getElementById('sender_lat').value), parseFloat(document.getElementById('sender_lon').value));
+    }
+    if (document.getElementById('receiver_lat').value) {
+      showMap('receiver', parseFloat(document.getElementById('receiver_lat').value), parseFloat(document.getElementById('receiver_lon').value));
+    }
+  }
+  
+  function geocodeAddress(address, prefix) {
+    ymaps.geocode(address, { boundedBy: [[55.0, 92.0], [56.5, 94.0]] }).then(function(res) {
+      var first = res.geoObjects.get(0);
+      if (first) {
+        var coords = first.geometry.getCoordinates();
+        document.getElementById(prefix + '_lat').value = coords[0];
+        document.getElementById(prefix + '_lon').value = coords[1];
+        showMap(prefix, coords[0], coords[1]);
+      }
+    });
+  }
+  
+  function showMap(prefix, lat, lon) {
+    var mapDiv = document.getElementById(prefix + '_map');
+    if (!mapDiv) return;
+    mapDiv.style.display = 'block';
+    var map = new ymaps.Map(prefix + '_map', { center: [lat, lon], zoom: 15 });
+    map.geoObjects.add(new ymaps.Placemark([lat, lon]));
+  }
 });
 </script>
 {% endblock %}

@@ -730,13 +730,27 @@ def new_request():
     if request.method == 'POST':
         req = OrderRequest(
             sender_name=request.form['sender_name'],
-            sender_address=request.form['sender_address'],
+            sender_address=request.form.get('sender_address') or request.form.get('sender_address_input', ''),
             receiver_name=request.form['receiver_name'],
-            receiver_address=request.form['receiver_address'],
+            receiver_address=request.form.get('receiver_address') or request.form.get('receiver_address_input', ''),
             delivery_date=request.form.get('delivery_date', '')
         )
-        req.sender_lat, req.sender_lon = yandex_geocode(req.sender_address)
-        req.receiver_lat, req.receiver_lon = yandex_geocode(req.receiver_address)
+        # Координаты из формы или геокодирование
+        sender_lat = request.form.get('sender_lat', '').strip()
+        sender_lon = request.form.get('sender_lon', '').strip()
+        receiver_lat = request.form.get('receiver_lat', '').strip()
+        receiver_lon = request.form.get('receiver_lon', '').strip()
+        
+        if sender_lat and sender_lon:
+            req.sender_lat, req.sender_lon = float(sender_lat), float(sender_lon)
+        else:
+            req.sender_lat, req.sender_lon = yandex_geocode(req.sender_address)
+        
+        if receiver_lat and receiver_lon:
+            req.receiver_lat, req.receiver_lon = float(receiver_lat), float(receiver_lon)
+        else:
+            req.receiver_lat, req.receiver_lon = yandex_geocode(req.receiver_address)
+        
         db.session.add(req)
         db.session.flush()
 
@@ -784,8 +798,22 @@ def edit_request(id):
         req.receiver_name = request.form['receiver_name']
         req.receiver_address = request.form['receiver_address']
         req.delivery_date = request.form.get('delivery_date', '')
-        req.sender_lat, req.sender_lon = yandex_geocode(req.sender_address)
-        req.receiver_lat, req.receiver_lon = yandex_geocode(req.receiver_address)
+        
+        # Координаты из формы или геокодирование
+        sender_lat = request.form.get('sender_lat', '').strip()
+        sender_lon = request.form.get('sender_lon', '').strip()
+        receiver_lat = request.form.get('receiver_lat', '').strip()
+        receiver_lon = request.form.get('receiver_lon', '').strip()
+        
+        if sender_lat and sender_lon:
+            req.sender_lat, req.sender_lon = float(sender_lat), float(sender_lon)
+        else:
+            req.sender_lat, req.sender_lon = yandex_geocode(req.sender_address)
+        
+        if receiver_lat and receiver_lon:
+            req.receiver_lat, req.receiver_lon = float(receiver_lat), float(receiver_lon)
+        else:
+            req.receiver_lat, req.receiver_lon = yandex_geocode(req.receiver_address)
 
         for item in req.items:
             db.session.delete(item)
