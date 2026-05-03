@@ -342,18 +342,60 @@ def ai_assistant():
     
     return jsonify({'text': response})
 
-# ------------------ Геокодирование ------------------
+# ------------------ Геокодирование (enhanced Nominatim для России) ------------------
 def geocode(address):
+    """Геокодирование - улучшенный поиск для России"""
+    import requests
+    
+    addr = address.strip()
+    if not addr:
+        return None, None
+    
+    # Добавляем "Красноярск" если не указан город
+    search_addr = addr
+    if not any(city.lower() in addr.lower() for city in ['красноярск', 'ачинск', 'мосгор', 'москва', 'новосибирск']):
+        search_addr = f"{addr}, Красноярский край, Россия"
+    
+    # Nominatim с улучшенными параметрами
     url = "https://nominatim.openstreetmap.org/search"
-    params = {"q": address, "format": "json", "limit": 1}
-    headers = {"User-Agent": "LogistMVP/1.0"}
+    params = {
+        "q": search_addr,
+        "format": "json",
+        "limit": 3,
+        "addressdetails": 1,
+        "countrycodes": "ru",
+        "bounded": 1,  # Ограничиваем bbox для России
+        "viewbox": "90,50;95,57"  # Красноярский край примерно
+    }
+    headers = {"User-Agent": "LogistMVP/1.0", "Accept-Language": "ru"}
+    
     try:
-        resp = requests.get(url, params=params, headers=headers, timeout=5)
-        data = resp.json()
-        if data:
-            return float(data[0]['lat']), float(data[0]['lon'])
-    except:
-        pass
+        resp = requests.get(url, params=params, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data:
+                # Берём первый точный результат
+                for r in data:
+                    # Проверяем что это российский адрес
+                    addr_type = r.get('type', '')
+                    if addr_type in ['house', 'street', 'road', 'city', 'town', 'village']:
+                        return float(r['lat']), float(r['lon'])
+                # Иначе первый результат
+                return float(data[0]['lat']), float(data[0]['lon'])
+    except Exception as e:
+        print(f"Geocode error: {e}")
+    
+    # Пробуем без города
+    if search_addr != addr:
+        try:
+            resp = requests.get(url, params={"q": addr, "format": "json", "limit": 1, "countrycodes": "ru"}, headers=headers, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data:
+                    return float(data[0]['lat']), float(data[0]['lon'])
+        except:
+            pass
+    
     return None, None
 
 @app.route('/api/geocode', methods=['POST'])
