@@ -52,19 +52,45 @@ def ai():
     if 'сброс' in c: return jsonify({'redirect':'/requests/reset_all','text':resp})
     return jsonify({'text':resp})
 
-# ------------------ Геокодирование (Яндекс) ------------------
+# ------------------ Геокодирование (Яндекс - приоритет) ------------------
 def geocode(addr):
-    if not addr or not YANDEX_GEOCODER_KEY: return None,None
-    try:
-        r = requests.get('https://geocode-maps.yandex.ru/1.x', params={'geocode':addr,'format':'json','apikey':YANDEX_GEOCODER_KEY}, timeout=10)
-        if r.status_code==200:
-            data = r.json()
-            geo = data['response']['GeoObjectCollection']['featureMember']
-            if geo:
-                lon,lat = map(float, geo[0]['GeoObject']['Point']['pos'].split())
-                return lat,lon
-    except: pass
-    return None,None
+    """Геокодирование через Яндекс с приоритетом Красноярска"""
+    if not addr: 
+        return None, None
+    
+    # Пробуем Яндекс сregionalным поиском
+    if YANDEX_GEOCODER_KEY:
+        try:
+            # Добавляем регион для точности
+            search_addr = addr
+            if not any(city.lower() in addr.lower() for city in ['красноярск', 'ачинск', 'козулька']):
+                search_addr = f"{addr}, Красноярский край"
+            
+            url = "https://geocode-maps.yandex.ru/1.x"
+            params = {'geocode': search_addr, 'format': 'json', 'apikey': YANDEX_GEOCODER_KEY, 'results': 5}
+            r = requests.get(url, params=params, timeout=10)
+            if r.status_code == 200:
+                data = r.json()
+                geo = data['response']['GeoObjectCollection']['featureMember']
+                if geo:
+                    # Берём первый точный результат
+                    for g in geo:
+                        obj = g['GeoObject']
+                        point = obj['Point']['pos']
+                        lon, lat = map(float, point.split())
+                        meta = obj.get('metaDataProperty', {}).get('GeocoderMetaData', {})
+                        kind = meta.get('kind', '')
+                        # Приоритет: house > street > district > area
+                        if kind in ['house', 'street', 'district']:
+                            return lat, lon
+                    # Иначе первый попавшийся
+                    point = geo[0]['GeoObject']['Point']['pos']
+                    lon, lat = map(float, point.split())
+                    return lat, lon
+        except Exception as e:
+            print(f"Yandex geocode error: {e}")
+    
+    return None, None
 
 @app.route('/api/geocode', methods=['POST'])
 def geo():
@@ -459,12 +485,57 @@ def search_product():
     return jsonify(results[:20])
 
 # ------------------ Маршрутизация ------------------
+def get_route_yandex(waypoints):
+    """Маршрут через Яндекс API"""
+    if not waypoints or len(waypoints) < 2:
+        return None
+    
+    if not YANDEX_MAP_KEY:
+        return None
+    
+    # Формат для Яндекса: waypoints через ~
+    points_str = '~'.join([f'{lon},{lat}' for lat, lon in waypoints])
+    
+    url = "https://routes.yandex.ru/long/routes"
+    params = {
+        'apikey': YANDEX_MAP_KEY,
+        'rll': points_str,
+        'type': 'truck'  # Грузовой
+    }
+    
+    try:
+        resp = requests.get(url, params=params, timeout=30)
+        if resp.status_code == 200:
+            data = resp.json()
+            routes = data.get('routes', [])
+            if routes:
+                # Получаем геометрию маршрута
+                geom = routes[0].get('geometry', {})
+                total_dist = routes[0].get('distance', {}).get('value', 0)
+                total_time = routes[0].get('duration', {}).get('value', 0)
+                return {
+                    'routes': [{
+                        'distance': total_dist,
+                        'duration': total_time,
+                        'geometry': geom
+                    }]
+                }
+    except Exception as e:
+        print(f"Yandex route error: {e}")
+    
+    return None
+
 def get_route_osrm(waypoints):
     """Маршрут через OpenRouteService API"""
     if not waypoints or len(waypoints) < 2:
         return None
     
-    # Формат [lon, lat]
+    # Сначала пробуем Яндекс
+    route = get_route_yandex(waypoints)
+    if route:
+        return route
+    
+    # Fallback на OpenRouteService
     coords = [[lon, lat] for lat, lon in waypoints]
     coords_str = ';'.join([f'{c[0]},{c[1]}' for c in coords])
     
