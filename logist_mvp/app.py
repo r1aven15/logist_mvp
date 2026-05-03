@@ -226,28 +226,27 @@ def parse_ai_command(text):
     # Не поняли
     return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
 
-# ------------------ AI Ассистент (Google AI) ------------------
-# Ключ не работает (нет квоты), используем правила
-GOOGLE_API_KEY = 'AIzaSyAX2NhmuuzXWhtw5vnTxz5tiD5eANjDleU'
+# ------------------ AI Ассистент ------------------
+# Используем правила + OpenRouteService для маршрутов
+OPENROUTE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3OGI3YmU5OTkwZTQzMzliOWU5NGJiZTBlMzNmNjc3IiwiaCI6Im11cm11cjY0In0='
 
-def call_google_ai(prompt):
-    """Вызов Google Gemini AI"""
+def get_route_openroute(points):
+    """Маршрут через OpenRouteService API"""
     import requests
     
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}'
+    url = f'https://api.openrouteservice.org/v2/directions/driving-car/geojson'
+    headers = {'Authorization': OPENROUTE_API_KEY}
+    
+    # Формат: [lon, lat]
+    coords = [[p[1], p[0]] for p in points]
+    if len(coords) < 2:
+        return None
     
     try:
-        resp = requests.post(
-            url,
-            json={
-                'contents': [{'parts': [{'text': prompt}]}]
-            },
-            headers={'Content-Type': 'application/json'},
-            timeout=30
-        )
+        resp = requests.post(url, json={'coordinates': coords}, headers=headers, timeout=30)
         if resp.status_code == 200:
             data = resp.json()
-            return data['candidates'][0]['content']['parts'][0]['text']
+            return data
     except:
         pass
     return None
@@ -267,17 +266,7 @@ def ai_assistant():
     if not command:
         return jsonify({'error': 'Команда не указана'}), 400
     
-    # Пробуем Google AI
-    ai_response = call_google_ai(f"Ответь кратко по-русски: {command}")
-    if ai_response:
-        cmd = command.lower()
-        if any(w in cmd for w in ['оптимизируй', 'спланируй', 'авто']):
-            return jsonify({'redirect': '/auto_plan', 'text': ai_response})
-        if 'сброс' in cmd:
-            return jsonify({'redirect': '/requests/reset_all', 'text': ai_response})
-        return jsonify({'text': ai_response})
-    
-    # Fallback - правила
+    # Правила
     try:
         result = parse_ai_command(command)
     except Exception as e:
@@ -285,6 +274,9 @@ def ai_assistant():
     
     if result.get('action') == 'auto_plan':
         return jsonify({'redirect': '/auto_plan', 'text': result.get('text', '')})
+    
+    if result.get('action') == 'cancel_last':
+        return jsonify({'redirect': '/requests/reset_all', 'text': result.get('text', '')})
     
     clean_result = {k: v for k, v in result.items() if v is not None and not callable(v)}
     return jsonify(clean_result)
@@ -338,14 +330,31 @@ def search_product():
 
 # ------------------ Маршрутизация ------------------
 def get_route_osrm(waypoints):
-    coords = ";".join([f"{lon},{lat}" for lat, lon in waypoints])
-    url = f"http://router.project-osrm.org/route/v1/driving/{coords}"
-    params = {"overview": "full", "geometries": "geojson", "steps": "true"}
+    """Маршрут через OpenRouteService API"""
+    if not waypoints or len(waypoints) < 2:
+        return None
+    
+    # Формат [lon, lat]
+    coords = [[lon, lat] for lat, lon in waypoints]
+    coords_str = ';'.join([f'{c[0]},{c[1]}' for c in coords])
+    
+    url = f'https://api.openrouteservice.org/v2/directions/driving-car/geojson'
+    headers = {'Authorization': OPENROUTE_API_KEY}
+    
     try:
-        resp = requests.get(url, params=params, timeout=10)
-        data = resp.json()
-        if data['code'] == 'Ok':
-            return data
+        resp = requests.get(url, params={'coordinates': coords_str}, headers=headers, timeout=30)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get('features'):
+                geom = data['features'][0]['geometry']
+                summary = data['features'][0]['properties']['summary']
+                return {
+                    'routes': [{
+                        'distance': summary['distance'],
+                        'duration': summary['duration'],
+                        'geometry': geom
+                    }]
+                }
     except:
         pass
     return None
