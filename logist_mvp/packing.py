@@ -96,51 +96,114 @@ def pack_items_to_pallets(items, pallet_l, pallet_w, max_h):
 
 def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
     """
-    Размещение паллет по 2 в ряд, от двери к кабине:
-    - П1, П2 - у двери (сзади)
-    - П3, П4 - следующий ряд
-    - и т.д.
+    Размещение паллет по 2 в ряд с учётом поворота:
+    - Перебираем обе ориентации (1.2×0.8 и 0.8×1.2) для каждой паллеты
+    - Выбираем лучшую с учётом уже размещённых
+    - П1, П2 - у двери, П3, П4 - следующий ряд и т.д.
     """
     
     PALLET_L = 1.2
     PALLET_W = 0.8
-    MARGIN = 0.3
-    
-    # 2 паллеты в ряд по длине
+    MARGIN = 0.1  # зазор между паллетами
     per_row = 2
+    
     result = []
+    placed = []  # уже размещённые паллеты для проверки перекрытия
     
     for idx, pdata in enumerate(pallets_data):
         h = pdata['height']
         
-        # П1, П2 у двери (x = truck_l), П3, П4 ближе к кабине (x = truck_l - 2*PALLET_L)
-        row = idx // per_row
-        in_row = idx % per_row
+        # Пробуем обе ориентации
+        best_pos = None
+        best_size = None
         
-        # Z: чередование слева/справа
-        z = MARGIN + in_row * PALLET_W
+        for rotate in [False, True]:
+            if rotate:
+                # Повёрнутая: 0.8 × 1.2
+                p_l, p_w = PALLET_W, PALLET_L
+            else:
+                # Стандартная: 1.2 × 0.8
+                p_l, p_w = PALLET_L, PALLET_W
+            
+            # Позиция в ряду
+            row = idx // per_row
+            in_row = idx % per_row
+            
+            # Z: чередование слева/справа
+            z = MARGIN + in_row * p_w
+            
+            # X: от двери к кабине (задняя часть кузова - дверь)
+            x = truck_l - MARGIN - (row + 1) * p_l
+            
+            # Проверяем что влезает
+            if x >= 0 and z + p_w <= truck_w and h <= truck_h:
+                # Проверяем перекрытие с уже размещёнными
+                overlaps = False
+                for prev in placed:
+                    px, py, pz = prev['position']
+                    pw, ph, pd = prev['size']
+                    # Проверка перекрытия по X и Z
+                    if (x < px + pw and x + p_l > px and
+                        z < pz + pd and z + p_w > pz):
+                        overlaps = True
+                        break
+                
+                if not overlaps:
+                    best_pos = [x, 0, z]
+                    best_size = [p_l, h, p_w]
+                    break  # нашли первое свободное место
         
-        # X: от двери к кабине
-        x = truck_l - MARGIN - (row + 1) * PALLET_L
+        # Если не нашло - пробуем следующий свободный слот
+        if best_pos is None:
+            # Ищем любой свободный слот
+            for row in range(20):  # до 20 рядов
+                for in_row in range(per_row):
+                    for rotate in [False, True]:
+                        if rotate:
+                            p_l, p_w = PALLET_W, PALLET_L
+                        else:
+                            p_l, p_w = PALLET_L, PALLET_W
+                        
+                        z = MARGIN + in_row * p_w
+                        x = truck_l - MARGIN - (row + 1) * p_l
+                        
+                        if x >= 0 and z + p_w <= truck_w and h <= truck_h:
+                            # Проверяем перекрытие
+                            overlaps = False
+                            for prev in placed:
+                                px, py, pz = prev['position']
+                                pw, ph, pd = prev['size']
+                                if (x < px + pw and x + p_l > px and
+                                    z < pz + pd and z + p_w > pz):
+                                    overlaps = True
+                                    break
+                            
+                            if not overlaps:
+                                best_pos = [x, 0, z]
+                                best_size = [p_l, h, p_w]
+                                break
+                    if best_pos:
+                        break
+                if best_pos:
+                    break
         
-        if x >= 0 and z + PALLET_W <= truck_w and h <= truck_h:
-            result.append({
-                'pallet_index': idx,
-                'position': [x, 0, z],
-                'size': [PALLET_L, h, PALLET_W],
-                'address': pdata.get('address', ''),
-                'items_count': pdata.get('items_count', 1)
-            })
-        else:
-            # Fallback - простая укладка
-            z = MARGIN + (idx % 2) * PALLET_W
-            x = truck_l - MARGIN - ((idx // 2) + 1) * PALLET_L
-            result.append({
-                'pallet_index': idx,
-                'position': [x, 0, z],
-                'size': [PALLET_L, h, PALLET_W],
-                'address': pdata.get('address', ''),
-                'items_count': pdata.get('items_count', 1)
-            })
+        if best_pos is None:
+            # Fallback - просто ставим где получится
+            row = idx // per_row
+            in_row = idx % per_row
+            z = MARGIN + in_row * PALLET_W
+            x = truck_l - MARGIN - (row + 1) * PALLET_L
+            best_pos = [x, 0, z]
+            best_size = [PALLET_L, h, PALLET_W]
+        
+        pallet_info = {
+            'pallet_index': idx,
+            'position': best_pos,
+            'size': best_size,
+            'address': pdata.get('address', ''),
+            'items_count': pdata.get('items_count', 1)
+        }
+        result.append(pallet_info)
+        placed.append(pallet_info)
     
     return result
