@@ -457,7 +457,7 @@ def generate_requests():
             sender_lat=56.0,
             sender_lon=92.9,
             receiver_name=f'{shop[0]} ({district_name})',
-            receiver_address=f'Красноярск, {shop[1]}, {shop[2]}',
+            receiver_address=f'Красноярск, {shop[1]}',
             receiver_lat=lat + random.uniform(-0.005, 0.005),
             receiver_lon=lon + random.uniform(-0.005, 0.005),
             delivery_date=request.form.get('date', '2026-05-04'),
