@@ -839,8 +839,8 @@ def view_route(route_id):
             })
 
     grouped_items = []
-    for addr, items in grouped.items():
-        grouped_items.append({'address': addr, 'cargo_items': items})
+    for idx, (addr, items) in enumerate(grouped.items()):
+        grouped_items.append({'index': idx + 1, 'address': addr, 'cargo_items': items})
 
     return render_template('route_plan.html',
                            route=route,

@@ -21,9 +21,9 @@
 </div>
 
 <h4 class="mt-3">Маршрутный лист (по порядку разгрузки)</h4>
-{% for idx, group in enumerate(grouped_items) %}
+{% for group in grouped_items %}
     <div class="card mb-2">
-        <div class="card-header"><strong>№{{ idx + 1 }}. {{ group.address }}</strong></div>
+        <div class="card-header"><strong>№{{ group.index }}. {{ group.address }}</strong></div>
         <div class="card-body">
             <table class="table table-sm mb-0">
                 <thead><tr><th>Товар</th><th>Кол-во</th><th>Вес, кг</th><th>Паллет</th></tr></thead>
