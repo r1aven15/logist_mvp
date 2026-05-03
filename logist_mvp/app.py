@@ -409,11 +409,11 @@ def yandex_geocode(address):
     
     addr = address.strip()
     
-    # Пробуем разные варианты с указанием города
+    # Пробуем разные варианты
     search_variants = [
-        f"Красноярск, {addr}",           # Приоритет - Красноярск
-        f"Красноярский край, {addr}",  # Красноярский край
-        addr                          # Оригинал
+        f"Красноярск {addr}",
+        f"Красноярский край {addr}",
+        addr
     ]
     
     for search_addr in search_variants:
@@ -432,26 +432,13 @@ def yandex_geocode(address):
             if not members:
                 continue
             
-            # Ищем ближайший к Красноярску
             for member in members:
                 geo = member.get('GeoObject', {})
-                meta = geo.get('metaDataProperty', {}).get('GeocoderMetaData', {})
-                text = meta.get('text', '')
-                
-                # Проверяем регион
-                if 'красноярск' in text.lower():
-                    pos = geo.get('point', {}).get('pos')
-                    if pos:
-                        lon, lat = map(float, pos.split())
-                        return lat, lon
-            
-            # Если не нашли красноярский - берём первый с типом house/street
-            first = members[0]
-            geo = first.get('GeoObject', {})
-            pos = geo.get('point', {}).get('pos')
-            if pos:
-                lon, lat = map(float, pos.split())
-                return lat, lon
+                # Ключ 'Point' с большой буквы!
+                pos = geo.get('Point', {}).get('pos')
+                if pos:
+                    lon, lat = map(float, pos.split())
+                    return lat, lon
                 
         except Exception as e:
             print(f"Ошибка геокодирования: {e}")
@@ -709,7 +696,7 @@ def generate_requests():
         
         order = OrderRequest(
             sender_name='Склад РОЗНИЦА',
-            sender_address='Красноярск, ул. 60 лет Октября, 1',
+            sender_address='г. Красноярск, ул. Норильская, 9/20',
             sender_lat=56.0,
             sender_lon=92.9,
             receiver_name=f'{shop[0]} ({district_name})',
