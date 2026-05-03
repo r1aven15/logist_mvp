@@ -407,26 +407,56 @@ def yandex_geocode(address):
     if not key or not address:
         return None, None
     
-    url = "https://geocode-maps.yandex.ru/1.x/"
-    params = {
-        "apikey": key,
-        "geocode": address,
-        "format": "json",
-        "results": 1,
-        "lang": "ru_RU"
-    }
-    try:
-        resp = requests.get(url, params=params, timeout=5)
-        data = resp.json()
-        members = data['response']['GeoObjectCollection']['featureMember']
-        if not members:
-            return None, None
-        pos = members[0]['GeoObject']['point']['pos']
-        lon, lat = map(float, pos.split())
-        return lat, lon
-    except Exception as e:
-        print(f"Ошибка геокодирования: {e}")
-        return None, None
+    addr = address.strip()
+    
+    # Пробуем разные варианты с указанием города
+    search_variants = [
+        f"Красноярск, {addr}",           # Приоритет - Красноярск
+        f"Красноярский край, {addr}",  # Красноярский край
+        addr                          # Оригинал
+    ]
+    
+    for search_addr in search_variants:
+        try:
+            url = "https://geocode-maps.yandex.ru/1.x/"
+            params = {
+                "apikey": key,
+                "geocode": search_addr,
+                "format": "json",
+                "results": 3,
+                "lang": "ru_RU"
+            }
+            resp = requests.get(url, params=params, timeout=5)
+            data = resp.json()
+            members = data['response']['GeoObjectCollection'].get('featureMember', [])
+            if not members:
+                continue
+            
+            # Ищем ближайший к Красноярску
+            for member in members:
+                geo = member.get('GeoObject', {})
+                meta = geo.get('metaDataProperty', {}).get('GeocoderMetaData', {})
+                text = meta.get('text', '')
+                
+                # Проверяем регион
+                if 'красноярск' in text.lower():
+                    pos = geo.get('point', {}).get('pos')
+                    if pos:
+                        lon, lat = map(float, pos.split())
+                        return lat, lon
+            
+            # Если не нашли красноярский - берём первый с типом house/street
+            first = members[0]
+            geo = first.get('GeoObject', {})
+            pos = geo.get('point', {}).get('pos')
+            if pos:
+                lon, lat = map(float, pos.split())
+                return lat, lon
+                
+        except Exception as e:
+            print(f"Ошибка геокодирования: {e}")
+    
+    return None, None
 
 @app.route('/api/geocode', methods=['POST'])
 def api_geocode():
