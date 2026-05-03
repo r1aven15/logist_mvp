@@ -148,7 +148,6 @@ def smart_optimize_route():
     })
 
 # ------------------ AI Ассистент ------------------
-import re
 from datetime import datetime, timedelta
 
 def parse_ai_command(text):
@@ -216,7 +215,7 @@ def parse_ai_command(text):
                 f"• Рейс #{r.id}: {r.distance_km or 0} км" + (f" ({r.duration_min} мин)" if r.duration_min else "")
                 for r in routes
             )
-            return {'text': text, 'routes': [{'id': r.id, 'distance': r.distance_km} for r in routes]}
+            return {'text': text}  # Только текст, без данных
         return {'text': 'Нет рейсов'}
     
     # === Поговорка ===
@@ -232,23 +231,34 @@ def parse_ai_command(text):
     # Не поняли
     return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
 
-@app.route('/api/ai', methods=['POST'])
+@app.route('/api/ai', methods=['POST', 'GET'])
 def ai_assistant():
     """AI ассистент для управления логистикой"""
-    data = request.json
-    command = data.get('command', '')
+    if request.method == 'GET':
+        return jsonify({'error': 'Use POST method'})
+    
+    # Поддержка JSON и form-data
+    if request.is_json:
+        data = request.json
+        command = data.get('command', '') if data else ''
+    else:
+        command = request.form.get('command', '')
     
     if not command:
         return jsonify({'error': 'Команда не указана'}), 400
     
-    result = parse_ai_command(command)
+    try:
+        result = parse_ai_command(command)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
     # Если нужно выполнить действие
     if result.get('action') == 'auto_plan':
-        # Редирект на автопланирование
-        return jsonify({'redirect': '/auto_plan'})
+        return jsonify({'redirect': '/auto_plan', 'text': result.get('text', '')})
     
-    return jsonify(result)
+    # Убираем несериализуемые объекты
+    clean_result = {k: v for k, v in result.items() if v is not None and not callable(v)}
+    return jsonify(clean_result)
 
 # ------------------ Геокодирование ------------------
 def geocode(address):
