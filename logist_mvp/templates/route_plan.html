@@ -74,7 +74,7 @@ function initYandexMap() {
     if (points.length >= 2) {
         var multiRoute = new ymaps.multiRouter.MultiRoute({
             referencePoints: points,
-            params: { routingMode: "auto" }
+            params: { routingMode: "truck", leadingIndex: 0, cargo: "cargo", weights: { mass: {{ vehicle.max_weight }}}, dimensions: { length: {{ vehicle.length }}, width: {{ vehicle.width }}, height: {{ vehicle.height }}} }
         });
         map.geoObjects.add(multiRoute);
     }
@@ -102,7 +102,9 @@ if (waypoints.length > 0) {
 
     {% if route.route_geojson %}
     var geojson = {{ route.route_geojson | safe }};
-    L.geoJSON(geojson).addTo(map);
+    L.geoJSON(geojson, {
+        style: { color: 'blue', weight: 4, opacity: 0.8 }
+    }).addTo(map);
     {% endif %}
 
     waypoints.forEach(function(wp) {

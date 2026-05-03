@@ -5,7 +5,7 @@
     <title>3D загрузка рейс #{{ route.id }}</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: Arial; }
-        #info { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; z-index: 100; }
+        #info { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; z-index: 100; max-width: 300px; }
     </style>
 </head>
 <body>
@@ -13,7 +13,7 @@
     <h2>Рейс #{{ route.id }} | {{ vehicle.name }} {{ vehicle.plate }}</h2>
     <p>Кузов: {{ truck_size[0] }}×{{ truck_size[1] }}×{{ truck_size[2] }} м</p>
     <p>Паллет: {{ placed_pallets|length }} шт.</p>
-    <small>Перемещайте сцену мышью</small>
+    <small>ЛКМ - вращать | ПКМ - двигать | Колёсико - масштаб</small>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -23,76 +23,143 @@
 const pallets = {{ placed_pallets|tojson }};
 const truckSize = {{ truck_size|tojson }}; // [l, h, w]
 
+console.log('Pallets:', pallets);
+console.log('Truck size:', truckSize);
+
 // Настройка сцены
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xeeeeee);
+scene.background = new THREE.Color(0x202030);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(truckSize[0]*2, truckSize[1]*2, truckSize[2]*2);
-camera.lookAt(truckSize[0]/2, truckSize[1]/2, truckSize[2]/2);
+camera.position.set(truckSize[0]*1.5, truckSize[1]*1.5, truckSize[2]*1.5);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Controls
+// Controls с улучшенными настройками
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
 controls.target.set(truckSize[0]/2, truckSize[1]/2, truckSize[2]/2);
+controls.minDistance = 2;
+controls.maxDistance = 30;
 controls.update();
 
 // Свет
-const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-directionalLight.position.set(10, 20, 10);
-scene.add(directionalLight);
 
-// Рисуем кузов (полупрозрачный)
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.position.set(10, 20, 10);
+scene.add(dirLight);
+
+const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+dirLight2.position.set(-10, 10, -10);
+scene.add(dirLight2);
+
+// Рисуем кузов ( полупрозрачный сеткой)
 const truckGeom = new THREE.BoxGeometry(truckSize[0], truckSize[1], truckSize[2]);
-const truckMat = new THREE.MeshPhongMaterial({ color: 0x888888, wireframe: false, transparent: true, opacity: 0.2 });
+const truckMat = new THREE.MeshBasicMaterial({ color: 0x444444, wireframe: true, transparent: true, opacity: 0.3 });
 const truck = new THREE.Mesh(truckGeom, truckMat);
 truck.position.set(truckSize[0]/2, truckSize[1]/2, truckSize[2]/2);
 scene.add(truck);
 
-// Контурные линии кузова
-const edges = new THREE.EdgesGeometry(truckGeom);
-const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 }));
-truck.add(line);
+// Пол (основание)
+const floorGeom = new THREE.PlaneGeometry(truckSize[0], truckSize[2]);
+const floorMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+const floor = new THREE.Mesh(floorGeom, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.set(truckSize[0]/2, 0, truckSize[2]/2);
+scene.add(floor);
 
-// Цвета для разных паллет
-const colors = [0xff6347, 0x87ceeb, 0x32cd32, 0xffa500, 0x9b59b6, 0xf0e68c, 0xe74c3c, 0x2ecc71];
-let colorIdx = 0;
+// Стены кузова (линии)
+const edgeMat = new THREE.LineBasicMaterial({ color: 0x666666 });
+function createEdge(x1, y1, z1, x2, y2, z2) {
+    const points = [new THREE.Vector3(x1, y1, z1), new THREE.Vector3(x2, y2, z2)];
+    const geom = new THREE.BufferGeometry().setFromPoints(points);
+    return new THREE.Line(geom, edgeMat);
+}
+const el = truckSize[0], eh = truckSize[1], ew = truckSize[2];
+// Вертикальные рёбра
+scene.add(createEdge(0,0,0, 0,eh,0));
+scene.add(createEdge(el,0,0, el,eh,0));
+scene.add(createEdge(0,0,ew, 0,eh,ew));
+scene.add(createEdge(el,0,ew, el,eh,ew));
+// Горизонтальные рёбра
+scene.add(createEdge(0,0,0, el,0,0));
+scene.add(createEdge(0,0,ew, el,0,ew));
+scene.add(createEdge(0,eh,0, el,eh,0));
+scene.add(createEdge(0,eh,ew, el,eh,ew));
+
+// Цвета для разных паллет (хорошо различимые)
+const colors = [
+    0xe74c3c, 0x3498db, 0x2ecc71, 0xf39c12, 0x9b59b6, 
+    0x1abc9c, 0xe67e22, 0x34495e, 0x16a085, 0xc0392b,
+    0x2980b9, 0x27ae60
+];
 
 // Добавляем паллеты
-pallets.forEach(p => {
-    const [l, h, w] = p.size; // размеры, определённые паллетом (могут быть развёрнуты)
-    const geom = new THREE.BoxGeometry(l, h, w);
-    const color = colors[colorIdx % colors.length];
-    const mat = new THREE.MeshPhongMaterial({ color: color, transparent: true, opacity: 0.7 });
-    const mesh = new THREE.Mesh(geom, mat);
-    // Координаты из позиции (x,y,z)
-    mesh.position.set(p.position[0] + l/2, p.position[1] + h/2, p.position[2] + w/2);
-    scene.add(mesh);
+if (pallets && pallets.length > 0) {
+    pallets.forEach((p, idx) => {
+        if (!p.size || !p.position) {
+            console.log('Invalid pallet data:', p);
+            return;
+        }
+        
+        const [l, h, w] = p.size;  // размеры [длина, высота, ширина]
+        const [x, y, z] = p.position;  // позиция
+        
+        // Проверяем что паллета внутри кузова
+        if (x + l > truckSize[0] || y + h > truckSize[1] || z + w > truckSize[2]) {
+            console.log('Pallet out of bounds:', p);
+            return;
+        }
+        
+        // Создаём коробку паллеты
+        const geom = new THREE.BoxGeometry(l, h, w);
+        const color = colors[idx % colors.length];
+        const mat = new THREE.MeshLambertMaterial({ color: color });
+        const mesh = new THREE.Mesh(geom, mat);
+        
+        // Позиция центра коробки
+        mesh.position.set(x + l/2, y + h/2, z + w/2);
+        scene.add(mesh);
+        
+        // Контур паллеты
+        const edgeGeom = new THREE.EdgesGeometry(geom);
+        const edgeLine = new THREE.LineSegments(edgeGeom, new THREE.LineBasicMaterial({ color: 0x000000 }));
+        mesh.add(edgeLine);
+        
+        // Номер паллеты - текст на Canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+        ctx.fillRect(0, 0, 128, 64);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`П${idx+1}`, 64, 32);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMat = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(spriteMat);
+        sprite.position.set(x + l/2, y + h + 0.15, z + w/2);
+        sprite.scale.set(0.8, 0.4, 1);
+        scene.add(sprite);
+        
+        console.log(`Pallet ${idx+1}: pos=(${x},${y},${z}), size=(${l},${h},${w})`);
+    });
+} else {
+    console.log('No pallets to display');
+}
 
-    // Подпись (просто имя паллеты)
-    // Для простоты создадим sprite с номером или названием
-    const canvas = document.createElement('canvas');
-    canvas.width = 128;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Пал.${p.pallet_index}`, 10, 40);
-    const texture = new THREE.CanvasTexture(canvas);
-    const spriteMat = new THREE.SpriteMaterial({ map: texture });
-    const sprite = new THREE.Sprite(spriteMat);
-    sprite.position.copy(mesh.position);
-    sprite.position.y += h/2 + 0.1;
-    sprite.scale.set(0.8, 0.4, 1);
-    scene.add(sprite);
-
-    colorIdx++;
-});
+// Оси для ориентации (красная X, зелёная Y, синяя Z)
+const axesHelper = new THREE.AxesHelper(1);
+scene.add(axesHelper);
 
 // Анимация
 function animate() {

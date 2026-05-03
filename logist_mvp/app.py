@@ -15,6 +15,241 @@ app.config['YANDEX_MAPS_API_KEY'] = '701850c2-981b-4999-befb-22881237994f'
 
 db.init_app(app)
 
+# ------------------ Умная маршрутизация ------------------
+def haversine(lat1, lon1, lat2, lon2):
+    """Расстояние между двумя точками в км"""
+    R = 6371  # радиус Земли
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    return R * c
+
+def optimize_route_nearest_neighbor(warehouse_lat, warehouse_lon, orders):
+    """
+    Оптимизация маршрута методом ближайшего соседа.
+    Начинаем от склада, потом едем к ближайшей точке, и т.д.
+    """
+    if not orders:
+        return []
+    
+    # Создаём список точек с адресами
+    points = []
+    for o in orders:
+        if o.receiver_lat and o.receiver_lon:
+            points.append({
+                'order': o,
+                'lat': o.receiver_lat,
+                'lon': o.receiver_lon,
+                'address': o.receiver_address
+            })
+    
+    if not points:
+        return []
+    
+    # Алгоритм ближайшего соседа
+    optimized = []
+    current_lat, current_lon = warehouse_lat, warehouse_lon
+    
+    while points:
+        # Находим ближайшую точку
+        nearest = None
+        min_dist = float('inf')
+        
+        for p in points:
+            dist = haversine(current_lat, current_lon, p['lat'], p['lon'])
+            if dist < min_dist:
+                min_dist = dist
+                nearest = p
+        
+        if nearest:
+            optimized.append(nearest)
+            points.remove(nearest)
+            current_lat, current_lon = nearest['lat'], nearest['lon']
+    
+    return optimized
+
+def optimize_route_cluster_by_distance(warehouse_lat, warehouse_lon, orders):
+    """
+    Кластеризация + оптимизация: группируем заявки по районам,
+    затем строим маршрут между кластерами.
+    """
+    if not orders:
+        return []
+    
+    # Группируем по районам (примерное определение по координам)
+    clusters = {}
+    for o in orders:
+        if not o.receiver_lat or not o.receiver_lon:
+            continue
+        
+        # Определяем район по координам
+        lat, lon = o.receiver_lat, o.receiver_lon
+        # Центры районов Красноярска
+        districts = {
+            'Свердловский': (56.01, 92.87),
+            'Кировский': (56.03, 92.91),
+            'Ленинский': (55.99, 92.85),
+            'Октябрьский': (56.02, 92.89),
+            'Железнодорожный': (56.00, 92.83),
+            'Центральный': (56.04, 92.86),
+        }
+        
+        # Находим ближайший район
+        min_dist = float('inf')
+        district = 'other'
+        for d, (dlat, dlon) in districts.items():
+            dist = haversine(lat, lon, dlat, dlon)
+            if dist < min_dist:
+                min_dist = dist
+                district = d
+        
+        if district not in clusters:
+            clusters[district] = []
+        clusters[district].append(o)
+    
+    # Сортируем кластеры по расстоянию от склада
+    cluster_order = []
+    for district, items in clusters.items():
+        # Центр кластера - среднее всех точек
+        avg_lat = sum(o.receiver_lat for o in items) / len(items)
+        avg_lon = sum(o.receiver_lon for o in items) / len(items)
+        dist = haversine(warehouse_lat, warehouse_lon, avg_lat, avg_lon)
+        cluster_order.append((dist, district, items))
+    
+    cluster_order.sort(key=lambda x: x[0])
+    
+    # Собираем заявки по порядку кластеров
+    result = []
+    for _, district, items in cluster_order:
+        # Внутри кластера - ближайший сосед
+        optimized = optimize_route_nearest_neighbor(warehouse_lat, warehouse_lon, items)
+        result.extend(optimized)
+    
+    return result
+
+@app.route('/api/smart_optimize', methods=['POST'])
+def smart_optimize_route():
+    """API для умной оптимизации маршрута"""
+    new_reqs = OrderRequest.query.filter_by(status='new').all()
+    if not new_reqs:
+        return jsonify({'error': 'Нет новых заявок'})
+    
+    # Склад
+    warehouse_lat = 56.0
+    warehouse_lon = 92.9
+    
+    # Оптимизируем
+    optimized = optimize_route_cluster_by_distance(warehouse_lat, warehouse_lon, new_reqs)
+    
+    return jsonify({
+        'orders_count': len(optimized),
+        'route': [{'address': o['address'], 'lat': o['lat'], 'lon': o['lon']} for o in optimized]
+    })
+
+# ------------------ AI Ассистент ------------------
+import re
+from datetime import datetime, timedelta
+
+def parse_ai_command(text):
+    """
+    Парсит команду на русском языке и возвращает ответ.
+    """
+    text = text.lower().strip()
+    
+    # === Статистика ===
+    if any(word in text for word in ['сколько', 'статистика', 'покажи', 'дай']):
+        if 'заяв' in text or 'заказ' in text:
+            new_count = OrderRequest.query.filter_by(status='new').count()
+            planned_count = OrderRequest.query.filter_by(status='planned').count()
+            completed_count = OrderRequest.query.filter_by(status='completed').count()
+            return {
+                'text': f"📊 Статистика заявок:\n• Новых: {new_count}\n• В работе: {planned_count}\n• Выполнено: {completed_count}",
+                'new': new_count, 'planned': planned_count, 'completed': completed_count
+            }
+        
+        if 'машин' in text or 'транспорт' in text or 'vehicles' in text.lower():
+            available = Vehicle.query.filter_by(status='available').count()
+            in_route = Vehicle.query.filter_by(status='in_route').count()
+            return {
+                'text': f"🚚 Транспорт:\n• Доступно: {available}\n• В рейсе: {in_route}",
+                'available': available, 'in_route': in_route
+            }
+        
+        if ' район' in text or ' районов' in text:
+            # Статистика по районам
+            districts = {}
+            for req in OrderRequest.query.filter_by(status='new').all():
+                if req.receiver_address:
+                    # Простой парсинг района
+                    addr = req.receiver_address.lower()
+                    for d in ['свердловский', 'кировский', 'ленинский', 'октябрьский', 'железнодорожный', 'центральный']:
+                        if d in addr:
+                            districts[d] = districts.get(d, 0) + 1
+            if districts:
+                text = "📍 Заявки по районам:\n" + "\n".join(f"• {k.title()}: {v}" for k, v in sorted(districts.items(), key=lambda x: -x[1]))
+                return {'text': text, 'districts': districts}
+            return {'text': 'Нет данных о районах'}
+    
+    # === Действия ===
+    if any(word in text for word in ['оптимизируй', 'построй', 'спланируй', 'создай маршрут']):
+        # Запускаем автопланирование
+        return {'action': 'auto_plan', 'text': '✅ Запускаю автопланирование...'}
+    
+    if any(word in text for word in ['отмени', 'удали']):
+        if 'маршрут' in text or 'рейс' in text:
+            return {'action': 'cancel_last', 'text': 'Для отмены последнего рейса перейдите на страницу рейса и нажмите "Удалить"'}
+    
+    if any(word in text for word in ['помоги', 'help', 'помощь']):
+        return {'text': '''🤖 Доступные команды:
+• "Сколько заявок?" - статистика
+• "Сколько машин?" - транспорт
+• "Заявки по районам" - по районам
+• "Оптимизируй маршрут" - автопланирование
+• "Покажи рейсы" - список рейсов
+• "Помощь" - эта справка'''}
+    
+    if 'покажи' in text and ('рейс' in text or 'маршру' in text):
+        routes = Route.query.order_by(Route.id.desc()).limit(5).all()
+        if routes:
+            text = "🛣️ Последние рейсы:\n" + "\n".join(
+                f"• Рейс #{r.id}: {r.distance_km or 0} км" + (f" ({r.duration_min} мин)" if r.duration_min else "")
+                for r in routes
+            )
+            return {'text': text, 'routes': [{'id': r.id, 'distance': r.distance_km} for r in routes]}
+        return {'text': 'Нет рейсов'}
+    
+    # === Поговорка ===
+    if 'шутка' in text or 'анекдот' in text:
+        jokes = [
+            "Почему грузовик не стал грустить? Потому что у него было много тоннажа! 🚚",
+            "Логист - это человек, который знает, куда едет груз, даже если груз сам не знает.",
+            "Водитель-дальнобойщик: 24 часа в сутки думает о грузе, а остальное - о машине.",
+        ]
+        import random
+        return {'text': random.choice(jokes)}
+    
+    # Не поняли
+    return {'text': 'Не понял команду. Напишите "Помощь" для списка команд.', 'error': True}
+
+@app.route('/api/ai', methods=['POST'])
+def ai_assistant():
+    """AI ассистент для управления логистикой"""
+    data = request.json
+    command = data.get('command', '')
+    
+    if not command:
+        return jsonify({'error': 'Команда не указана'}), 400
+    
+    result = parse_ai_command(command)
+    
+    # Если нужно выполнить действие
+    if result.get('action') == 'auto_plan':
+        # Редирект на автопланирование
+        return jsonify({'redirect': '/auto_plan'})
+    
+    return jsonify(result)
+
 # ------------------ Геокодирование ------------------
 def geocode(address):
     url = "https://nominatim.openstreetmap.org/search"
@@ -41,6 +276,11 @@ def api_geocode():
 @app.route('/api/search_product')
 def search_product():
     q = request.args.get('q', '').lower()
+    # Try UTF-8 first, fallback to latin-1
+    try:
+        q = q.encode('latin-1').decode('utf-8')
+    except:
+        pass
     products = Product.query.all()
     results = []
     for p in products:
@@ -150,8 +390,97 @@ def delete_product(id):
 # ------------------ CRUD заявок ------------------
 @app.route('/requests')
 def list_requests():
-    all_req = OrderRequest.query.order_by(OrderRequest.id.desc()).all()
-    return render_template('requests.html', requests=all_req)
+    district = request.args.get('district', '')
+    date = request.args.get('date', '')
+    status = request.args.get('status', '')
+    
+    query = OrderRequest.query
+    
+    if district:
+        query = query.filter(OrderRequest.receiver_name.like(f'%{district}%'))
+    if date:
+        query = query.filter(OrderRequest.delivery_date == date)
+    if status:
+        query = query.filter(OrderRequest.status == status)
+    
+    all_req = query.order_by(OrderRequest.id.desc()).all()
+    
+    # Статистика
+    stats = {}
+    for d in ['Свердловский', 'Кировский', 'Ленинский', 'Октябрьский', 'Железнодорожный', 'Центральный']:
+        stats[d] = OrderRequest.query.filter(
+            OrderRequest.receiver_name.like(f'%{d}%'),
+            OrderRequest.status == 'new'
+        ).count()
+    
+    return render_template('requests.html', requests=all_req, stats=stats, 
+                     current_district=district, current_date=date, current_status=status)
+
+# Создать тестовые заявки
+@app.route('/requests/generate', methods=['POST'])
+def generate_requests():
+    """Создать тестовые заявки для теста"""
+    from models import OrderRequest, RequestItem, Product
+    import random
+    
+    districts = {
+        'Свердловский': (56.01, 92.87),
+        'Кировский': (56.03, 92.91),
+        'Ленинский': (55.99, 92.85),
+        'Октябрьский': (56.02, 92.89),
+        'Железнодорожный': (56.00, 92.83),
+        'Центральный': (56.04, 92.86),
+    }
+    shops = [
+        ('Магазин №1', 'ул. 9 Мая, 10'),
+        ('Магазин №2', 'ул. Алексеева, 25'),
+        ('Магазин №3', 'ул. Телевизорная, 1'),
+        ('Магазин №4', 'ул. Мира, 50'),
+        ('Магазин №5', 'пр. Красноярский рабочий, 100'),
+        ('Магазин №6', 'ул. Партизана Железняка, 35'),
+        ('Магазин №7', 'ул. Ленина, 15'),
+        ('Магазин №8', 'ул. Маркса, 30'),
+    ]
+    products = Product.query.all()
+    
+    count = int(request.form.get('count', 10))
+    
+    for i in range(count):
+        district_name, (lat, lon) = random.choice(list(districts.items()))
+        shop = random.choice(shops)
+        prod = random.choice(products)
+        qty = random.randint(20, 80)
+        
+        order = OrderRequest(
+            sender_name='Склад РОЗНИЦА',
+            sender_address='Красноярск, ул. 60 лет Октября, 1',
+            sender_lat=56.0,
+            sender_lon=92.9,
+            receiver_name=f'{shop[0]} ({district_name})',
+            receiver_address=f'Красноярск, {shop[1]}, {shop[2]}',
+            receiver_lat=lat + random.uniform(-0.005, 0.005),
+            receiver_lon=lon + random.uniform(-0.005, 0.005),
+            delivery_date=request.form.get('date', '2026-05-04'),
+            status='new'
+        )
+        db.session.add(order)
+        db.session.flush()
+        
+        item = RequestItem(
+            order_request_id=order.id,
+            cargo_name=prod.name,
+            quantity=qty,
+            length=prod.length,
+            width=prod.width,
+            height=prod.height,
+            weight=prod.weight,
+            total_volume=prod.length * prod.width * prod.height * qty,
+            total_weight=prod.weight * qty
+        )
+        db.session.add(item)
+    
+    db.session.commit()
+    return redirect(url_for('list_requests'))
 
 @app.route('/request/new', methods=['GET', 'POST'])
 def new_request():
@@ -311,11 +640,17 @@ def delete_vehicle(id):
 # ------------------ Автопланирование ------------------
 @app.route('/auto_plan', methods=['POST'])
 def auto_plan():
+    global optimize_route_nearest_neighbor, optimize_route_cluster_by_distance
+    
     new_reqs = OrderRequest.query.filter_by(status='new').all()
     if not new_reqs:
         return redirect(url_for('index'))
 
     vehicles = Vehicle.query.filter_by(status='available').order_by(Vehicle.max_weight.desc()).all()
+
+    # Склад
+    warehouse_lat = 56.0
+    warehouse_lon = 92.9
 
     for v in vehicles:
         total_w = 0
@@ -325,21 +660,25 @@ def auto_plan():
                 total_w += item.total_weight
                 total_v += item.total_volume
 
+        # Если всё влезает - хорошо
         if total_w <= v.max_weight and total_v <= (v.length * v.width * v.height):
             route = Route(vehicle_id=v.id)
             db.session.add(route)
             db.session.flush()
 
-            for r in new_reqs:
-                r.status = 'planned'
-                r.route_id = route.id
+            # Оптимизируем порядок заявок
+            optimized = optimize_route_cluster_by_distance(warehouse_lat, warehouse_lon, new_reqs)
+            
+            for o in optimized:
+                o['order'].status = 'planned'
+                o['order'].route_id = route.id
 
-            waypoints = []
-            for r in new_reqs:
-                if r.sender_lat and r.sender_lon:
-                    waypoints.append((r.sender_lat, r.sender_lon, r.sender_address))
-                if r.receiver_lat and r.receiver_lon:
-                    waypoints.append((r.receiver_lat, r.receiver_lon, r.receiver_address))
+            # waypoints: склад -> оптимизированный маршрут -> склад
+            waypoints = [(warehouse_lat, warehouse_lon, 'Склад')]
+            for o in optimized:
+                waypoints.append((o['lat'], o['lon'], o['address']))
+            waypoints.append((warehouse_lat, warehouse_lon, 'Склад'))
+            
             route.waypoints = json.dumps([{'lat': lat, 'lon': lon, 'desc': desc}
                                           for lat, lon, desc in waypoints])
             db.session.commit()
@@ -360,7 +699,60 @@ def auto_plan():
             db.session.commit()
             return redirect(url_for('view_route', route_id=route.id))
 
-    return "Нет подходящей машины для всех заявок", 400
+        # Иначе - загружаем сколько влезет (с оптимизацией)
+        # Сначала оптимизируем все заявки
+        optimized_all = optimize_route_cluster_by_distance(warehouse_lat, warehouse_lon, new_reqs)
+        
+        loaded = []
+        w_sum, v_sum = 0, 0
+        for o in optimized_all:
+            r = o['order']
+            rw = sum(i.total_weight for i in r.items)
+            rv = sum(i.total_volume for i in r.items)
+            if w_sum + rw <= v.max_weight and v_sum + rv <= (v.length * v.width * v.height):
+                loaded.append(o)
+                w_sum += rw
+                v_sum += rv
+        
+        if loaded:
+            route = Route(vehicle_id=v.id)
+            db.session.add(route)
+            db.session.flush()
+            
+            for o in loaded:
+                o['order'].status = 'planned'
+                o['order'].route_id = route.id
+            
+            # waypoints: склад -> оптимизированный маршрут -> склад
+            waypoints = [(warehouse_lat, warehouse_lon, 'Склад')]
+            for o in loaded:
+                waypoints.append((o['lat'], o['lon'], o['address']))
+            waypoints.append((warehouse_lat, warehouse_lon, 'Склад'))
+            
+            route.waypoints = json.dumps([{'lat': lat, 'lon': lon, 'desc': desc} for lat, lon, desc in waypoints])
+            db.session.commit()
+
+            if len(waypoints) >= 2:
+                osrm_data = get_route_osrm([(lat, lon) for lat, lon, _ in waypoints])
+                if osrm_data:
+                    route.distance_km = round(osrm_data['routes'][0]['distance'] / 1000, 2)
+                    route.duration_min = round(osrm_data['routes'][0]['duration'] / 60, 1)
+                    route.route_geojson = json.dumps(osrm_data['routes'][0]['geometry'])
+
+            positions = [(v.length * 100 / 2, w_sum)]
+            front, rear = axle_distribution(v.length * 100, positions, v.max_weight)
+            route.axle_front = front
+            route.axle_rear = rear
+            
+            # Удаляем загруженные из new_reqs
+            loaded_orders = [o['order'] for o in loaded]
+            new_reqs = [r for r in new_reqs if r not in loaded_orders]
+            
+            v.status = 'in_route'
+            db.session.commit()
+            return redirect(url_for('view_route', route_id=route.id))
+    
+    return "Нет подходящей машины", 400
 
 # ------------------ Просмотр рейса ------------------
 @app.route('/route/<int:route_id>')
@@ -369,14 +761,20 @@ def view_route(route_id):
     vehicle = Vehicle.query.get(route.vehicle_id)
     orders = OrderRequest.query.filter_by(route_id=route_id).all()
 
-    # Все позиции и подсчёт паллет
+    # Все позиции и подсчёт паллет - convert to dicts for JSON serialization
     all_items = []
     item_pallets = []
     for o in orders:
         for item in o.items:
             np = pallets_needed(item, vehicle)
             item_pallets.append(np)
-            all_items.append(item)
+            # Convert SQLAlchemy object to plain dict
+            all_items.append({
+                'cargo_name': item.cargo_name,
+                'quantity': item.quantity,
+                'total_weight': item.total_weight,
+                'total_volume': item.total_volume
+            })
 
     # Группируем товары по адресу получателя
     from collections import defaultdict
@@ -403,7 +801,8 @@ def view_route(route_id):
                            item_pallets=item_pallets,
                            waypoints=json.loads(route.waypoints or '[]'),
                            grouped_items=grouped_items,
-                           yandex_key=app.config['YANDEX_MAPS_API_KEY'])
+                           yandex_key=app.config['YANDEX_MAPS_API_KEY'],
+                           route_geojson=route.route_geojson)
 
 @app.route('/route/<int:route_id>/print_load')
 def print_load(route_id):
@@ -494,4 +893,5 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 12000))
+    app.run(host='0.0.0.0', port=port, debug=True)

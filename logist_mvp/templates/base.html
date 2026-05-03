@@ -6,6 +6,65 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <style>
+    .ai-chat {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 320px;
+        z-index: 9999;
+    }
+    .ai-chat-window {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        overflow: hidden;
+        display: none;
+    }
+    .ai-chat-window.show { display: block; }
+    .ai-chat-header {
+        background: #0d6efd;
+        color: white;
+        padding: 12px 15px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .ai-chat-messages {
+        height: 250px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f8f9fa;
+    }
+    .ai-msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; max-width: 85%; }
+    .ai-msg.bot { background: #e9ecef; }
+    .ai-msg.user { background: #0d6efd; color: white; margin-left: auto; }
+    .ai-chat-input {
+        padding: 10px;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+    }
+    .ai-chat-input input {
+        flex: 1;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 8px;
+        margin-right: 8px;
+    }
+    .ai-toggle {
+        background: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -21,6 +80,62 @@
 <div class="container mt-3">
     {% block content %}{% endblock %}
 </div>
+
+<!-- AI Chat -->
+<div class="ai-chat">
+    <div class="ai-chat-window" id="aiWindow">
+        <div class="ai-chat-header" onclick="toggleAI()">
+            <span>🤖 AI Ассистент</span>
+            <span>▼</span>
+        </div>
+        <div class="ai-chat-messages" id="aiMessages">
+            <div class="ai-msg bot">Привет! Я AI-ассистент. Напишите команду, например "Сколько заявок?" или "Оптимизируй маршрут"</div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="aiInput" placeholder="Команда..." onkeypress="if(event.key==='Enter')sendAI()">
+            <button class="btn btn-primary btn-sm" onclick="sendAI()">→</button>
+        </div>
+    </div>
+    <button class="ai-toggle" onclick="toggleAI()">🤖</button>
+</div>
+
+<script>
+function toggleAI() {
+    document.getElementById('aiWindow').classList.toggle('show');
+}
+function sendAI() {
+    const input = document.getElementById('aiInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    // Показываем сообщение пользователя
+    const msgs = document.getElementById('aiMessages');
+    msgs.innerHTML += '<div class="ai-msg user">' + text + '</div>';
+    input.value = '';
+    msgs.scrollTop = msgs.scrollHeight;
+    
+    // Отправляем на сервер
+    fetch('/api/ai', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: text})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.redirect) {
+            msgs.innerHTML += '<div class="ai-msg bot">' + data.text + '</div>';
+            window.location.href = data.redirect;
+        } else {
+            msgs.innerHTML += '<div class="ai-msg bot">' + data.text + '</div>';
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+    })
+    .catch(e => {
+        msgs.innerHTML += '<div class="ai-msg bot">Ошибка: ' + e.message + '</div>';
+    });
+}
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

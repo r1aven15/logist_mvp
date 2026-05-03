@@ -1,5 +1,4 @@
 # packing.py
-import itertools
 
 class Item:
     def __init__(self, name, w, h, d, weight=0.0):
@@ -88,28 +87,57 @@ def pack_items_to_pallets(items, pallet_l, pallet_w, max_h):
     return result
 
 def pack_pallets_into_truck(pallets_data, truck_l, truck_w, truck_h):
-    pallet_items = []
-    for idx, pdata in enumerate(pallets_data):
-        w_options = [1.2, 0.8]
-        h = pdata['height']
-        d_options = [0.8, 1.2]
-        placed = False
-        for w, d in zip(w_options, d_options):
-            if w <= truck_l and h <= truck_h and d <= truck_w:
-                pallet_items.append(Item(f'Pallet_{idx}', w, h, d))
-                placed = True
-                break
-        if not placed:
-            pallet_items.append(Item(f'Pallet_{idx}', 1.2, h, 0.8))
-    truck_bin = Bin('Truck', truck_l, truck_h, truck_w)
-    pack_bin(truck_bin, pallet_items)
+    """
+    Размещение паллет ВДОЛЬ кузова (7m).
+    - Ряд 0: у левой стены (z=0.3)  
+    - Ряд 1: у правой стены (z=truck_w - 0.8 - 0.3)
+    Отступ от стен 0.3м чтобы не перекрывались.
+    """
+    
+    PALLET_L = 1.2
+    PALLET_W = 0.8
+    MARGIN = 0.3  # отступ от стен
+    
+    per_row = int(truck_l / PALLET_L)  # 5
+    
     result = []
-    for p_item in truck_bin.items:
-        idx = int(p_item.name.split('_')[1])
-        # Передаём только нужные данные, без вложенных объектов Item
-        result.append({
-            'pallet_index': idx,
-            'position': p_item.pos,
-            'size': (p_item.w, p_item.h, p_item.d)
-        })
+    
+    for idx, pdata in enumerate(pallets_data):
+        h = pdata['height']
+        
+        row = idx // per_row
+        in_row = idx % per_row
+        
+        # Z: у левой или правой стены с отступом
+        z = MARGIN if row % 2 == 0 else truck_w - PALLET_W - MARGIN
+        
+        x = in_row * PALLET_L
+        
+        if x + PALLET_L <= truck_l and z + PALLET_W <= truck_w and h <= truck_h:
+            conflict = False
+            for e in result:
+                ex, ey, ez = e['position']
+                ew, eh, ed = e['size']
+                if (x < ex + ew and x + PALLET_L > ex and
+                    z < ez + ed and z + PALLET_W > ez):
+                    conflict = True
+                    break
+            
+            if not conflict:
+                result.append({
+                    'pallet_index': idx,
+                    'position': [x, 0, z],
+                    'size': [PALLET_L, h, PALLET_W]
+                })
+                continue
+        
+        # Fallback
+        z = MARGIN
+        if x + PALLET_L <= truck_l and z + PALLET_W <= truck_w:
+            result.append({
+                'pallet_index': idx,
+                'position': [x, 0, z],
+                'size': [PALLET_L, h, PALLET_W]
+            })
+    
     return result
