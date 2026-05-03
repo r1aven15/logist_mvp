@@ -104,63 +104,6 @@ def ai():
     
     return jsonify({'text': resp})
 
-# ------------------ Геокодирование (Яндекс - точное) ------------------
-def geocode(addr):
-    """Точное геокодирование через Яндекс для Красноярска"""
-    if not addr: 
-        return None, None
-    
-    if not YANDEX_GEOCODER_KEY:
-        return None, None
-    
-    # Нормализуем адрес - добавляем регион
-    original = addr.strip()
-    
-    # Пробуем с разными вариантами
-    search_variants = [
-        f"{original}, Красноярск",           # Конкретно Красноярск
-        f"{original}, Красноярский край",   # Красноярский край
-        f"{original}, Ачинск",             # Ачинск
-        original                          # Как есть
-    ]
-    
-    for search_addr in search_variants:
-        try:
-            url = "https://geocode-maps.yandex.ru/1.x"
-            params = {'geocode': search_addr, 'format': 'json', 'apikey': YANDEX_GEOCODER_KEY, 'results': 5}
-            r = requests.get(url, params=params, timeout=8)
-            if r.status_code == 200:
-                data = r.json()
-                geo = data['response']['GeoObjectCollection']['featureMember']
-                if geo:
-                    for g in geo:
-                        obj = g['GeoObject']
-                        point = obj['Point']['pos']
-                        lon, lat = map(float, point.split())
-                        meta = obj.get('metaDataProperty', {}).get('GeocoderMetaData', {})
-                        kind = meta.get('kind', '')
-                        text = meta.get('text', '')
-                        
-                        # Проверяем что это нужный регион
-                        region = text.lower()
-                        if any(city in region for city in ['красноярск', 'ачинск', 'козулька']):
-                            # Приоритет по точности
-                            if kind == 'house':
-                                return lat, lon
-                            elif kind == 'street':
-                                return lat, lon
-        except:
-            pass
-    
-    return None, None
-
-@app.route('/api/geocode', methods=['POST'])
-def geo():
-    addr = (request.json or {}).get('address','')
-    lat,lon = geocode(addr)
-    if lat: return jsonify({'lat':lat,'lon':lon})
-    return jsonify({'error':'Не найдено'}),404
-
 # ------------------ Умная маршрутизация ------------------
 def haversine(lat1, lon1, lat2, lon2):
     """Расстояние между двумя точками в км"""
@@ -457,69 +400,41 @@ def ai_assistant():
     
     return jsonify({'text': response})
 
-# ------------------ Геокодирование (enhanced Nominatim для России) ------------------
-def geocode(address):
-    """Геокодирование - улучшенный поиск для России"""
-    import requests
-    
-    addr = address.strip()
-    if not addr:
+# ------------------ Геокодирование через Яндекс ------------------
+def yandex_geocode(address):
+    """Возвращает (широта, долгота) или (None, None) при ошибке."""
+    key = YANDEX_GEOCODER_KEY
+    if not key or not address:
         return None, None
     
-    # Добавляем "Красноярск" если не указан город
-    search_addr = addr
-    if not any(city.lower() in addr.lower() for city in ['красноярск', 'ачинск', 'мосгор', 'москва', 'новосибирск']):
-        search_addr = f"{addr}, Красноярский край, Россия"
-    
-    # Nominatim с улучшенными параметрами
-    url = "https://nominatim.openstreetmap.org/search"
+    url = "https://geocode-maps.yandex.ru/1.x/"
     params = {
-        "q": search_addr,
+        "apikey": key,
+        "geocode": address,
         "format": "json",
-        "limit": 3,
-        "addressdetails": 1,
-        "countrycodes": "ru",
-        "bounded": 1,  # Ограничиваем bbox для России
-        "viewbox": "90,50;95,57"  # Красноярский край примерно
+        "results": 1,
+        "lang": "ru_RU"
     }
-    headers = {"User-Agent": "LogistMVP/1.0", "Accept-Language": "ru"}
-    
     try:
-        resp = requests.get(url, params=params, headers=headers, timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            if data:
-                # Берём первый точный результат
-                for r in data:
-                    # Проверяем что это российский адрес
-                    addr_type = r.get('type', '')
-                    if addr_type in ['house', 'street', 'road', 'city', 'town', 'village']:
-                        return float(r['lat']), float(r['lon'])
-                # Иначе первый результат
-                return float(data[0]['lat']), float(data[0]['lon'])
+        resp = requests.get(url, params=params, timeout=5)
+        data = resp.json()
+        members = data['response']['GeoObjectCollection']['featureMember']
+        if not members:
+            return None, None
+        pos = members[0]['GeoObject']['point']['pos']
+        lon, lat = map(float, pos.split())
+        return lat, lon
     except Exception as e:
-        print(f"Geocode error: {e}")
-    
-    # Пробуем без города
-    if search_addr != addr:
-        try:
-            resp = requests.get(url, params={"q": addr, "format": "json", "limit": 1, "countrycodes": "ru"}, headers=headers, timeout=5)
-            if resp.status_code == 200:
-                data = resp.json()
-                if data:
-                    return float(data[0]['lat']), float(data[0]['lon'])
-        except:
-            pass
-    
-    return None, None
+        print(f"Ошибка геокодирования: {e}")
+        return None, None
 
 @app.route('/api/geocode', methods=['POST'])
 def api_geocode():
     addr = request.json.get('address', '')
-    lat, lon = geocode(addr)
+    lat, lon = yandex_geocode(addr)
     if lat:
         return jsonify({'lat': lat, 'lon': lon})
-    return jsonify({'error': 'Not found'}), 404
+    return jsonify({'error': 'Не найдено'}), 404
 
 # ------------------ Поиск товаров ------------------
 @app.route('/api/search_product')
@@ -803,8 +718,8 @@ def new_request():
             receiver_address=request.form['receiver_address'],
             delivery_date=request.form.get('delivery_date', '')
         )
-        req.sender_lat, req.sender_lon = geocode(req.sender_address)
-        req.receiver_lat, req.receiver_lon = geocode(req.receiver_address)
+        req.sender_lat, req.sender_lon = yandex_geocode(req.sender_address)
+        req.receiver_lat, req.receiver_lon = yandex_geocode(req.receiver_address)
         db.session.add(req)
         db.session.flush()
 
@@ -852,8 +767,8 @@ def edit_request(id):
         req.receiver_name = request.form['receiver_name']
         req.receiver_address = request.form['receiver_address']
         req.delivery_date = request.form.get('delivery_date', '')
-        req.sender_lat, req.sender_lon = geocode(req.sender_address)
-        req.receiver_lat, req.receiver_lon = geocode(req.receiver_address)
+        req.sender_lat, req.sender_lon = yandex_geocode(req.sender_address)
+        req.receiver_lat, req.receiver_lon = yandex_geocode(req.receiver_address)
 
         for item in req.items:
             db.session.delete(item)
