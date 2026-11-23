@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Автопарк Контроль — короткая презентация для MAX</title>
+<style>
+  :root{--text:#151827;--muted:#667085;--brand:#6d28d9;--brand2:#4f46e5;--line:#e7e9f2}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#eef0f7;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.42}
+  .sheet{width:210mm;min-height:297mm;margin:0 auto;padding:11mm 13mm 10mm;background:
+    radial-gradient(600px 300px at 10% -8%,#ddd6fe 0,transparent 62%),
+    radial-gradient(500px 280px at 95% 0,#cffafe 0,transparent 58%),#fff}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:8mm}
+  .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;box-shadow:0 8px 20px rgba(109,40,217,.25)}
+  .top b{font-size:13px}.top small{display:block;color:var(--muted);font-size:9.5px}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:#f5f3ff;color:#5b21b6;font-size:8.5px;font-weight:800;margin-bottom:3mm}
+  h1{font-size:34px;line-height:1.02;letter-spacing:-1px;margin:0 0 3mm;max-width:170mm}
+  h1 span{background:linear-gradient(135deg,var(--brand),#0891b2);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:11.5px;color:var(--muted);margin:0 0 4mm;max-width:175mm}
+  .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:4mm;align-items:stretch;margin-bottom:5mm}
+  .shot{border-radius:4mm;overflow:hidden;border:1px solid #fff;box-shadow:0 10px 26px rgba(15,23,42,.13);background:#fff;max-height:52mm}
+  .shot img{display:block;width:100%;height:52mm;object-fit:cover;object-position:top left}
+  .facts{display:grid;gap:2.5mm}
+  .fact{background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:3.5mm;padding:2.8mm 3mm;box-shadow:0 5px 14px rgba(15,23,42,.05)}
+  .fact b{display:block;font-size:15px;letter-spacing:-.3px}
+  .fact span{font-size:8.5px;color:var(--muted)}
+  h2{font-size:15px;letter-spacing:-.2px;margin:0 0 2.5mm}
+  .features{display:grid;grid-template-columns:1fr 1fr;gap:1.6mm 5mm;margin-bottom:4.5mm}
+  .features div{position:relative;padding-left:4.2mm;font-size:9.5px;color:#344054}
+  .features div:before{content:"";position:absolute;left:0;top:1.35mm;width:1.8mm;height:1.8mm;border-radius:50%;background:linear-gradient(135deg,var(--brand),#06b6d4)}
+  .prices{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5mm;margin:2mm 0 3mm}
+  .price{border:1px solid var(--line);border-radius:3.5mm;padding:3mm;background:#fff}
+  .price small{display:block;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:1mm}
+  .price b{font-size:15px;letter-spacing:-.4px;white-space:nowrap}
+  .price span{display:block;font-size:8px;color:var(--muted);margin-top:1mm}
+  .note{font-size:8.8px;line-height:1.45;color:#475467;background:#f8fafc;border:1px solid #eef2f7;border-radius:3mm;padding:2.5mm 3mm;margin:0 0 3mm}
+  .steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5mm;margin:2mm 0 3mm}
+  .step{background:#fff;border:1px solid var(--line);border-radius:3.5mm;padding:3mm}
+  .step b{display:inline-grid;place-items:center;width:6mm;height:6mm;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-size:8px;margin-bottom:1.5mm}
+  .step span{display:block;font-size:8.7px;line-height:1.4;color:#344054}
+  .audience{font-size:8.8px;color:#475467;background:#f5f3ff;border-radius:3mm;padding:2.5mm 3mm;margin:0 0 3mm}
+  .cta{background:linear-gradient(135deg,#21124d,#312e81 55%,#0e7490);color:#fff;border-radius:4mm;padding:4mm;display:flex;justify-content:space-between;gap:4mm;align-items:center}
+  .cta b{display:block;font-size:13px;margin-bottom:1mm}.cta p{margin:0;font-size:8.7px;color:#ddd6fe}
+  .cta .link{background:#fff;color:#312e81;border-radius:2.5mm;padding:2.5mm 3.5mm;font-size:8.5px;font-weight:800;text-decoration:none;white-space:nowrap}
+  .contact{display:flex;justify-content:space-between;gap:4mm;margin-top:3mm;font-size:8.7px;color:#475467}
+  .contact b{color:#151827}
+  .foot{margin-top:2mm;color:#98a2b3;font-size:7.5px}
+  @media screen and (max-width:900px){.sheet{width:100%;min-height:0;padding:18px}.hero{grid-template-columns:1fr}.shot img{height:auto;max-height:260px}.cta{flex-direction:column;align-items:flex-start}.contact{flex-direction:column;gap:1mm}}
+  @page{size:A4;margin:0}
+  @media print{html,body{background:#fff}.sheet{width:210mm;min-height:297mm;margin:0;padding:11mm 13mm 10mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}.cta,.fact,.price,.shot,.note{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="top">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
+    <div><b>Автопарк Контроль</b><small>учёт транспорта · 2026 · Красноярск</small></div>
+  </div>
+  <div class="badge">● Демо без установки · данные вымышленные</div>
+  <h1>Весь автопарк<br><span>в одном окне</span></h1>
+  <p class="lead">Рейсы, водители, ГСМ, сервис, прибыль и налоги. Не только Газели — грузовики, фургоны, легковые, автобусы и спецтехника. Выгрузка в 1С и Excel.</p>
+  <div class="hero">
+    <div class="shot"><img src="offer-preview.png" alt="Дашборд Автопарк Контроль"></div>
+    <div class="facts">
+      <div class="fact"><b>2 490 ₽</b><span>от / мес, хостинг включён</span></div>
+      <div class="fact"><b>1С / Excel</b><span>выгрузка рейсов и сводки</span></div>
+      <div class="fact"><b>ГЛОНАСС</b><span>и другие телематики через адаптер</span></div>
+    </div>
+  </div>
+  <h2>Что внутри</h2>
+  <div class="features">
+    <div>Дашборд: пробег, топливо, доход и расход</div>
+    <div>Рейсы: дата, машина, водитель, маршрут, доход, бензин</div>
+    <div>Водители: статус, машина, оплата, НДФЛ/НПД</div>
+    <div>Сервис: запчасти, работы, напоминания</div>
+    <div>Прибыль по каждой машине и организации</div>
+    <div>Налоги 2026: УСН 6/15%, НДС 22%, лимиты</div>
+    <div>Отчёты по ИП/ООО, водителям и месяцам</div>
+    <div>Тёмная тема и мобильная версия</div>
+  </div>
+  <h2>Цены</h2>
+  <div class="prices">
+    <div class="price"><small>Старт</small><b>2 490 ₽/мес</b><span>до 5 машин · 1 пользователь</span></div>
+    <div class="price"><small>Парк</small><b>4 990 ₽/мес</b><span>до 15 машин · до 3 пользователей</span></div>
+    <div class="price"><small>Бизнес</small><b>8 990 ₽/мес</b><span>до 30 машин · до 5 пользователей</span></div>
+  </div>
+  <div class="note"><b>Важно:</b> в тарифах «облако» хостинг включён. Размещение на сервере клиента — отдельная настройка: сервер, домен и администрирование оплачивает клиент. Прямая интеграция с 1С через API — отдельный проект. Демо сейчас на временном сервере.</div>
+  <h2>Как начать</h2>
+  <div class="steps3">
+    <div class="step"><b>1</b><span>Откройте демо и посмотрите дашборд, рейсы и отчёты.</span></div>
+    <div class="step"><b>2</b><span>Созвонимся на 10 минут — покажу на вашем примере.</span></div>
+    <div class="step"><b>3</b><span>Настроим парк, водителей и выгрузку в 1С/Excel.</span></div>
+  </div>
+  <div class="audience"><b>Для кого:</b> транспортные компании, автопарки, ИП, бухгалтеры и интеграторы 1С. Партнёрам — отдельные условия сотрудничества.</div>
+  <div class="cta">
+    <div><b>Показать демо и полную презентацию?</b><p>Открывается в браузере без установки. Покажу 10 минут на вашем примере.</p></div>
+    <a class="link" href="offer-krsk.html">Открыть →</a>
+  </div>
+  <div class="contact"><span><b>Владимир Анисимов</b> · разработчик</span><span>+7 983 502-45-66 · vsend15@mail.ru</span></div>
+  <div class="foot">Демо-данные вымышленные. Программа не заменяет бухгалтера; налоговые расчёты носят справочный характер.</div>
+</div>
+</body>
+</html>

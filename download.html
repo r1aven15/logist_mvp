@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Автопарк Контроль — демо и Android</title>
+<style>
+  :root{--bg:#f4f5fa;--text:#171a2b;--muted:#667085;--brand:#6d28d9;--brand2:#4f46e5}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:
+    radial-gradient(900px 500px at 15% -10%,#ddd6fe 0,transparent 60%),
+    radial-gradient(700px 400px at 90% 0,#cffafe 0,transparent 55%),var(--bg);color:var(--text);min-height:100vh}
+  .wrap{max-width:900px;margin:0 auto;padding:32px 18px 60px}
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:38px}
+  .logo{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:#fff;font-size:25px;box-shadow:0 14px 32px rgba(109,40,217,.28)}
+  h1{font-size:clamp(28px,5vw,44px);line-height:1.1;letter-spacing:-1.2px;margin:0 0 12px}
+  .lead{color:var(--muted);font-size:17px;line-height:1.6;max-width:720px;margin:0 0 26px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .card{background:rgba(255,255,255,.86);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:24px;box-shadow:0 18px 45px rgba(15,23,42,.08)}
+  .card h2{font-size:20px;margin:0 0 8px}
+  .card p{color:var(--muted);line-height:1.55;margin:0 0 18px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 18px;border-radius:13px;text-decoration:none;font-weight:700;font-size:15px;transition:.2s;border:1px solid #e6e8f0;color:var(--text);background:#fff}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.1)}
+  .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border:0;box-shadow:0 10px 26px rgba(109,40,217,.25)}
+  .btn.primary:hover{box-shadow:0 14px 32px rgba(109,40,217,.35)}
+  .note{display:flex;gap:10px;align-items:flex-start;margin-top:18px;padding:14px 16px;border-radius:14px;background:#f5f3ff;color:#4c1d95;font-size:13.5px;line-height:1.5}
+  .note-ico{width:18px;height:18px;flex:0 0 18px;border-radius:50%;background:#6d28d9;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;margin-top:1px}
+  .steps{margin:16px 0 0;padding-left:20px;color:var(--muted);line-height:1.7;font-size:14px}
+  .foot{margin-top:26px;color:#98a2b3;font-size:12.5px;text-align:center}
+  @media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{padding-top:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div><div><b>Автопарк Контроль</b><div style="color:var(--muted);font-size:13px">учёт транспорта · 2026</div></div></div>
+  <h1>Покажите демо.<br>Установите Android-приложение.</h1>
+  <p class="lead">Универсальный учёт автопарка: не только Газели, но и грузовики, фургоны, легковые, автобусы и спецтехника. Рейсы, водители, сервис, ГСМ, отчёты, прибыль и налоги 2026.</p>
+  <div class="grid">
+    <div class="card">
+      <h2>Демо для показа</h2>
+      <p>Открывается в браузере, работает без регистрации. Внутри смешанный парк, маршруты Красноярска и выгрузка в 1С/Excel. Можно добавить свою машину.</p>
+      <a class="btn primary" href="demo-krsk.html">Демо для Красноярска →</a>
+      <a class="btn" href="demo-standalone.html" style="margin-left:8px">Скачать демо-файл</a>
+      <div class="note"><span class="note-ico">i</span><span>Демо ничего не записывает в рабочую базу. Данные хранятся только в браузере.</span></div>
+    </div>
+    <div class="card">
+      <h2>Android-приложение</h2>
+      <p>Полный доступ администратора: все разделы, свои данные, Firebase, выгрузка в 1С/Excel и импорт резервной копии.</p>
+      <a class="btn primary" href="autopark-control-v1.0.apk" download>Скачать APK · 141 КБ</a>
+      <ol class="steps">
+        <li>Скачайте файл на телефон.</li>
+        <li>Разрешите установку из этого источника.</li>
+        <li>Откройте «Автопарк Контроль».</li>
+      </ol>
+    </div>
+  </div>
+  <div class="grid" style="margin-top:18px">
+    <div class="card">
+      <h2>Презентация и письма</h2>
+      <p>Короткая презентация для отправки в письме и мессенджерах, готовые тексты первого письма и follow-up, таблица адресатов.</p>
+      <a class="btn" href="offer-krsk.pdf" download>Скачать PDF</a>
+      <a class="btn" href="outreach-kit.zip" download style="margin-left:8px">Комплект для рассылки</a>
+      <a class="btn" href="offer-krsk.html" style="margin-left:8px">Открыть презентацию</a>
+      <a class="btn" href="max.html" style="margin-left:8px">Версия для MAX</a>
+      <a class="btn" href="max-presentation.pdf" download style="margin-left:8px">PDF для MAX</a>
+    </div>
+    <div class="card">
+      <h2>FAQ-бот</h2>
+      <p>Отвечает на частые вопросы: цены, демо, 1С/Excel, сервер, налоги, телематика. Сложные вопросы передаёт Владимиру.</p>
+      <a class="btn primary" href="https://t.me/CargoHuntbot" target="_blank" rel="noopener">Telegram-бот</a>
+      <a class="btn" href="crm/chat.html" style="margin-left:8px">Веб-бот</a>
+    </div>
+    <div class="card">
+      <h2>Резервная копия проекта</h2>
+      <p>Архив с исходниками, демо, Android-проектом и APK. Git bundle — полная история проекта.</p>
+      <a class="btn" href="backup/autopark-control-backup-2026-11-22.zip" download>Скачать ZIP · 2,7 МБ</a>
+      <a class="btn" href="backup/autopark-control-2026-11-22.bundle" download style="margin-left:8px">Git bundle</a>
+    </div>
+  </div>
+  <div class="foot">APK подписан. Для установки нужен Android 6.0+ и интернет для Firebase. Демо-файл можно приложить к письму — он работает без интернета. Демо размещено на временном сервере; для постоянной работы нужен свой домен и сервер.</div>
+</div>
+</body>
+</html>
