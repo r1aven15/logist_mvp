@@ -65,6 +65,11 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
+    start_date = os.getenv("START_DATE", "").strip()
+    if start_date and datetime.now(LOCAL_TZ).date().isoformat() < start_date:
+        print(f"workflow starts on {start_date}")
+        return 0
+
     slot = resolve_slot(args.slot)
     posts = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
     index = (datetime.now(LOCAL_TZ).date().toordinal() * 3 + SLOT_INDEX[slot]) % len(posts)

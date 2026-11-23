@@ -23,6 +23,7 @@ API = "https://platform-api.max.ru"
 CHANNEL_ID = -81571822668314
 LOCAL_TZ = timezone(timedelta(hours=7))
 SLOTS = [(10, 0), (15, 0), (20, 0)]
+STOP_AFTER = os.getenv("MAX_CHANNEL_STOP_AFTER", "2026-11-23")
 
 
 def load_token() -> str:
@@ -123,7 +124,10 @@ def main() -> int:
         state = read_state()
         next_at = datetime.fromisoformat(state["next_at"])
         if now >= next_at:
-            publish_next()
+            published = publish_next()
+            if published and now.date().isoformat() >= STOP_AFTER:
+                print("local scheduler stopped; GitHub Actions takes over")
+                return 0
         time.sleep(30)
 
 
