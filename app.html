@@ -1347,6 +1347,7 @@ body.auth-locked{overflow:hidden}
               <button class="btn" data-export="cars"><svg class="icon icon-sm"><use href="#i-file"/></svg> Машины CSV</button>
               <button class="btn" data-export="summary"><svg class="icon icon-sm"><use href="#i-file"/></svg> Сводка CSV</button>
               <button class="btn" id="backupNowBtn"><svg class="icon icon-sm"><use href="#i-database"/></svg> Создать резервную копию</button>
+              <button class="btn" id="restoreBackupBtn"><svg class="icon icon-sm"><use href="#i-refresh"/></svg> Восстановить последнюю</button>
             </div>
           </section>
 
@@ -5353,6 +5354,40 @@ function bindEvents() {
     }
     await maybeCreateCloudBackup('manual', true);
     showToast('Резервная копия создана в облаке и на устройстве', 'success');
+  });
+  $('#restoreBackupBtn')?.addEventListener('click', async () => {
+    if (!isLoaded || !cloudReady) {
+      showToast('Нет связи с облаком. Восстановление недоступно.', 'error');
+      return;
+    }
+    try {
+      const snapshot = await getDocs(query(CLOUD_BACKUP_COLLECTION, orderBy('createdAt', 'desc'), limit(1)));
+      if (!snapshot.size) {
+        showToast('Резервных копий пока нет', 'info');
+        return;
+      }
+      const backup = snapshot.docs[0].data();
+      if (!backup?.state) {
+        showToast('В копии нет данных', 'error');
+        return;
+      }
+      const createdAt = backup.createdAt?.toDate ? backup.createdAt.toDate() : null;
+      const ok = await askConfirm({
+        title: 'Восстановить резервную копию?',
+        text: `Текущие данные будут заменены копией${createdAt ? ` от ${createdAt.toLocaleString('ru-RU')}` : ''}. Сначала можно скачать JSON текущего состояния.`,
+        ok: 'Восстановить',
+        danger: true
+      });
+      if (!ok) return;
+      state = { ...state, ...backup.state };
+      normalizeState();
+      await saveState();
+      renderAll();
+      showToast('Данные восстановлены из резервной копии', 'success');
+    } catch (error) {
+      console.error('Restore failed:', error);
+      showToast('Не удалось восстановить копию', 'error');
+    }
   });
 
   $('#importFile')?.addEventListener('change', async event => {
