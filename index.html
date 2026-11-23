@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f2f5fb">
 <meta name="description" content="Автопарк Контроль — учёт транспорта, рейсов, ГСМ и налогов">
 <title>Автопарк Контроль — учёт транспорта</title>
@@ -448,6 +449,9 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .preset{padding:7px 10px;border-radius:10px;border:1px solid transparent;background:var(--surface-2);color:var(--muted);font-size:11.5px;font-weight:650;cursor:pointer;transition:.15s}
 .preset:hover{color:var(--text);background:var(--surface-3)}
 .preset.active{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.report-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border)}
+.report-filters .input{width:auto;min-width:150px;max-width:220px;height:38px;font-size:12px}
+@media (max-width:640px){.report-filters .input{flex:1 1 145px;min-width:0;max-width:none}}
 .table-wrap{border:1px solid var(--border);border-radius:16px;overflow:auto;background:var(--surface-2)}
 .data-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:620px}
 .data-table th{text-align:left;padding:10px 12px;font-size:9.5px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--surface-3);border-bottom:1px solid var(--border);white-space:nowrap}
@@ -723,6 +727,12 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .scan-preview{display:flex;align-items:center;gap:12px;margin-top:10px;padding:8px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
 .scan-preview[hidden]{display:none}
 .scan-preview img{width:110px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+.pdf-attachment{display:flex;align-items:center;gap:10px;margin-top:10px;padding:9px 10px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
+.pdf-attachment[hidden]{display:none}
+.pdf-badge{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;background:var(--danger-soft);color:var(--danger);font-size:10px;font-weight:900;letter-spacing:.04em;flex-shrink:0}
+.pdf-meta{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.pdf-meta b{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pdf-meta span{font-size:10.5px;color:var(--muted)}
 .insurance-line{display:flex;align-items:center;gap:6px;margin-top:10px;padding:7px 9px;border-radius:10px;font-size:10.5px;font-weight:700;line-height:1.3}
 .insurance-line .icon{width:13px;height:13px;flex-shrink:0}
 .insurance-line.ok{background:var(--ok-soft);color:var(--ok)}
@@ -832,6 +842,49 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 body.auth-locked .app{visibility:hidden}
 body.auth-locked{overflow:hidden}
 </style>
+
+<style id="v4-ui">
+.auth-field{position:relative}
+.auth-field input{font-size:16px;min-height:48px;padding-right:86px}
+.auth-reveal{position:absolute;right:8px;bottom:7px;height:34px;padding:0 10px;border:0;border-radius:9px;background:rgba(99,102,241,.10);color:var(--accent);font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.auth-reveal:hover{background:rgba(99,102,241,.18)}
+.to-block{margin-top:14px;border:1px solid var(--border);border-radius:14px;padding:12px;background:var(--surface-2)}
+.to-block-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.to-block-head b{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.to-rows{display:flex;flex-direction:column;gap:7px}
+.to-row{display:grid;grid-template-columns:minmax(120px,2fr) 70px 100px minmax(110px,1.2fr) 34px;gap:7px;align-items:center}
+.to-row.work{grid-template-columns:minmax(150px,2fr) 70px 100px 34px}
+.to-row.material{grid-template-columns:minmax(120px,2fr) 70px 100px minmax(110px,1.2fr) 34px}
+.to-row input{min-width:0;height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border);background:var(--surface-solid);color:var(--text);font:inherit;font-size:12px;outline:none}
+.to-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.to-row .icon-btn{height:34px;width:34px}
+.to-row-head{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:0 4px}
+.to-card{border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:9px;background:var(--surface-solid)}
+.to-card summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;list-style:none}
+.to-card summary::-webkit-details-marker{display:none}
+.to-card-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+.to-card-title b{font-size:13px}
+.to-card-title span{font-size:10.5px;color:var(--muted)}
+.to-card-total{font-weight:800;color:var(--accent);white-space:nowrap}
+.to-card-body{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.to-mini-table{width:100%;border-collapse:collapse;font-size:11.5px;margin:5px 0 9px}
+.to-mini-table th{text-align:left;color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;padding:4px 6px;border-bottom:1px solid var(--border)}
+.to-mini-table td{padding:5px 6px;border-bottom:1px dashed var(--border)}
+.to-mini-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.to-card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.to-receipt{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-2);margin-top:7px}
+.to-receipt img{max-height:90px;max-width:130px;border-radius:8px;border:1px solid var(--border)}
+.week-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.week-bar .week-label{font-size:12px;font-weight:800;color:var(--text-2);min-width:180px}
+.week-bar input[type=date]{width:auto;min-width:145px}
+@media(max-width:720px){
+  .to-row,.to-row.work,.to-row.material{grid-template-columns:1fr 70px 100px 34px}
+  .to-row .to-store{grid-column:1/-2}
+  .to-row-head{display:none}
+  .to-card summary{align-items:flex-start;flex-direction:column}
+  .to-card-total{align-self:flex-end}
+}
+</style>
 </head>
 <body>
 <!-- SVG-СПРАЙТ: все иконки интерфейса -->
@@ -893,17 +946,18 @@ body.auth-locked{overflow:hidden}
     <p>Введите логин и пароль, которые выдал администратор. Это защищает данные компании.</p>
     <form id="authForm">
       <div class="auth-field">
-        <label for="authEmail">Email</label>
-        <input id="authEmail" type="email" autocomplete="username" placeholder="client@example.ru" required>
+        <label for="authEmail">Email (логин)</label>
+        <input id="authEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" value="Laurent2015@bk.ru" placeholder="client@example.ru" required>
       </div>
       <div class="auth-field">
         <label for="authPassword">Пароль</label>
-        <input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        <input id="authPassword" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" placeholder="Введите пароль" required>
+        <button class="auth-reveal" type="button" id="authReveal">Показать</button>
       </div>
       <div class="auth-error" id="authError"></div>
       <button class="btn btn-primary auth-submit" type="submit" id="authSubmit">Войти</button>
     </form>
-    <p class="auth-note">Доступ выдаётся администратором.<br>Если пароль не подходит — напишите Владимиру.</p>
+    <p class="auth-note">Доступ выдаётся администратором.<br>Пароль можно посмотреть кнопкой «Показать».<br>Если не подходит — напишите Владимиру.</p>
   </div>
 </div>
 
@@ -1045,7 +1099,8 @@ body.auth-locked{overflow:hidden}
           </div>
           <div class="page-actions">
             <button class="btn" data-export="parts"><svg class="icon icon-sm"><use href="#i-download"/></svg> CSV</button>
-            <button class="btn btn-primary" data-action="new-part"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Запчасть</button>
+            <button class="btn btn-primary" data-action="new-to"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Новое ТО</button>
+            <button class="btn" data-action="new-part"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Запчасть</button>
           </div>
         </div>
         <div class="kpi-grid" id="serviceKpis"></div>
@@ -1063,15 +1118,34 @@ body.auth-locked{overflow:hidden}
           </div>
           <div id="serviceInsurance"></div>
         </section>
-        <section class="card">
+        <section class="card" style="margin-bottom:16px">
+          <div class="card-head">
+            <div><h2>Карточки ТО</h2><p id="toSubtitle">Работы, запчасти, материалы и чеки</p></div>
+            <div class="page-actions">
+              <button class="btn btn-sm" data-export="to"><svg class="icon icon-sm"><use href="#i-download"/></svg> CSV</button>
+              <button class="btn btn-sm btn-primary" data-action="new-to"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Добавить ТО</button>
+            </div>
+          </div>
+          <div id="toList"></div>
+        </section>
+        <section class="card" style="margin-bottom:16px">
           <div class="card-head">
             <div><h2>История запчастей</h2><p id="partsSubtitle">Все замены и покупки</p></div>
             <div class="parts-filters">
               <select class="input" id="serviceCarFilter" aria-label="Машина"></select>
               <select class="input" id="serviceCategoryFilter" aria-label="Категория"></select>
+              <select class="input" id="serviceVendorFilter" aria-label="Магазин"></select>
+              <button class="btn btn-sm btn-primary" data-action="new-to"><svg class="icon icon-sm"><use href="#i-plus"/></svg> ТО</button>
             </div>
           </div>
           <div id="partsList"></div>
+        </section>
+        <section class="card" id="partsAnalyticsCard">
+          <div class="card-head">
+            <div><h2>Анализ запчастей и магазинов</h2><p>Что ходит дольше, что чаще меняют и где покупали</p></div>
+            <svg class="icon"><use href="#i-chart"/></svg>
+          </div>
+          <div id="partsAnalytics"></div>
         </section>
       </section>
 
@@ -1163,6 +1237,22 @@ body.auth-locked{overflow:hidden}
             <input class="input" type="date" id="reportTo" aria-label="По дату">
             <button class="btn btn-primary btn-sm" id="reportApply">Показать</button>
           </div>
+          <div class="report-filters">
+            <select class="input" id="reportType" aria-label="Тип отчёта">
+              <option value="trips">Отчёт по рейсам</option>
+              <option value="parts">Отчёт по запчастям</option>
+              <option value="to">Отчёт по ТО</option>
+              <option value="drivers">Отчёт по водителям</option>
+              <option value="insurance">Отчёт по страховке</option>
+              <option value="fuel">Отчёт по ГСМ</option>
+            </select>
+            <select class="input" id="reportCar" aria-label="Машина"></select>
+            <select class="input" id="reportOrg" aria-label="Организация"></select>
+            <select class="input" id="reportDriver" aria-label="Водитель"></select>
+            <select class="input" id="reportCategory" aria-label="Категория запчастей"></select>
+            <select class="input" id="reportVendor" aria-label="Магазин"></select>
+            <button class="btn btn-sm" id="reportReset" type="button"><svg class="icon icon-sm"><use href="#i-refresh"/></svg> Сброс</button>
+          </div>
         </section>
         <div class="kpi-grid" id="reportKpis"></div>
         <section class="card" style="margin-bottom:16px">
@@ -1186,6 +1276,20 @@ body.auth-locked{overflow:hidden}
           </div>
           <div id="profitTable"></div>
         </section>
+        <section class="card" style="margin-bottom:16px" id="weeklySalaryCard">
+          <div class="card-head">
+            <div><h2>Зарплата водителей по неделям</h2><p>Понедельник — воскресенье · 45% от дохода минус бензин</p></div>
+            <svg class="icon"><use href="#i-wallet"/></svg>
+          </div>
+          <div class="week-bar">
+            <button class="btn btn-sm btn-ghost" id="salaryPrev" type="button" aria-label="Предыдущая неделя">←</button>
+            <input class="input" type="date" id="salaryWeekDate" aria-label="Неделя">
+            <button class="btn btn-sm btn-ghost" id="salaryNext" type="button" aria-label="Следующая неделя">→</button>
+            <span class="week-label" id="salaryWeekLabel">—</span>
+            <button class="btn btn-sm" data-export="weekly-salary" type="button"><svg class="icon icon-sm"><use href="#i-download"/></svg> CSV</button>
+          </div>
+          <div id="weeklySalary"></div>
+        </section>
         <div class="dash-grid-2" style="margin-bottom:16px">
           <section class="card">
             <div class="card-head"><div><h2>По организациям</h2><p>ИП / ООО и прочие</p></div><svg class="icon"><use href="#i-building"/></svg></div>
@@ -1202,6 +1306,13 @@ body.auth-locked{overflow:hidden}
             <svg class="icon"><use href="#i-fuel"/></svg>
           </div>
           <div id="reportFuel"></div>
+        </section>
+        <section class="card" id="reportDetailCard">
+          <div class="card-head">
+            <div><h2 id="reportDetailTitle">Детализация</h2><p id="reportDetailSubtitle">Строки по выбранному фильтру</p></div>
+            <button class="btn btn-sm" data-export="report-detail" type="button"><svg class="icon icon-sm"><use href="#i-download"/></svg> CSV</button>
+          </div>
+          <div id="reportDetail"></div>
         </section>
       </section>
 
@@ -1352,7 +1463,16 @@ body.auth-locked{overflow:hidden}
           </section>
 
           <section class="card">
-            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.0 · 2026</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
+            <div class="card-head"><div><h2>Установка на ПК</h2><p>Chrome / Edge — отдельное окно без адресной строки</p></div><svg class="icon"><use href="#i-download"/></svg></div>
+            <div class="info-list" style="margin-bottom:12px">
+              <div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Откройте приложение в Chrome или Edge и нажмите «Установить». На рабочем столе появится значок, приложение будет работать в отдельном окне.</span></div>
+            </div>
+            <button class="btn btn-primary" id="installAppBtn"><svg class="icon icon-sm"><use href="#i-download"/></svg> Установить приложение</button>
+            <div class="hint-text" id="installHint" style="margin-top:8px">Если кнопка не сработала — в меню браузера выберите «Установить приложение».</div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.1 · 2026</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
             <div class="info-list">
               <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>; резервные копии — <code>gazelle_app/main_data/backups</code>.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-wallet"/></svg><span><b>Бухгалтерия:</b> доходы, расходы на ГСМ, прибыль, оценка налогов, разбивка по организациям и водителям.</span></div>
@@ -1416,21 +1536,29 @@ body.auth-locked{overflow:hidden}
       </div>
       <div class="field" style="margin-top:12px"><label for="insPolicy">Номер полиса</label><input class="input" id="insPolicy" placeholder="ХХХ 0123456789" autocomplete="off"></div>
       <div class="grid-2" style="margin-top:12px">
-        <div class="field"><label for="insFrom">Действует с</label><input class="input" type="date" id="insFrom"></div>
-        <div class="field"><label for="insTo">Действует по</label><input class="input" type="date" id="insTo"></div>
+        <div class="field"><label for="insFrom">Дата начала</label><input class="input" type="date" id="insFrom"></div>
+        <div class="field"><label for="insTo">Дата окончания</label><input class="input" type="date" id="insTo"></div>
       </div>
       <div class="grid-2" style="margin-top:12px">
-        <div class="field"><label for="insCost">Стоимость, ₽</label><input class="input" type="number" id="insCost" min="0" step="0.01" inputmode="decimal"></div>
+        <div class="field"><label for="insCost">Сумма, ₽</label><input class="input" type="number" id="insCost" min="0" step="0.01" inputmode="decimal"></div>
         <div class="field"><label for="insPaidAt">Дата оплаты</label><input class="input" type="date" id="insPaidAt"></div>
       </div>
       <input type="file" id="insScanFile" accept="image/*" capture="environment" hidden>
-      <div class="scan-row">
+      <input type="file" id="insPdfFile" accept="application/pdf,.pdf" hidden>
+      <div class="scan-row" style="flex-wrap:wrap">
         <button class="btn btn-sm" type="button" id="insScanBtn"><svg class="icon icon-sm"><use href="#i-camera"/></svg> Сканировать полис</button>
-        <span class="hint-text" id="insScanStatus">Наведите камеру на QR/штрихкод полиса</span>
+        <button class="btn btn-sm" type="button" id="insPdfBtn"><svg class="icon icon-sm"><use href="#i-file"/></svg> Загрузить PDF</button>
+        <span class="hint-text" id="insScanStatus">Камера, QR/штрихкод, OCR или PDF</span>
       </div>
       <div class="scan-preview" id="insPreview" hidden>
         <img id="insPreviewImg" alt="Фото полиса">
         <button class="btn btn-sm btn-ghost" type="button" id="insPhotoRemove">Убрать фото</button>
+      </div>
+      <div class="pdf-attachment" id="insPdfPreview" hidden>
+        <span class="pdf-badge">PDF</span>
+        <div class="pdf-meta"><b id="insPdfName">Полис.pdf</b><span>Файл прикреплён к страховке</span></div>
+        <a class="btn btn-sm" id="insPdfOpen" href="#" target="_blank" rel="noopener"><svg class="icon icon-sm"><use href="#i-file"/></svg> Открыть</a>
+        <button class="btn btn-sm btn-ghost" type="button" id="insPdfRemove">Убрать</button>
       </div>
     </div>
     <div class="modal-foot">
@@ -1473,6 +1601,64 @@ body.auth-locked{overflow:hidden}
     <div class="modal-foot">
       <button class="btn btn-ghost" data-close="partModal">Отмена</button>
       <button class="btn btn-primary" id="partSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛКА: ТО ================= -->
+<div class="modal-backdrop" id="toModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="toModalTitle" style="max-width:780px">
+    <div class="modal-grab"></div>
+    <div class="modal-head">
+      <div><h3 id="toModalTitle">Новое ТО</h3><p>Отдельно работы, запчасти, расходники и магазины</p></div>
+      <button class="icon-btn sm" data-close="toModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <input type="hidden" id="toEditId">
+    <div class="grid-2">
+      <div class="field"><label for="toDate">Дата</label><input class="input" type="date" id="toDate"></div>
+      <div class="field"><label for="toCar">Машина</label><select class="input" id="toCar"></select></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="toOdo">Пробег, км</label><input class="input" type="number" id="toOdo" min="0" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="toNote">Примечание / наряд</label><input class="input" id="toNote" placeholder="Номер наряд-заказа, сервис" autocomplete="off"></div>
+    </div>
+    <div class="to-block">
+      <div class="to-block-head"><b>Запчасти</b><button class="btn btn-sm btn-ghost" type="button" id="toAddPart"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Добавить</button></div>
+      <div class="to-rows" id="toPartsRows"></div>
+    </div>
+    <div class="to-block">
+      <div class="to-block-head"><b>Работы</b><button class="btn btn-sm btn-ghost" type="button" id="toAddWork"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Добавить</button></div>
+      <div class="to-rows" id="toWorksRows"></div>
+    </div>
+    <div class="to-block">
+      <div class="to-block-head"><b>Расходники</b><span class="hint-text">масло, фильтры, жидкости</span><button class="btn btn-sm btn-ghost" type="button" id="toAddMaterial"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Добавить</button></div>
+      <div class="to-rows" id="toMaterialsRows"></div>
+    </div>
+    <input type="file" id="toReceiptFile" accept="image/*,application/pdf,.pdf" hidden>
+    <div class="scan-row" style="flex-wrap:wrap;margin-top:12px">
+      <button class="btn btn-sm" type="button" id="toReceiptBtn"><svg class="icon icon-sm"><use href="#i-upload"/></svg> Прикрепить чек</button>
+      <span class="hint-text" id="toReceiptStatus">Фото или PDF, до 500 КБ</span>
+    </div>
+    <div class="to-receipt" id="toReceiptPreview" hidden></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="toModal">Отмена</button>
+      <button class="btn btn-primary" id="toSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить ТО</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛКА: ИСТОРИЯ ТО МАШИНЫ ================= -->
+<div class="modal-backdrop" id="toHistoryModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="toHistoryTitle" style="max-width:780px">
+    <div class="modal-grab"></div>
+    <div class="modal-head">
+      <div><h3 id="toHistoryTitle">ТО машины</h3><p>Работы, запчасти, расходники и магазины</p></div>
+      <button class="icon-btn sm" data-close="toHistoryModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div id="toHistoryList"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="toHistoryModal">Закрыть</button>
+      <button class="btn btn-primary" id="toHistoryAdd"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Добавить ТО</button>
     </div>
   </div>
 </div>
@@ -1618,6 +1804,7 @@ body.auth-locked{overflow:hidden}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYm9cYQxtOKHhm9pGLiW4kjJjGd8QPaC8",
@@ -1752,6 +1939,7 @@ const PART_CATEGORIES = {
   fuel_filter: { label: 'Топливный фильтр', km: 20000, months: 24 },
   brakes: { label: 'Тормозные колодки', km: 40000, months: 24 },
   tires: { label: 'Шины', km: 60000, months: 60 },
+  material: { label: 'Расходник', km: 0, months: 0 },
   other: { label: 'Прочее', km: 0, months: 0 }
 };
 const MAINTENANCE_KEYS = ['oil', 'oil_filter', 'air_filter', 'fuel_filter', 'brakes', 'tires'];
@@ -1816,6 +2004,40 @@ function calculateDriverPay(driver, month) {
   const npd = driver.status === 'self' ? gross * 0.06 : 0;
   const net = gross - ndfl;
   return { trips, count: trips.length, income, fuel, profit, gross, ndfl, npd, net };
+}
+
+const WEEKLY_DRIVER_SHARE = 45;
+
+function startOfWeekISO(value = todayISO()) {
+  const date = parseISO(value);
+  const offset = (date.getDay() + 6) % 7;
+  date.setDate(date.getDate() - offset);
+  return isoLocal(date);
+}
+
+function endOfWeekISO(value = todayISO()) {
+  const date = parseISO(startOfWeekISO(value));
+  date.setDate(date.getDate() + 6);
+  return isoLocal(date);
+}
+
+function weekRangeLabel(start, end) {
+  return `${fmtDate(start)} — ${fmtDate(end)}`;
+}
+
+function calculateWeeklyPay(driver, start, end) {
+  const trips = (state.trips || []).filter(trip => {
+    if (trip.date < start || trip.date > end) return false;
+    if (trip.driverId) return trip.driverId === driver.id;
+    return normKey(trip.driver) === normKey(driver.name);
+  });
+  const income = sumField(trips, 'income');
+  const fuel = sumField(trips, 'expense');
+  const net = income - fuel;
+  const rate = num(driver.weeklyRate) || WEEKLY_DRIVER_SHARE;
+  const driverShare = net > 0 ? net * rate / 100 : 0;
+  const managementShare = net - driverShare;
+  return { trips, count: trips.length, income, fuel, net, rate, driverShare, managementShare };
 }
 
 function partCategoryLabel(key) {
@@ -1944,7 +2166,9 @@ let state = {
   theme: 'light',
   viewMode: 'grid',
   isNdsPayer: false,
-  taxSystem: 'usn6'
+  taxSystem: 'usn6',
+  toRecords: [],
+  weeklyDriverRate: 45
 };
 let isLoaded = false;
 let glonassVehicles = {};
@@ -1952,6 +2176,7 @@ let glonassStatus = null;
 let saveTimer = null;
 let confirmResolver = null;
 const tripFilters = { q: '', month: '', carId: '', org: '' };
+const reportFilters = { type: 'trips', carId: '', org: '', driver: '', category: '', vendor: '' };
 
 function normalizeNdsRate(v) {
   let n = num(v);
@@ -1970,7 +2195,60 @@ function normalizeInsurance(value) {
     to: normalizeDate(insurance.to),
     cost: Math.max(0, num(insurance.cost)),
     paidAt: normalizeDate(insurance.paidAt),
-    photo: typeof insurance.photo === 'string' ? insurance.photo : ''
+    photo: typeof insurance.photo === 'string' ? insurance.photo : '',
+    pdf: insurance.pdf && typeof insurance.pdf === 'object' && (typeof insurance.pdf.data === 'string' || typeof insurance.pdf.url === 'string')
+      ? {
+        name: String(insurance.pdf.name || 'Полис.pdf').trim() || 'Полис.pdf',
+        type: String(insurance.pdf.type || 'application/pdf'),
+        size: Math.max(0, num(insurance.pdf.size)),
+        data: typeof insurance.pdf.data === 'string' ? insurance.pdf.data : '',
+        url: typeof insurance.pdf.url === 'string' ? insurance.pdf.url : ''
+      }
+      : null
+  };
+}
+
+function normalizeToReceipt(value) {
+  if (!value || typeof value !== 'object') return null;
+  const data = typeof value.data === 'string' ? value.data : '';
+  if (!data) return null;
+  return {
+    name: String(value.name || 'чек').trim() || 'чек',
+    type: String(value.type || 'application/octet-stream'),
+    data
+  };
+}
+
+function normalizeToLine(value, kind) {
+  const line = value && typeof value === 'object' ? value : {};
+  const qty = Math.max(0, num(line.qty) || 1);
+  const price = Math.max(0, num(line.price ?? line.cost));
+  const name = String(line.name || '').trim();
+  if (kind === 'work') return { name, qty, price, cost: price * qty };
+  return {
+    name,
+    qty,
+    price,
+    vendor: String(line.vendor || line.store || '').trim()
+  };
+}
+
+function normalizeToRecord(value) {
+  const record = value && typeof value === 'object' ? value : {};
+  const car = state.cars.find(item => item.id === record.carId) || state.cars.find(item => item.name === record.carName);
+  return {
+    ...record,
+    id: record.id || uid(),
+    date: normalizeDate(record.date) || todayISO(),
+    carId: car ? car.id : String(record.carId || ''),
+    carName: String(record.carName || car?.name || '').trim(),
+    odometer: Math.max(0, num(record.odometer)),
+    parts: Array.isArray(record.parts) ? record.parts.map(item => normalizeToLine(item, 'part')).filter(item => item.name) : [],
+    works: Array.isArray(record.works) ? record.works.map(item => normalizeToLine(item, 'work')).filter(item => item.name) : [],
+    materials: Array.isArray(record.materials) ? record.materials.map(item => normalizeToLine(item, 'material')).filter(item => item.name) : [],
+    receipt: normalizeToReceipt(record.receipt),
+    note: String(record.note || '').trim(),
+    createdAt: String(record.createdAt || '')
   };
 }
 
@@ -2021,29 +2299,42 @@ function normalizeState() {
   if (!Array.isArray(state.log)) state.log = [];
   if (!Array.isArray(state.expenses)) state.expenses = [];
   if (!Array.isArray(state.parts)) state.parts = [];
+  if (!Array.isArray(state.toRecords)) state.toRecords = [];
 
   state.organizations = Array.from(new Set(state.organizations
     .filter(o => typeof o === 'string')
     .map(o => o.trim())
     .filter(Boolean)));
 
-  state.cars = state.cars.map(car => ({
-    ...car,
-    id: car.id || uid(),
-    name: String(car.name || 'Без названия').trim() || 'Без названия',
-    type: CAR_TYPES[car.type] ? car.type : 'van',
-    plate: String(car.plate || '').trim(),
-    odometer: Math.max(0, num(car.odometer)),
-    odometerSync: car.odometerSync && hasNumber(car.odometerSync.telemetryOdometer) ? {
-      base: Math.max(0, num(car.odometerSync.base)),
-      telemetryOdometer: Math.max(0, num(car.odometerSync.telemetryOdometer)),
-      setAt: String(car.odometerSync.setAt || '')
-    } : null,
-    fuelLevel: Math.max(0, num(car.fuelLevel)),
-    tank: Math.max(1, num(car.tank) || 60),
-    fuelNorm: (car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm)),
-    insurance: normalizeInsurance(car.insurance)
-  }));
+  state.cars = state.cars.map(car => {
+    const insurance = normalizeInsurance(car.insurance);
+    insurance.policy = insurance.policy || String(car.insuranceNumber || '').trim();
+    insurance.company = insurance.company || String(car.insuranceCompany || '').trim();
+    if (!insurance.cost && car.insuranceSum) insurance.cost = Math.max(0, num(car.insuranceSum));
+    if (!insurance.pdf && typeof car.insurancePdf === 'string' && car.insurancePdf) {
+      insurance.pdf = { name: 'Полис.pdf', type: 'application/pdf', size: 0, data: car.insurancePdf, url: '' };
+    }
+    return {
+      ...car,
+      id: car.id || uid(),
+      name: String(car.name || 'Без названия').trim() || 'Без названия',
+      type: CAR_TYPES[car.type] ? car.type : 'van',
+      plate: String(car.plate || '').trim(),
+      odometer: Math.max(0, num(car.odometer)),
+      odometerSync: car.odometerSync && hasNumber(car.odometerSync.telemetryOdometer) ? {
+        base: Math.max(0, num(car.odometerSync.base)),
+        telemetryOdometer: Math.max(0, num(car.odometerSync.telemetryOdometer)),
+        setAt: String(car.odometerSync.setAt || '')
+      } : null,
+      fuelLevel: Math.max(0, num(car.fuelLevel)),
+      tank: Math.max(1, num(car.tank) || 60),
+      fuelNorm: (car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm)),
+      insurance,
+      insuranceNumber: String(car.insuranceNumber || insurance.policy || '').trim(),
+      insuranceCompany: String(car.insuranceCompany || insurance.company || '').trim(),
+      insuranceSum: Math.max(0, num(car.insuranceSum ?? insurance.cost))
+    };
+  });
 
   state.drivers = (Array.isArray(state.drivers) ? state.drivers : [])
     .map((driver, index) => normalizeDriver(driver, index))
@@ -2088,6 +2379,8 @@ function normalizeState() {
       intervalMonths: Math.max(0, num(part.intervalMonths))
     };
   });
+
+  state.toRecords = state.toRecords.map(record => normalizeToRecord(record));
 
   state.trips = state.trips.map(trip => {
     const car = state.cars.find(c => c.id === trip.carId) || state.cars.find(c => c.name === trip.carName);
@@ -2315,8 +2608,25 @@ function buildDemoState() {
     { id: 'demo-part-4', date: dateIn(-1, 12), carId: 'demo-car-3', carName: 'KAMAZ 5490', category: 'oil', name: 'Масло 5W-30', cost: 5200, odometer: 46000, qty: 1, vendor: 'Лукойл', note: '', intervalKm: 10000, intervalMonths: 12 },
     { id: 'demo-part-5', date: dateIn(-5, 9), carId: 'demo-car-4', carName: 'Hyundai Solaris', category: 'oil', name: 'Масло 5W-30', cost: 4200, odometer: 62000, qty: 1, vendor: 'АвтоМаг', note: '', intervalKm: 10000, intervalMonths: 12 }
   ];
+  const toRecords = [
+    { id: 'demo-to-1', date: dateIn(-3, 10), carId: 'demo-car-1', carName: 'Volvo FH 460', odometer: 411500, note: 'Наряд-заказ № 128', parts: [
+      { name: 'Колодки тормозные дисковые', qty: 2, price: 8483.50, vendor: 'Еврофура' },
+      { name: 'Р/к суппорта Duco', qty: 3, price: 1330, vendor: 'Еврофура' }
+    ], works: [
+      { name: 'Суппорт тормозной: с/у колеса и колодок', qty: 2, price: 2500 },
+      { name: 'Суппорт тормозной: ремонт', qty: 4, price: 2500 }
+    ], materials: [
+      { name: 'Смазка тормозная', qty: 1, price: 980, vendor: 'Еврофура' }
+    ], receipt: null, createdAt: '' },
+    { id: 'demo-to-2', date: dateIn(-1, 12), carId: 'demo-car-2', carName: 'Ford Transit', odometer: 184000, note: 'ТО-2', parts: [
+      { name: 'Масло моторное 5W-30', qty: 6, price: 850, vendor: 'АвтоМаг' },
+      { name: 'Фильтр масляный', qty: 1, price: 1200, vendor: 'АвтоМаг' }
+    ], works: [
+      { name: 'Замена масла и фильтра', qty: 1, price: 1800 }
+    ], materials: [], receipt: null, createdAt: '' }
+  ];
   return {
-    cars, trips, organizations, fuelLog, parts,
+    cars, trips, organizations, fuelLog, parts, toRecords,
     drivers: driverProfiles, log: [], expenses: [],
     theme: 'light', viewMode: 'grid',
     isNdsPayer: false, taxSystem: 'usn6', ndsRate: 22,
@@ -2991,6 +3301,7 @@ function carCard(car, index) {
         <span class="plate">${esc(CAR_TYPES[car.type]?.short || 'Транспорт')} · ${esc(carPlate(car) || 'без номера')} · ${fmtLiters(car.fuelNorm)} л/100 км</span>
       </div>
       <div class="car-actions">
+        <button class="icon-btn sm" data-to-car="${esc(car.id)}" title="ТО и ремонты" aria-label="ТО и ремонты">${icon('wrench')}</button>
         <button class="icon-btn sm" data-edit-car="${esc(car.id)}" title="Изменить" aria-label="Изменить машину">${icon('edit')}</button>
         <button class="icon-btn sm danger" data-del-car="${esc(car.id)}" title="Удалить" aria-label="Удалить машину">${icon('trash')}</button>
       </div>
@@ -3294,6 +3605,166 @@ function monthsForReport(from, to) {
   return enumerateMonths(keys[0], keys[keys.length - 1]).slice(-60);
 }
 
+function reportTrips(from, to) {
+  return state.trips.filter(trip => inRange(trip, from, to)
+    && (!reportFilters.carId || trip.carId === reportFilters.carId)
+    && (!reportFilters.org || String(trip.org || '') === reportFilters.org)
+    && (!reportFilters.driver || normKey(trip.driver) === normKey(reportFilters.driver)));
+}
+
+function reportPartItems(from, to) {
+  return allPartsWithMeta().filter(item => inRange(item, from, to)
+    && (!reportFilters.carId || item.carId === reportFilters.carId)
+    && (!reportFilters.category || item.category === reportFilters.category)
+    && (!reportFilters.vendor || item.vendor === reportFilters.vendor));
+}
+
+function reportToRecords(from, to) {
+  return (state.toRecords || []).filter(record => inRange(record, from, to)
+    && (!reportFilters.carId || record.carId === reportFilters.carId));
+}
+
+function reportFuelRecords(from, to) {
+  return (state.fuelLog || []).filter(fill => inRange(fill, from, to)
+    && (!reportFilters.carId || fill.carId === reportFilters.carId));
+}
+
+function renderReportFilters() {
+  const type = $('#reportType');
+  if (type) type.value = reportFilters.type;
+  const car = $('#reportCar');
+  if (car) {
+    fillSelect(car, `<option value="">Все машины</option>${state.cars.map(item => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('')}`);
+    car.value = reportFilters.carId;
+  }
+  const org = $('#reportOrg');
+  if (org) {
+    fillSelect(org, `<option value="">Все организации</option>${state.organizations.map(item => `<option value="${esc(item)}">${esc(item)}</option>`).join('')}`);
+    org.value = reportFilters.org;
+  }
+  const driver = $('#reportDriver');
+  if (driver) {
+    const names = Array.from(new Set([...(state.drivers || []).map(item => item.name), ...state.trips.map(item => item.driver)].filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru'));
+    fillSelect(driver, `<option value="">Все водители</option>${names.map(item => `<option value="${esc(item)}">${esc(item)}</option>`).join('')}`);
+    driver.value = reportFilters.driver;
+  }
+  const category = $('#reportCategory');
+  if (category) {
+    fillSelect(category, `<option value="">Все категории</option>${Object.entries(PART_CATEGORIES).map(([key, value]) => `<option value="${key}">${esc(value.label)}</option>`).join('')}`);
+    category.value = reportFilters.category;
+  }
+  const vendor = $('#reportVendor');
+  if (vendor) {
+    const vendors = Array.from(new Set(allPartsWithMeta().map(item => item.vendor).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru'));
+    fillSelect(vendor, `<option value="">Все магазины</option>${vendors.map(item => `<option value="${esc(item)}">${esc(item)}</option>`).join('')}`);
+    vendor.value = reportFilters.vendor;
+  }
+}
+
+function reportDetailData(from, to) {
+  const type = reportFilters.type;
+  const titles = {
+    trips: 'Рейсы', parts: 'Запчасти и расходники', to: 'ТО и ремонты',
+    drivers: 'Водители', insurance: 'Страховка', fuel: 'ГСМ и заправки'
+  };
+  if (type === 'parts') {
+    const rows = reportPartItems(from, to).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    return {
+      title: titles.parts,
+      headers: ['Дата', 'Машина', 'Наименование', 'Категория', 'Магазин', 'Кол-во', 'Сумма', 'Пробег', 'Источник'],
+      rows: rows.map(item => [fmtDate(item.date), item.carName, item.name, partCategoryLabel(item.category), item.vendor || '—', fmtNum(item.qty), fmtMoney(item.cost), item.odometer ? `${fmtNum(item.odometer)} км` : '—', item.source === 'to' ? 'ТО' : 'Запчасть'])
+    };
+  }
+  if (type === 'to') {
+    const rows = reportToRecords(from, to).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    return {
+      title: titles.to,
+      headers: ['Дата', 'Машина', 'Пробег', 'Работы', 'Запчасти', 'Расходники', 'Итого', 'Магазины', 'Примечание'],
+      rows: rows.map(record => {
+        const totals = toTotals(record);
+        const stores = Array.from(new Set([...(record.parts || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
+        return [fmtDate(record.date), record.carName, record.odometer ? `${fmtNum(record.odometer)} км` : '—', fmtMoney(totals.works), fmtMoney(totals.parts), fmtMoney(totals.materials), fmtMoney(totals.total), stores.join(', ') || '—', record.note || '—'];
+      })
+    };
+  }
+  if (type === 'drivers') {
+    const map = new Map();
+    reportTrips(from, to).forEach(trip => {
+      const key = normKey(trip.driver) || 'none';
+      if (!map.has(key)) map.set(key, { name: trip.driver || 'Без водителя', trips: 0, income: 0, fuel: 0 });
+      const row = map.get(key);
+      row.trips += 1;
+      row.income += num(trip.income);
+      row.fuel += num(trip.expense);
+    });
+    const rows = Array.from(map.values()).sort((a, b) => b.income - a.income);
+    return {
+      title: titles.drivers,
+      headers: ['Водитель', 'Рейсов', 'Доход', 'Бензин', 'Прибыль', 'Средний чек'],
+      rows: rows.map(row => [row.name, row.trips, fmtMoney(row.income), fmtMoney(row.fuel), fmtMoney(row.income - row.fuel), fmtMoney(row.trips ? row.income / row.trips : 0)])
+    };
+  }
+  if (type === 'insurance') {
+    const rows = state.cars.filter(car => !reportFilters.carId || car.id === reportFilters.carId);
+    return {
+      title: titles.insurance,
+      headers: ['Машина', 'Тип', 'Компания', 'Полис', 'С даты', 'По дату', 'Сумма', 'Статус', 'PDF'],
+      rows: rows.map(car => {
+        const insurance = car.insurance || {};
+        const status = insuranceStatus(car);
+        return [car.name, insurance.type || 'ОСАГО', insurance.company || '—', insurance.policy || '—', insurance.from || '—', insurance.to || '—', fmtMoney(insurance.cost), status.label, insurance.pdf ? 'есть' : '—'];
+      })
+    };
+  }
+  if (type === 'fuel') {
+    const rows = reportFuelRecords(from, to).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    return {
+      title: titles.fuel,
+      headers: ['Дата', 'Машина', 'Литров', 'Стоимость', 'Цена за литр', 'Пробег'],
+      rows: rows.map(fill => [fmtDate(fill.date), fill.carName, fmtLiters(fill.liters), fmtMoney(fill.cost), fill.liters ? `${fmtMoney(num(fill.cost) / num(fill.liters))}/л` : '—', fill.odometer ? `${fmtNum(fill.odometer)} км` : '—'])
+    };
+  }
+  const rows = reportTrips(from, to).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  return {
+    title: titles.trips,
+    headers: ['Дата', 'Машина', 'Водитель', 'Организация', 'Маршрут', 'Доход', 'Бензин', 'Прибыль'],
+    rows: rows.map(trip => [fmtDate(trip.date), trip.carName, trip.driver || '—', trip.org || '—', trip.route || '—', fmtMoney(trip.income), fmtMoney(trip.expense), fmtMoney(num(trip.income) - num(trip.expense))])
+  };
+}
+
+function renderReportDetail() {
+  const box = $('#reportDetail');
+  if (!box) return;
+  const { from, to } = getReportRange();
+  const data = reportDetailData(from, to);
+  const title = $('#reportDetailTitle');
+  const subtitle = $('#reportDetailSubtitle');
+  if (title) title.textContent = data.title;
+  if (subtitle) subtitle.textContent = `${rangeLabel(from, to)} · ${data.rows.length} ${plural(data.rows.length, ['строка', 'строки', 'строк'])}`;
+  if (!data.rows.length) {
+    box.innerHTML = emptyState('receipt', 'Нет данных по фильтру', 'Измените период или сбросьте фильтры', '<button class="btn btn-sm" id="reportDetailReset">Сбросить фильтры</button>');
+    $('#reportDetailReset')?.addEventListener('click', resetReportFilters, { once: true });
+    return;
+  }
+  box.innerHTML = `<div class="table-wrap responsive-wrap"><table class="data-table responsive-table">
+    <thead><tr>${data.headers.map(header => `<th>${esc(header)}</th>`).join('')}</tr></thead>
+    <tbody>${data.rows.map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function exportReportDetailCSV() {
+  const { from, to } = getReportRange();
+  const data = reportDetailData(from, to);
+  if (!data.rows.length) { showToast('Нет данных для экспорта', 'error'); return; }
+  downloadFile(`report-${reportFilters.type}-${todayISO()}.csv`, toCSV([data.headers, ...data.rows]), 'text/csv;charset=utf-8;');
+  showToast(`Экспортировано строк: ${data.rows.length}`);
+}
+
+function resetReportFilters() {
+  Object.assign(reportFilters, { type: 'trips', carId: '', org: '', driver: '', category: '', vendor: '' });
+  applyPreset('month');
+}
+
 function renderReports() {
   let { from, to } = getReportRange();
   if (from && to && from > to) {
@@ -3301,12 +3772,19 @@ function renderReports() {
     if ($('#reportFrom')) $('#reportFrom').value = from;
     if ($('#reportTo')) $('#reportTo').value = to;
   }
-  const list = state.trips.filter(t => inRange(t, from, to));
+  const list = reportTrips(from, to);
   const income = sumField(list, 'income');
   const fuelExpense = sumField(list, 'expense');
-  const partsList = partsInRange(from, to);
+  const partsList = partsInRange(from, to).filter(part =>
+    (!reportFilters.carId || part.carId === reportFilters.carId)
+    && (!reportFilters.category || part.category === reportFilters.category)
+    && (!reportFilters.vendor || part.vendor === reportFilters.vendor));
   const partsExpense = sumField(partsList, 'cost');
-  const insuranceExpense = insuranceInRange(from, to);
+  const insuranceExpense = state.cars.reduce((sum, car) => {
+    if (reportFilters.carId && car.id !== reportFilters.carId) return sum;
+    const paidAt = insurancePaidDate(car);
+    return sum + (paidAt && (!from || paidAt >= from) && (!to || paidAt <= to) ? num(car.insurance?.cost) : 0);
+  }, 0);
   const expense = fuelExpense + partsExpense + insuranceExpense;
   const profit = income - expense;
   const tax = estimateTax(income, expense);
@@ -3353,11 +3831,12 @@ function renderReports() {
     bucket.inc += num(t.income);
     bucket.exp += num(t.expense);
   });
-  state.parts.forEach(part => {
+  partsList.forEach(part => {
     const bucket = monthMap.get(monthKey(part.date));
     if (bucket) bucket.exp += num(part.cost);
   });
   state.cars.forEach(car => {
+    if (reportFilters.carId && car.id !== reportFilters.carId) return;
     const bucket = monthMap.get(monthKey(insurancePaidDate(car)));
     if (bucket) bucket.exp += num(car.insurance?.cost);
   });
@@ -3375,6 +3854,55 @@ function renderReports() {
   renderBreakdown($('#reportOrgs'), list, 'org', 'Без организации', 'building');
   renderBreakdown($('#reportDrivers'), list, 'driver', 'Без водителя', 'user');
   renderFuelReport(list, from, to);
+  renderWeeklySalary();
+  renderReportFilters();
+  renderReportDetail();
+}
+
+function renderWeeklySalary() {
+  const box = $('#weeklySalary');
+  if (!box) return;
+  const input = $('#salaryWeekDate');
+  if (input && !input.value) input.value = todayISO();
+  const date = input?.value || todayISO();
+  const start = startOfWeekISO(date);
+  const end = endOfWeekISO(date);
+  const label = $('#salaryWeekLabel');
+  if (label) label.textContent = weekRangeLabel(start, end);
+  const drivers = state.drivers || [];
+  if (!drivers.length) {
+    box.innerHTML = emptyState('wallet', 'Нет водителей', 'Добавьте водителей — зарплата посчитается по рейсам за неделю', '<button class="btn btn-sm" data-tab="drivers">Перейти к водителям</button>');
+    return;
+  }
+  const rows = drivers.map(driver => {
+    const pay = calculateWeeklyPay(driver, start, end);
+    return `<tr>
+      <td data-label="Водитель"><b>${esc(driver.name)}</b><span class="part-sub">${esc(driverCarName(driver))}</span></td>
+      <td data-label="Неделя">${esc(weekRangeLabel(start, end))}</td>
+      <td class="num" data-label="Сумма рейсов">${fmtMoney(pay.income)}</td>
+      <td class="num" data-label="Бензин">${fmtMoney(pay.fuel)}</td>
+      <td class="num ${pay.net >= 0 ? 'in' : 'out'}" data-label="Чистыми">${fmtMoney(pay.net)}</td>
+      <td class="num" data-label="Доля водителя"><b>${fmtMoney(pay.driverShare)}</b><span class="part-sub">${pay.rate}%</span></td>
+      <td class="num" data-label="Доля начальства">${fmtMoney(pay.managementShare)}</td>
+    </tr>`;
+  });
+  const totals = drivers.reduce((acc, driver) => {
+    const pay = calculateWeeklyPay(driver, start, end);
+    acc.income += pay.income;
+    acc.fuel += pay.fuel;
+    acc.net += pay.net;
+    acc.driver += pay.driverShare;
+    acc.management += pay.managementShare;
+    return acc;
+  }, { income: 0, fuel: 0, net: 0, driver: 0, management: 0 });
+  box.innerHTML = `<div class="table-wrap responsive-wrap">
+    <table class="data-table responsive-table">
+      <thead><tr><th>Водитель</th><th>Неделя</th><th class="num">Сумма рейсов</th><th class="num">Бензин</th><th class="num">Чистыми</th><th class="num">Доля водителя</th><th class="num">Доля начальства</th></tr></thead>
+      <tbody>${rows.join('')}</tbody>
+      <tfoot><tr><td colspan="2">Итого за неделю</td><td class="num">${fmtMoney(totals.income)}</td><td class="num">${fmtMoney(totals.fuel)}</td><td class="num">${fmtMoney(totals.net)}</td><td class="num">${fmtMoney(totals.driver)}</td><td class="num">${fmtMoney(totals.management)}</td></tr></tfoot>
+    </table>
+  </div>
+  <div class="payroll-note">${icon('info')}<span>Доля водителя считается от чистого дохода: (сумма рейсов − бензин) × ${WEEKLY_DRIVER_SHARE}%. Неделя — с понедельника по воскресенье. Если у водителя в карточке указан свой недельный процент, он используется вместо 45%.</span></div>`;
 }
 
 function renderProfitTable(list, months, extras = {}) {
@@ -3839,15 +4367,18 @@ function openCarModal(id = null) {
     : 'Введите реальный пробег по спидометру.';
   $('#carFuelHint').hidden = !telemetry;
   $('#insType').value = insurance.type || 'ОСАГО';
-  $('#insCompany').value = insurance.company || '';
-  $('#insPolicy').value = insurance.policy || '';
+  $('#insCompany').value = insurance.company || car?.insuranceCompany || '';
+  $('#insPolicy').value = insurance.policy || car?.insuranceNumber || '';
   $('#insFrom').value = insurance.from || '';
   $('#insTo').value = insurance.to || '';
-  $('#insCost').value = insurance.cost ? num(insurance.cost) : '';
+  $('#insCost').value = insurance.cost ? num(insurance.cost) : (car?.insuranceSum ? num(car.insuranceSum) : '');
   $('#insPaidAt').value = insurance.paidAt || '';
   insurancePhotoDraft = insurance.photo || '';
+  insurancePdfDraft = insurance.pdf || car?.insurancePdf || null;
   insurancePreviewMarkup();
+  insurancePdfPreviewMarkup();
   $('#insScanFile').value = '';
+  $('#insPdfFile').value = '';
   $('#insScanStatus').textContent = 'Наведите камеру на QR/штрихкод полиса';
   openModal('carModal');
 }
@@ -3882,6 +4413,9 @@ function saveCar() {
     fuelLevel: Math.max(0, num($('#carFuel').value)),
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
+    insuranceNumber: $('#insPolicy').value.trim(),
+    insuranceCompany: $('#insCompany').value.trim(),
+    insuranceSum: Math.max(0, num($('#insCost').value)),
     insurance: {
       type: $('#insType').value || 'ОСАГО',
       company: $('#insCompany').value.trim(),
@@ -3890,7 +4424,8 @@ function saveCar() {
       to: $('#insTo').value,
       cost: Math.max(0, num($('#insCost').value)),
       paidAt: $('#insPaidAt').value,
-      photo: insurancePhotoDraft
+      photo: insurancePhotoDraft,
+      pdf: insurancePdfDraft
     }
   };
   if (id) {
@@ -3945,7 +4480,10 @@ function updateCarQuick(input) {
    13.5. СТРАХОВКА, ЗАПЧАСТИ И РАСХОДНИКИ
    ============================================================ */
 let insurancePhotoDraft = '';
-let serviceFilters = { carId: '', category: '' };
+let insurancePdfDraft = null;
+let toReceiptDraft = null;
+let toHistoryCarId = '';
+let serviceFilters = { carId: '', category: '', vendor: '' };
 
 function partsInRange(from, to) {
   return (state.parts || []).filter(part => inRange(part, from, to));
@@ -3986,11 +4524,25 @@ function insurancePreviewMarkup() {
   }
 }
 
+function insurancePdfPreviewMarkup() {
+  const box = $('#insPdfPreview');
+  if (!box) return;
+  const file = insurancePdfDraft;
+  const href = file?.url || file?.data || '';
+  if (!href) {
+    box.hidden = true;
+    return;
+  }
+  $('#insPdfName').textContent = file.name || 'Полис.pdf';
+  $('#insPdfOpen').href = href;
+  box.hidden = false;
+}
+
 function parseInsuranceText(raw) {
-  const text = String(raw || '');
+  const text = String(raw || '').replace(/ё/gi, 'е');
   const lower = text.toLowerCase();
   let filled = false;
-  const companies = ['РЕСО', 'Ингосстрах', 'СОГАЗ', 'АльфаСтрахование', 'ВСК', 'Росгосстрах', 'МАКС', 'Энергогарант', 'Астро-Волга', 'Гелиос', 'Тинькофф', 'Сбер', 'Согласие'];
+  const companies = ['РЕСО', 'Ингосстрах', 'СОГАЗ', 'АльфаСтрахование', 'ВСК', 'Росгосстрах', 'МАКС', 'Энергогарант', 'Астро-Волга', 'Гелиос', 'Тинькофф', 'Сбер', 'Согласие', 'Югория', 'Зетта', 'Совкомбанк', 'Газпромбанк'];
   if (lower.includes('каско') && $('#insType').value !== 'КАСКО') {
     $('#insType').value = 'КАСКО';
     filled = true;
@@ -4000,22 +4552,156 @@ function parseInsuranceText(raw) {
     $('#insCompany').value = company;
     filled = true;
   }
-  const policy = text.match(/\b\d{3}\s?\d{7,10}\b/) || text.match(/\b\d{10}\b/);
+  const policyPatterns = [
+    /(?:полис|серия|номер)[^\d]{0,24}(\d{3}\s?\d{7,10})/i,
+    /(?:полис|серия|номер|№)[^\d]{0,18}(\d{6,20})/i,
+    /\b(\d{3}\s?\d{7,10})\b/,
+    /\b(\d{10})\b/
+  ];
+  const policy = policyPatterns.map(re => text.match(re)).find(Boolean);
   if (policy && !$('#insPolicy').value.trim()) {
-    $('#insPolicy').value = policy[0].replace(/\s+/g, ' ');
+    $('#insPolicy').value = policy[1].replace(/\s+/g, ' ').trim();
     filled = true;
   }
-  const dates = Array.from(text.matchAll(/(\d{2})[.\-/](\d{2})[.\-/](\d{4})/g))
-    .map(match => `${match[3]}-${match[2]}-${match[1]}`);
-  if (dates[0] && !$('#insFrom').value) {
-    $('#insFrom').value = dates[0];
+  const dateRe = /(\d{2})[.\-/](\d{2})[.\-/](\d{4})/g;
+  const dates = Array.from(text.matchAll(dateRe)).map(match => `${match[3]}-${match[2]}-${match[1]}`);
+  const fromMatch = text.match(/(?:с|начало|действует\s+с)[^\d]{0,30}(\d{2}[.\-/]\d{2}[.\-/]\d{4})/i);
+  const toMatch = text.match(/(?:по|окончание|действует\s+до|до)[^\d]{0,30}(\d{2}[.\-/]\d{2}[.\-/]\d{4})/i);
+  const fromDate = fromMatch ? `${fromMatch[1].slice(6,10)}-${fromMatch[1].slice(3,5)}-${fromMatch[1].slice(0,2)}` : dates[0];
+  const toDate = toMatch ? `${toMatch[1].slice(6,10)}-${toMatch[1].slice(3,5)}-${toMatch[1].slice(0,2)}` : dates[1];
+  if (fromDate && !$('#insFrom').value) {
+    $('#insFrom').value = fromDate;
     filled = true;
   }
-  if (dates[1] && !$('#insTo').value) {
-    $('#insTo').value = dates[1];
+  if (toDate && !$('#insTo').value) {
+    $('#insTo').value = toDate;
     filled = true;
+  }
+  const sumMatch = text.match(/(?:страхов(?:ая)?\s+сумм[аы]|сумм[аы]\s+страховки|итого)[^\d]{0,24}([\d\s.,]{3,})/i);
+  if (sumMatch && !$('#insCost').value) {
+    const sum = num(sumMatch[1].replace(/\s/g, '').replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
+    if (sum > 0) { $('#insCost').value = sum; filled = true; }
   }
   return filled;
+}
+
+function loadScriptOnce(src) {
+  if (!window.__loadedScripts) window.__loadedScripts = new Map();
+  if (window.__loadedScripts.has(src)) return window.__loadedScripts.get(src);
+  const promise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Не удалось загрузить ${src}`));
+    document.head.appendChild(script);
+  });
+  window.__loadedScripts.set(src, promise);
+  return promise;
+}
+
+async function ocrImage(source, statusEl) {
+  await loadScriptOnce('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+  if (!window.Tesseract) throw new Error('OCR-библиотека не загрузилась');
+  const result = await window.Tesseract.recognize(source, 'rus+eng', {
+    logger: message => {
+      if (statusEl && message.status === 'recognizing text') {
+        statusEl.textContent = `Распознаю текст… ${Math.round((message.progress || 0) * 100)}%`;
+      }
+    }
+  });
+  return result?.data?.text || '';
+}
+
+async function extractPdfText(file, statusEl) {
+  await loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js');
+  const pdfjs = window.pdfjsLib;
+  if (!pdfjs) throw new Error('PDF-библиотека не загрузилась');
+  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  const data = new Uint8Array(await file.arrayBuffer());
+  const pdf = await pdfjs.getDocument({ data }).promise;
+  let text = '';
+  const pages = Math.min(pdf.numPages || 1, 5);
+  for (let i = 1; i <= pages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(item => item.str || '').join(' ') + '\n';
+    if (statusEl) statusEl.textContent = `Читаю PDF… ${i}/${pages}`;
+  }
+  let image = '';
+  if (!text.trim()) {
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(viewport.width);
+    canvas.height = Math.ceil(viewport.height);
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    image = canvas.toDataURL('image/jpeg', 0.82);
+  }
+  return { text, image };
+}
+
+async function handleInsurancePdf(file) {
+  const status = $('#insScanStatus');
+  if (!file) return;
+  let attached = false;
+  // В облаке полис хранится файлом в Firebase Storage; локально — компактным data URL.
+  if (!DEMO && currentUser) {
+    try {
+      const storage = getStorage(app);
+      const safeName = String(file.name || 'policy.pdf').replace(/[^\w.\-а-яА-Я]+/gi, '_');
+      const objectRef = storageRef(storage, `insurance/${currentUser.uid}/${Date.now()}-${safeName}`);
+      const snapshot = await uploadBytes(objectRef, file, { contentType: file.type || 'application/pdf' });
+      const url = await getDownloadURL(snapshot.ref);
+      insurancePdfDraft = {
+        name: file.name || 'Полис.pdf',
+        type: file.type || 'application/pdf',
+        size: file.size || 0,
+        url
+      };
+      insurancePdfPreviewMarkup();
+      attached = true;
+    } catch (error) {
+      console.warn('PDF upload error, using local copy:', error);
+    }
+  }
+  if (!attached) {
+    try {
+      const data = await fileToDataURL(file);
+      if (data.length <= 800000) {
+        insurancePdfDraft = {
+          name: file.name || 'Полис.pdf',
+          type: file.type || 'application/pdf',
+          size: file.size || 0,
+          data
+        };
+        insurancePdfPreviewMarkup();
+        attached = true;
+      }
+    } catch (error) {
+      console.warn('PDF attach error:', error);
+    }
+  }
+  if (status) status.textContent = attached
+    ? 'PDF прикреплён. Читаю реквизиты…'
+    : 'PDF больше 600 КБ — прикрепите файл меньше или введите данные вручную.';
+  try {
+    const { text, image } = await extractPdfText(file, status);
+    let recognized = text;
+    if (!recognized.trim() && image) {
+      if (status) status.textContent = 'PDF без текста, распознаю как фото…';
+      recognized = await ocrImage(image, status);
+    }
+    const filled = parseInsuranceText(recognized);
+    if (status) status.textContent = filled
+      ? 'PDF прикреплён, данные подставлены. Проверьте поля и сохраните.'
+      : (attached ? 'PDF прикреплён. Реквизиты не найдены — проверьте поля.' : 'В PDF не найдены реквизиты.');
+  } catch (error) {
+    console.error('PDF insurance error:', error);
+    if (status) status.textContent = attached
+      ? 'PDF прикреплён. Автоматически прочитать не удалось — данные можно ввести вручную.'
+      : 'Не удалось прочитать PDF. Попробуйте фото или введите вручную.';
+  }
 }
 
 function compressImage(file, maxSide = 420, quality = 0.45) {
@@ -4061,18 +4747,20 @@ async function handleInsuranceScan(file) {
     insurancePhotoDraft = await compressImage(file);
     insurancePreviewMarkup();
     const raw = await detectInsuranceBarcode(file);
-    if (!raw) {
-      if (status) status.textContent = 'QR/штрихкод не найден. Введите номер полиса вручную.';
-      return;
+    let text = raw;
+    if (!text) {
+      if (status) status.textContent = 'QR не найден, распознаю текст с фото…';
+      text = await ocrImage(file, status);
     }
-    const filled = parseInsuranceText(raw);
+    const filled = parseInsuranceText(text);
     if (status) {
       status.textContent = filled
         ? 'Данные с полиса подставлены. Проверьте и сохраните.'
-        : 'Код найден, но данные не распознаны. Введите вручную.';
+        : 'Текст распознан, но реквизиты не найдены. Введите вручную.';
     }
   } catch (error) {
-    if (status) status.textContent = 'Не удалось обработать фото. Введите данные вручную.';
+    console.error('Insurance OCR error:', error);
+    if (status) status.textContent = 'Не удалось распознать фото. Введите данные вручную.';
   }
 }
 
@@ -4167,8 +4855,16 @@ function renderPartsList() {
     fillSelect(categoryFilter, `<option value="">Все категории</option>${Object.entries(PART_CATEGORIES).map(([key, value]) => `<option value="${key}">${esc(value.label)}</option>`).join('')}`);
     categoryFilter.value = serviceFilters.category;
   }
+  const vendorFilter = $('#serviceVendorFilter');
+  if (vendorFilter) {
+    const vendors = Array.from(new Set(allPartsWithMeta().map(item => item.vendor).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru'));
+    fillSelect(vendorFilter, `<option value="">Все магазины</option>${vendors.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('')}`);
+    vendorFilter.value = serviceFilters.vendor;
+  }
   const list = (state.parts || [])
-    .filter(part => (!serviceFilters.carId || part.carId === serviceFilters.carId) && (!serviceFilters.category || part.category === serviceFilters.category))
+    .filter(part => (!serviceFilters.carId || part.carId === serviceFilters.carId)
+      && (!serviceFilters.category || part.category === serviceFilters.category)
+      && (!serviceFilters.vendor || part.vendor === serviceFilters.vendor))
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const subtitle = $('#partsSubtitle');
   if (subtitle) subtitle.textContent = `${list.length} ${plural(list.length, ['запись', 'записи', 'записей'])} · ${fmtMoney(sumField(list, 'cost'))}`;
@@ -4204,6 +4900,138 @@ function renderPartsList() {
   </div>`;
 }
 
+function allPartsWithMeta() {
+  const items = [];
+  (state.parts || []).forEach(part => items.push({
+    ...part,
+    source: 'part',
+    category: part.category || 'other',
+    vendor: String(part.vendor || '').trim(),
+    qty: Math.max(0, num(part.qty)) || 1,
+    cost: Math.max(0, num(part.cost))
+  }));
+  (state.toRecords || []).forEach(record => {
+    (record.parts || []).forEach((item, index) => items.push({
+      id: `${record.id}-part-${index}`,
+      date: record.date,
+      carId: record.carId,
+      carName: record.carName,
+      name: item.name,
+      category: 'other',
+      vendor: String(item.vendor || '').trim(),
+      qty: Math.max(0, num(item.qty)) || 1,
+      cost: toLineTotal(item),
+      odometer: record.odometer,
+      source: 'to'
+    }));
+    (record.materials || []).forEach((item, index) => items.push({
+      id: `${record.id}-material-${index}`,
+      date: record.date,
+      carId: record.carId,
+      carName: record.carName,
+      name: item.name,
+      category: 'material',
+      vendor: String(item.vendor || '').trim(),
+      qty: Math.max(0, num(item.qty)) || 1,
+      cost: toLineTotal(item),
+      odometer: record.odometer,
+      source: 'to'
+    }));
+  });
+  return items.filter(item => String(item.name || '').trim());
+}
+
+function resourceGroups(items) {
+  const groups = new Map();
+  items.forEach(item => {
+    const key = normKey(item.name);
+    if (!groups.has(key)) groups.set(key, { name: item.name, category: item.category, items: [] });
+    groups.get(key).items.push(item);
+  });
+  return Array.from(groups.values()).map(group => {
+    const sorted = group.items.slice().sort((a, b) => (num(a.odometer) - num(b.odometer)) || String(a.date).localeCompare(String(b.date)));
+    const km = [];
+    const days = [];
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = sorted[i - 1];
+      const current = sorted[i];
+      const deltaKm = num(current.odometer) - num(prev.odometer);
+      if (deltaKm > 0) km.push(deltaKm);
+      const deltaDays = daysBetween(prev.date, current.date);
+      if (deltaDays !== null && deltaDays > 0) days.push(deltaDays);
+    }
+    const avg = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+    const last = sorted[sorted.length - 1] || group.items[0];
+    return {
+      name: group.name,
+      category: group.category,
+      count: group.items.length,
+      avgKm: avg(km),
+      avgDays: avg(days),
+      totalCost: group.items.reduce((sum, item) => sum + num(item.cost), 0),
+      vendors: Array.from(new Set(group.items.map(item => item.vendor).filter(Boolean))),
+      last
+    };
+  }).sort((a, b) => (b.avgKm || 0) - (a.avgKm || 0) || b.count - a.count);
+}
+
+function renderPartsAnalytics() {
+  const box = $('#partsAnalytics');
+  if (!box) return;
+  const all = allPartsWithMeta().filter(item =>
+    (!serviceFilters.carId || item.carId === serviceFilters.carId)
+    && (!serviceFilters.category || item.category === serviceFilters.category)
+    && (!serviceFilters.vendor || item.vendor === serviceFilters.vendor)
+  );
+  if (!all.length) {
+    box.innerHTML = emptyState(
+      'chart', 'Пока нет данных для анализа',
+      'Добавьте запчасти и ТО — здесь появятся средний ресурс, цены и магазины',
+      '<button class="btn btn-sm btn-primary" data-action="new-part">Добавить запчасть</button>'
+    );
+    return;
+  }
+  const groups = resourceGroups(all);
+  const vendors = new Map();
+  all.forEach(item => {
+    const key = item.vendor || 'Не указан';
+    if (!vendors.has(key)) vendors.set(key, { name: key, count: 0, cost: 0, parts: new Set(), lastDate: '' });
+    const row = vendors.get(key);
+    row.count += 1;
+    row.cost += num(item.cost);
+    row.parts.add(normKey(item.name));
+    if (String(item.date) > row.lastDate) row.lastDate = item.date;
+  });
+  const vendorRows = Array.from(vendors.values()).sort((a, b) => b.cost - a.cost);
+  box.innerHTML = `<div class="table-wrap responsive-wrap">
+    <table class="data-table responsive-table">
+      <thead><tr><th>Запчасть / расходник</th><th class="num">Замен</th><th class="num">Средний ресурс</th><th class="num">Средний срок</th><th class="num">Расход</th><th>Магазины</th><th>Последняя</th></tr></thead>
+      <tbody>${groups.map((group, index) => `<tr>
+        <td data-label="Запчасть"><b>${esc(group.name)}</b><span class="part-sub">${esc(partCategoryLabel(group.category))}${index === 0 && group.avgKm ? ' · лучший ресурс' : ''}</span></td>
+        <td class="num" data-label="Замен">${group.count}</td>
+        <td class="num" data-label="Средний ресурс">${group.avgKm ? `${fmtNum(group.avgKm)} км` : '—'}</td>
+        <td class="num" data-label="Средний срок">${group.avgDays ? `${fmtNum(group.avgDays)} дн.` : '—'}</td>
+        <td class="num" data-label="Расход">${fmtMoney(group.totalCost)}</td>
+        <td data-label="Магазины">${esc(group.vendors.join(', ') || '—')}</td>
+        <td data-label="Последняя">${fmtDate(group.last?.date)}<span class="part-sub">${esc(group.last?.carName || '')}</span></td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <div class="part-sub" style="margin:14px 0 7px">Магазины и поставщики</div>
+  <div class="table-wrap responsive-wrap">
+    <table class="data-table responsive-table">
+      <thead><tr><th>Магазин</th><th class="num">Позиций</th><th class="num">Сумма</th><th>Что покупали</th><th>Последняя покупка</th></tr></thead>
+      <tbody>${vendorRows.map(row => `<tr>
+        <td data-label="Магазин"><b>${esc(row.name)}</b></td>
+        <td class="num" data-label="Позиций">${row.count}</td>
+        <td class="num" data-label="Сумма">${fmtMoney(row.cost)}</td>
+        <td data-label="Что покупали">${row.parts.size} ${plural(row.parts.size, ['позиция', 'позиции', 'позиций'])}</td>
+        <td data-label="Последняя покупка">${fmtDate(row.lastDate)}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
 function renderServiceInsurance() {
   const box = $('#serviceInsurance');
   if (!box) return;
@@ -4220,7 +5048,7 @@ function renderServiceInsurance() {
         const status = insuranceStatus(car);
         return `<tr>
           <td data-label="Машина"><b>${esc(car.name)}</b></td>
-          <td data-label="Полис">${esc(insurance.type || 'ОСАГО')}${insurance.company ? ` · ${esc(insurance.company)}` : ''}<span class="part-sub">${esc(insurance.policy || 'номер не указан')}</span></td>
+          <td data-label="Полис">${esc(insurance.type || 'ОСАГО')}${insurance.company ? ` · ${esc(insurance.company)}` : ''}<span class="part-sub">${esc(insurance.policy || 'номер не указан')}${insurance.pdf ? ' · PDF прикреплён' : ''}</span></td>
           <td data-label="Действует до">${insurance.to ? fmtDate(insurance.to) : '—'}</td>
           <td data-label="Статус"><span class="reminder-status ${status.status}">${statusText[status.status]}</span></td>
           <td class="num" data-label=""><button class="icon-btn sm" data-edit-car="${esc(car.id)}" title="Изменить страховку">${icon('edit', 'icon-sm')}</button></td>
@@ -4234,7 +5062,285 @@ function renderService() {
   renderServiceKpis();
   renderServiceReminders();
   renderServiceInsurance();
+  renderToRecords();
   renderPartsList();
+  renderPartsAnalytics();
+}
+
+function toLineTotal(item) {
+  return Math.max(0, num(item.qty) || 1) * Math.max(0, num(item.price ?? item.cost));
+}
+
+function toTotals(record) {
+  const parts = (record?.parts || []).reduce((sum, item) => sum + toLineTotal(item), 0);
+  const works = (record?.works || []).reduce((sum, item) => sum + toLineTotal(item), 0);
+  const materials = (record?.materials || []).reduce((sum, item) => sum + toLineTotal(item), 0);
+  return { parts, works, materials, total: parts + works + materials };
+}
+
+function toRecordCard(record, options = {}) {
+  const totals = toTotals(record);
+  const stores = Array.from(new Set([...(record.parts || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
+  const lineTable = (title, lines, withStore) => {
+    if (!lines?.length) return '';
+    return `<div class="part-sub" style="margin-top:7px">${esc(title)}</div>
+      <table class="to-mini-table">
+        <thead><tr><th>Наименование</th><th>Кол-во</th><th>Цена</th><th>Сумма</th>${withStore ? '<th>Магазин</th>' : ''}</tr></thead>
+        <tbody>${lines.map(item => `<tr>
+          <td>${esc(item.name)}</td>
+          <td class="num">${fmtNum(num(item.qty) || 1)}</td>
+          <td class="num">${fmtMoney(item.price ?? item.cost)}</td>
+          <td class="num">${fmtMoney(toLineTotal(item))}</td>
+          ${withStore ? `<td>${esc(item.vendor || '—')}</td>` : ''}
+        </tr>`).join('')}</tbody>
+      </table>`;
+  };
+  const receipt = record.receipt
+    ? (String(record.receipt.type || '').startsWith('image/')
+      ? `<a href="${esc(record.receipt.data)}" target="_blank" rel="noopener"><img src="${esc(record.receipt.data)}" alt="Чек"></a><span>${esc(record.receipt.name || 'чек')}</span>`
+      : `<a class="btn btn-sm btn-ghost" href="${esc(record.receipt.data)}" target="_blank" rel="noopener">${icon('file', 'icon-sm')} Открыть PDF-чек</a>`)
+    : '';
+  return `<details class="to-card">
+    <summary>
+      <div class="to-card-title"><b>${esc(record.carName || 'Машина')} · ${fmtDate(record.date)}</b><span>${record.odometer ? `${fmtNum(record.odometer)} км · ` : ''}${record.note ? esc(record.note) : 'ТО и ремонт'}</span></div>
+      <span class="to-card-total">${fmtMoney(totals.total)}</span>
+    </summary>
+    <div class="to-card-body">
+      <div class="stat-grid" style="margin-bottom:8px">
+        ${statItem('Запчасти', fmtMoney(totals.parts))}
+        ${statItem('Работы', fmtMoney(totals.works))}
+        ${statItem('Расходники', fmtMoney(totals.materials))}
+        ${statItem('Итого', fmtMoney(totals.total))}
+      </div>
+      ${lineTable('Запчасти', record.parts, true)}
+      ${lineTable('Работы', record.works, false)}
+      ${lineTable('Расходники', record.materials, true)}
+      ${stores.length ? `<div class="part-sub" style="margin-top:8px">Где куплено: ${esc(stores.join(', '))}</div>` : ''}
+      ${receipt ? `<div class="to-receipt">${receipt}</div>` : ''}
+      <div class="to-card-actions">
+        ${options.readonly ? '' : `<button class="btn btn-sm btn-ghost" data-edit-to="${esc(record.id)}">${icon('edit', 'icon-sm')} Изменить</button>
+        <button class="btn btn-sm btn-ghost" data-del-to="${esc(record.id)}">${icon('trash', 'icon-sm')} Удалить</button>`}
+      </div>
+    </div>
+  </details>`;
+}
+
+function renderToRecords() {
+  const box = $('#toList');
+  if (!box) return;
+  const list = [...(state.toRecords || [])].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const subtitle = $('#toSubtitle');
+  if (subtitle) subtitle.textContent = `${list.length} ${plural(list.length, ['карточка', 'карточки', 'карточек'])} · ${fmtMoney(list.reduce((sum, record) => sum + toTotals(record).total, 0))}`;
+  if (!list.length) {
+    box.innerHTML = emptyState(
+      'wrench', 'Карточек ТО пока нет',
+      'Добавьте работы, запчасти и материалы — всё будет видно в карточке машины',
+      '<button class="btn btn-sm btn-primary" data-action="new-to">Добавить ТО</button>'
+    );
+    return;
+  }
+  box.innerHTML = list.map(record => toRecordCard(record)).join('');
+}
+
+function renderToHistory() {
+  const box = $('#toHistoryList');
+  if (!box) return;
+  const car = state.cars.find(item => item.id === toHistoryCarId);
+  const title = $('#toHistoryTitle');
+  if (title) title.textContent = car ? `ТО · ${car.name}` : 'ТО машины';
+  const list = (state.toRecords || []).filter(record => record.carId === toHistoryCarId).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  if (!list.length) {
+    box.innerHTML = emptyState('wrench', 'ТО ещё не добавлено', 'Добавьте первую карточку — работы, запчасти, материалы и чек', '<button class="btn btn-sm btn-primary" id="toHistoryEmptyAdd">Добавить ТО</button>');
+    $('#toHistoryEmptyAdd')?.addEventListener('click', () => { closeModal('toHistoryModal'); openToModal(null, { carId: toHistoryCarId }); }, { once: true });
+    return;
+  }
+  box.innerHTML = list.map(record => toRecordCard(record, { readonly: false })).join('');
+}
+
+function openToHistory(carId) {
+  toHistoryCarId = carId;
+  renderToHistory();
+  openModal('toHistoryModal');
+}
+
+function toRowHtml(kind, data = {}) {
+  const isWork = kind === 'work';
+  const isMaterial = kind === 'material';
+  const store = isWork ? '' : `<input class="to-store" data-to-field="vendor" value="${esc(data.vendor || '')}" placeholder="Магазин / поставщик" autocomplete="off">`;
+  const namePlaceholder = isWork ? 'Замена масла, диагностика…' : (isMaterial ? 'Масло, фильтр, жидкость…' : 'Колодки, фильтр, ремень…');
+  return `<div class="to-row ${kind}" data-to-kind="${kind}">
+    <input data-to-field="name" value="${esc(data.name || '')}" placeholder="${namePlaceholder}" autocomplete="off">
+    <input data-to-field="qty" type="number" min="0" step="0.01" value="${num(data.qty) || 1}" placeholder="Кол-во" inputmode="decimal">
+    <input data-to-field="price" type="number" min="0" step="0.01" value="${data.price !== undefined ? num(data.price) : (data.cost !== undefined ? num(data.cost) : '')}" placeholder="Цена" inputmode="decimal">
+    ${store}
+    <button class="icon-btn sm danger" type="button" data-remove-to-row aria-label="Удалить строку">${icon('trash', 'icon-sm')}</button>
+  </div>`;
+}
+
+function addToRow(kind, data = {}) {
+  const map = { part: '#toPartsRows', work: '#toWorksRows', material: '#toMaterialsRows' };
+  const box = $(map[kind]);
+  if (box) box.insertAdjacentHTML('beforeend', toRowHtml(kind, data));
+}
+
+function collectToRows(kind) {
+  const map = { part: '#toPartsRows', work: '#toWorksRows', material: '#toMaterialsRows' };
+  const box = $(map[kind]);
+  if (!box) return [];
+  return Array.from(box.querySelectorAll('[data-to-kind]')).map(row => {
+    const get = field => row.querySelector(`[data-to-field="${field}"]`)?.value?.trim() || '';
+    return { name: get('name'), qty: Math.max(0, num(get('qty')) || 1), price: Math.max(0, num(get('price'))), vendor: get('vendor') };
+  }).filter(item => item.name);
+}
+
+function toReceiptPreviewMarkup() {
+  const box = $('#toReceiptPreview');
+  const status = $('#toReceiptStatus');
+  if (!box) return;
+  if (!toReceiptDraft) {
+    box.hidden = true;
+    box.innerHTML = '';
+    if (status) status.textContent = 'Фото или PDF, до 500 КБ';
+    return;
+  }
+  box.hidden = false;
+  box.innerHTML = String(toReceiptDraft.type || '').startsWith('image/')
+    ? `<img src="${esc(toReceiptDraft.data)}" alt="Чек"><span>${esc(toReceiptDraft.name)}</span>`
+    : `<a class="btn btn-sm btn-ghost" href="${esc(toReceiptDraft.data)}" target="_blank" rel="noopener">${icon('file', 'icon-sm')} ${esc(toReceiptDraft.name)}</a>`;
+  if (status) status.textContent = 'Чек прикреплён';
+}
+
+function openToModal(id = null, preset = {}) {
+  if (!state.cars.length) {
+    showToast('Сначала добавьте машину', 'error');
+    return;
+  }
+  const record = id ? (state.toRecords || []).find(item => item.id === id) : null;
+  const car = record ? state.cars.find(item => item.id === record.carId) : (state.cars.find(item => item.id === preset.carId) || state.cars[0]);
+  $('#toModalTitle').textContent = record ? 'Изменить ТО' : 'Новое ТО';
+  $('#toEditId').value = record?.id || '';
+  $('#toDate').value = record?.date || todayISO();
+  fillSelect($('#toCar'), state.cars.map(item => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join(''));
+  $('#toCar').value = car?.id || state.cars[0].id;
+  $('#toOdo').value = record?.odometer || carOdometer(car) || '';
+  $('#toNote').value = record?.note || '';
+  ['#toPartsRows', '#toWorksRows', '#toMaterialsRows'].forEach(selector => { const box = $(selector); if (box) box.innerHTML = ''; });
+  if (record) {
+    (record.parts || []).forEach(item => addToRow('part', item));
+    (record.works || []).forEach(item => addToRow('work', item));
+    (record.materials || []).forEach(item => addToRow('material', item));
+  }
+  if (!$('#toPartsRows')?.children.length) addToRow('part');
+  if (!$('#toWorksRows')?.children.length) addToRow('work');
+  if (!$('#toMaterialsRows')?.children.length) addToRow('material');
+  toReceiptDraft = record?.receipt || null;
+  toReceiptPreviewMarkup();
+  openModal('toModal');
+}
+
+function saveToRecord() {
+  if (!ensureLoaded()) return;
+  const carId = $('#toCar')?.value || '';
+  const car = state.cars.find(item => item.id === carId);
+  if (!car) { showToast('Выберите машину', 'error'); return; }
+  const date = $('#toDate')?.value || todayISO();
+  const parts = collectToRows('part');
+  const works = collectToRows('work');
+  const materials = collectToRows('material');
+  if (!parts.length && !works.length && !materials.length) {
+    showToast('Добавьте хотя бы одну работу, запчасть или материал', 'error');
+    return;
+  }
+  const id = $('#toEditId')?.value || '';
+  const payload = {
+    date,
+    carId: car.id,
+    carName: car.name,
+    odometer: Math.max(0, num($('#toOdo')?.value)),
+    parts,
+    works,
+    materials,
+    receipt: toReceiptDraft,
+    note: $('#toNote')?.value.trim() || '',
+    createdAt: new Date().toISOString()
+  };
+  if (id) {
+    const record = (state.toRecords || []).find(item => item.id === id);
+    if (!record) { showToast('Карточка ТО не найдена', 'error'); return; }
+    Object.assign(record, payload);
+    showToast('ТО обновлено');
+  } else {
+    state.toRecords.push({ id: uid(), ...payload });
+    showToast('ТО добавлено');
+  }
+  saveNow();
+  closeModal('toModal');
+  renderAll();
+  renderService();
+  if (toHistoryCarId) renderToHistory();
+}
+
+async function deleteToRecord(id) {
+  const record = (state.toRecords || []).find(item => item.id === id);
+  if (!record) return;
+  const ok = await askConfirm({ title: 'Удалить карточку ТО?', text: `${record.carName} · ${fmtDate(record.date)} · ${fmtMoney(toTotals(record).total)}`, ok: 'Удалить', danger: true });
+  if (!ok) return;
+  state.toRecords = (state.toRecords || []).filter(item => item.id !== id);
+  await saveNow();
+  renderAll();
+  renderService();
+  if (toHistoryCarId) renderToHistory();
+  showToast('Карточка ТО удалена');
+}
+
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Не удалось прочитать файл'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleToReceipt(file) {
+  const status = $('#toReceiptStatus');
+  if (!file) return;
+  try {
+    if (String(file.type).startsWith('image/')) {
+      const data = await compressImage(file, 1000, 0.55);
+      toReceiptDraft = { name: file.name || 'чек.jpg', type: 'image/jpeg', data };
+    } else if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+      if (status) status.textContent = 'Читаю PDF…';
+      const data = await fileToDataURL(file);
+      if (data.length > 700000) {
+        showToast('PDF слишком большой. Сфотографируйте чек или уменьшите файл до 500 КБ.', 'error');
+        if (status) status.textContent = 'PDF не прикреплён: больше 500 КБ';
+        return;
+      }
+      toReceiptDraft = { name: file.name || 'чек.pdf', type: 'application/pdf', data };
+    } else {
+      showToast('Можно прикрепить фото или PDF', 'error');
+      return;
+    }
+    toReceiptPreviewMarkup();
+  } catch (error) {
+    console.error('Receipt error:', error);
+    if (status) status.textContent = 'Не удалось прикрепить чек';
+    showToast('Не удалось прикрепить чек', 'error');
+  }
+}
+
+function exportTOCSV() {
+  const list = [...(state.toRecords || [])].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  if (!list.length) { showToast('Карточек ТО пока нет', 'error'); return; }
+  const rows = [['Дата', 'Машина', 'Пробег, км', 'Запчасти, ₽', 'Работы, ₽', 'Расходники, ₽', 'Итого, ₽', 'Магазины', 'Чек', 'Примечание']];
+  list.forEach(record => {
+    const totals = toTotals(record);
+    const stores = Array.from(new Set([...(record.parts || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
+    rows.push([record.date, record.carName, csvNum(record.odometer), csvNum(totals.parts), csvNum(totals.works), csvNum(totals.materials), csvNum(totals.total), stores.join(', '), record.receipt?.name || '', record.note || '']);
+  });
+  downloadFile(`to-${todayISO()}.csv`, toCSV(rows), 'text/csv;charset=utf-8;');
+  showToast(`Экспортировано карточек ТО: ${list.length}`);
 }
 
 function openPartModal(id = null, preset = {}) {
@@ -5090,6 +6196,22 @@ function exportPartsCSV() {
   showToast(`Экспортировано: ${list.length} ${plural(list.length, ['запись', 'записи', 'записей'])}`);
 }
 
+function exportWeeklySalaryCSV() {
+  const input = $('#salaryWeekDate');
+  const date = input?.value || todayISO();
+  const start = startOfWeekISO(date);
+  const end = endOfWeekISO(date);
+  const drivers = state.drivers || [];
+  if (!drivers.length) { showToast('Нет водителей для экспорта', 'error'); return; }
+  const rows = [['Водитель', 'Неделя', 'Сумма рейсов, ₽', 'Бензин, ₽', 'Чистыми, ₽', 'Доля водителя, ₽', 'Доля начальства, ₽']];
+  drivers.forEach(driver => {
+    const pay = calculateWeeklyPay(driver, start, end);
+    rows.push([driver.name, weekRangeLabel(start, end), csvNum(pay.income), csvNum(pay.fuel), csvNum(pay.net), csvNum(pay.driverShare), csvNum(pay.managementShare)]);
+  });
+  downloadFile(`zarplata-${start}-${end}.csv`, toCSV(rows), 'text/csv;charset=utf-8;');
+  showToast('Зарплата за неделю экспортирована');
+}
+
 function exportSummaryCSV() {
   const { from, to } = getReportRange();
   const list = state.trips.filter(t => inRange(t, from, to));
@@ -5199,7 +6321,8 @@ async function handleImport(file) {
       drivers: Array.isArray(payload.drivers) ? payload.drivers : (state.drivers || []),
       log: Array.isArray(payload.log) ? payload.log : (state.log || []),
       expenses: Array.isArray(payload.expenses) ? payload.expenses : (state.expenses || []),
-      parts: Array.isArray(payload.parts) ? payload.parts : []
+      parts: Array.isArray(payload.parts) ? payload.parts : [],
+      toRecords: Array.isArray(payload.toRecords) ? payload.toRecords : []
     };
     normalizeState();
     tripFilters.q = '';
@@ -5242,6 +6365,7 @@ function bindEvents() {
       else if (action === 'new-fuel') openFuelModal();
       else if (action === 'new-org') openOrgModal();
       else if (action === 'new-part') openPartModal();
+      else if (action === 'new-to') openToModal();
       else if (action === 'new-driver') openDriverModal();
       return;
     }
@@ -5257,6 +6381,9 @@ function bindEvents() {
       else if (kind === 'summary') exportSummaryCSV();
       else if (kind === 'parts') exportPartsCSV();
       else if (kind === 'drivers') exportDriversCSV();
+      else if (kind === 'to') exportTOCSV();
+      else if (kind === 'weekly-salary') exportWeeklySalaryCSV();
+      else if (kind === 'report-detail') exportReportDetailCSV();
       return;
     }
 
@@ -5311,6 +6438,14 @@ function bindEvents() {
     if (delOrg) { await deleteOrg(Number(delOrg.dataset.delOrg)); return; }
     const delPart = event.target.closest('[data-del-part]');
     if (delPart) { await deletePart(delPart.dataset.delPart); return; }
+    const removeToRow = event.target.closest('[data-remove-to-row]');
+    if (removeToRow) { removeToRow.closest('[data-to-kind]')?.remove(); return; }
+    const delTo = event.target.closest('[data-del-to]');
+    if (delTo) { await deleteToRecord(delTo.dataset.delTo); return; }
+    const editTo = event.target.closest('[data-edit-to]');
+    if (editTo) { openToModal(editTo.dataset.editTo); return; }
+    const toCar = event.target.closest('[data-to-car]');
+    if (toCar) { openToHistory(toCar.dataset.toCar); return; }
     const delDriver = event.target.closest('[data-del-driver]');
     if (delDriver) { await deleteDriver(delDriver.dataset.delDriver); return; }
     const editDriver = event.target.closest('[data-edit-driver]');
@@ -5357,9 +6492,16 @@ function bindEvents() {
   $('#driverMonth')?.addEventListener('change', renderDrivers);
   $('#partSave')?.addEventListener('click', savePart);
   $('#partCategory')?.addEventListener('change', onPartCategoryChange);
-  $('#serviceCarFilter')?.addEventListener('change', event => { serviceFilters.carId = event.target.value; renderPartsList(); });
-  $('#serviceCategoryFilter')?.addEventListener('change', event => { serviceFilters.category = event.target.value; renderPartsList(); });
+  $('#serviceCarFilter')?.addEventListener('change', event => { serviceFilters.carId = event.target.value; renderPartsList(); renderPartsAnalytics(); });
+  $('#serviceCategoryFilter')?.addEventListener('change', event => { serviceFilters.category = event.target.value; renderPartsList(); renderPartsAnalytics(); });
+  $('#serviceVendorFilter')?.addEventListener('change', event => { serviceFilters.vendor = event.target.value; renderPartsList(); renderPartsAnalytics(); });
   $('#insScanBtn')?.addEventListener('click', () => $('#insScanFile').click());
+  $('#insPdfBtn')?.addEventListener('click', () => $('#insPdfFile').click());
+  $('#insPdfFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleInsurancePdf(file);
+  });
   $('#insScanFile')?.addEventListener('change', async event => {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -5368,6 +6510,48 @@ function bindEvents() {
   $('#insPhotoRemove')?.addEventListener('click', () => {
     insurancePhotoDraft = '';
     insurancePreviewMarkup();
+  });
+  $('#insPdfRemove')?.addEventListener('click', () => {
+    insurancePdfDraft = null;
+    insurancePdfPreviewMarkup();
+    const status = $('#insScanStatus');
+    if (status) status.textContent = 'PDF откреплён. Можно загрузить другой.';
+  });
+  $('#authReveal')?.addEventListener('click', () => {
+    const input = $('#authPassword');
+    if (!input) return;
+    const visible = input.type === 'text';
+    input.type = visible ? 'password' : 'text';
+    $('#authReveal').textContent = visible ? 'Показать' : 'Скрыть';
+  });
+  $('#salaryWeekDate')?.addEventListener('change', renderWeeklySalary);
+  $('#salaryPrev')?.addEventListener('click', () => {
+    const input = $('#salaryWeekDate');
+    const date = parseISO(input?.value || todayISO());
+    date.setDate(date.getDate() - 7);
+    if (input) input.value = isoLocal(date);
+    renderWeeklySalary();
+  });
+  $('#salaryNext')?.addEventListener('click', () => {
+    const input = $('#salaryWeekDate');
+    const date = parseISO(input?.value || todayISO());
+    date.setDate(date.getDate() + 7);
+    if (input) input.value = isoLocal(date);
+    renderWeeklySalary();
+  });
+  $('#toAddPart')?.addEventListener('click', () => addToRow('part'));
+  $('#toAddWork')?.addEventListener('click', () => addToRow('work'));
+  $('#toAddMaterial')?.addEventListener('click', () => addToRow('material'));
+  $('#toSave')?.addEventListener('click', saveToRecord);
+  $('#toReceiptBtn')?.addEventListener('click', () => $('#toReceiptFile').click());
+  $('#toReceiptFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleToReceipt(file);
+  });
+  $('#toHistoryAdd')?.addEventListener('click', () => {
+    closeModal('toHistoryModal');
+    openToModal(null, { carId: toHistoryCarId });
   });
   $('#tripSave')?.addEventListener('click', saveTrip);
   $('#fuelSave')?.addEventListener('click', saveFuel);
@@ -5437,6 +6621,14 @@ function bindEvents() {
       renderReports();
     });
   });
+  ['reportType', 'reportCar', 'reportOrg', 'reportDriver', 'reportCategory', 'reportVendor'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', event => {
+      const keys = { reportType: 'type', reportCar: 'carId', reportOrg: 'org', reportDriver: 'driver', reportCategory: 'category', reportVendor: 'vendor' };
+      reportFilters[keys[id]] = event.target.value;
+      renderReports();
+    });
+  });
+  $('#reportReset')?.addEventListener('click', resetReportFilters);
 
   $('#tripSearch')?.addEventListener('input', event => {
     tripFilters.q = event.target.value;
@@ -5678,6 +6870,34 @@ if (DEMO) {
     try { await saveState(); } catch (e) { showToast('Не удалось сохранить демо', 'error'); }
     showToast('Демо-данные восстановлены', 'success');
   });
+}
+
+/* ============================================================
+   PWA: установка на ПК / Android через Chrome и Edge
+   ============================================================ */
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  const hint = document.getElementById('installHint');
+  if (hint) hint.textContent = 'Приложение готово к установке. Нажмите кнопку выше.';
+});
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  showToast('Приложение установлено', 'success');
+});
+document.getElementById('installAppBtn')?.addEventListener('click', async () => {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    if (choice?.outcome === 'accepted') showToast('Устанавливаем приложение…', 'success');
+    deferredInstallPrompt = null;
+    return;
+  }
+  showToast('Откройте сайт в Chrome или Edge и выберите «Установить приложение» в меню браузера.', 'info');
+});
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js').catch(error => console.warn('Service worker:', error));
 }
 
 </script>
