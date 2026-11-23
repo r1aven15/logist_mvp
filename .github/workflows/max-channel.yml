@@ -1,0 +1,27 @@
+name: MAX channel posts
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+    - cron: "0 8 * * *"
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "morning, day or evening"
+        required: false
+        default: "auto"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publish to MAX
+        env:
+          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+          SLOT: ${{ github.event.inputs.slot }}
+        run: python3 crm/max_channel_publish.py --slot "${SLOT:-auto}"
