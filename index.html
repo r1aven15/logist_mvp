@@ -853,7 +853,7 @@ body.auth-locked{overflow:hidden}
 .to-block-head b{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
 .to-rows{display:flex;flex-direction:column;gap:7px}
 .to-row{display:grid;grid-template-columns:minmax(120px,2fr) 70px 100px minmax(110px,1.2fr) 34px;gap:7px;align-items:center}
-.to-row.work{grid-template-columns:minmax(150px,2fr) 70px 100px 34px}
+.to-row.work{grid-template-columns:minmax(150px,2fr) 70px 100px minmax(110px,1.2fr) 34px}
 .to-row.material{grid-template-columns:minmax(120px,2fr) 70px 100px minmax(110px,1.2fr) 34px}
 .to-row input{min-width:0;height:36px;padding:0 9px;border-radius:9px;border:1px solid var(--border);background:var(--surface-solid);color:var(--text);font:inherit;font-size:12px;outline:none}
 .to-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -2224,7 +2224,7 @@ function normalizeToLine(value, kind) {
   const qty = Math.max(0, num(line.qty) || 1);
   const price = Math.max(0, num(line.price ?? line.cost));
   const name = String(line.name || '').trim();
-  if (kind === 'work') return { name, qty, price, cost: price * qty };
+  if (kind === 'work') return { name, qty, price, cost: price * qty, vendor: String(line.vendor || line.store || '').trim() };
   return {
     name,
     qty,
@@ -3682,7 +3682,7 @@ function reportDetailData(from, to) {
       headers: ['Дата', 'Машина', 'Пробег', 'Работы', 'Запчасти', 'Расходники', 'Итого', 'Магазины', 'Примечание'],
       rows: rows.map(record => {
         const totals = toTotals(record);
-        const stores = Array.from(new Set([...(record.parts || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
+        const stores = Array.from(new Set([...(record.parts || []), ...(record.works || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
         return [fmtDate(record.date), record.carName, record.odometer ? `${fmtNum(record.odometer)} км` : '—', fmtMoney(totals.works), fmtMoney(totals.parts), fmtMoney(totals.materials), fmtMoney(totals.total), stores.join(', ') || '—', record.note || '—'];
       })
     };
@@ -5080,7 +5080,7 @@ function toTotals(record) {
 
 function toRecordCard(record, options = {}) {
   const totals = toTotals(record);
-  const stores = Array.from(new Set([...(record.parts || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
+  const stores = Array.from(new Set([...(record.parts || []), ...(record.works || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
   const lineTable = (title, lines, withStore) => {
     if (!lines?.length) return '';
     return `<div class="part-sub" style="margin-top:7px">${esc(title)}</div>
@@ -5113,7 +5113,7 @@ function toRecordCard(record, options = {}) {
         ${statItem('Итого', fmtMoney(totals.total))}
       </div>
       ${lineTable('Запчасти', record.parts, true)}
-      ${lineTable('Работы', record.works, false)}
+      ${lineTable('Работы', record.works, true)}
       ${lineTable('Расходники', record.materials, true)}
       ${stores.length ? `<div class="part-sub" style="margin-top:8px">Где куплено: ${esc(stores.join(', '))}</div>` : ''}
       ${receipt ? `<div class="to-receipt">${receipt}</div>` : ''}
@@ -5166,7 +5166,7 @@ function openToHistory(carId) {
 function toRowHtml(kind, data = {}) {
   const isWork = kind === 'work';
   const isMaterial = kind === 'material';
-  const store = isWork ? '' : `<input class="to-store" data-to-field="vendor" value="${esc(data.vendor || '')}" placeholder="Магазин / поставщик" autocomplete="off">`;
+  const store = `<input class="to-store" data-to-field="vendor" value="${esc(data.vendor || '')}" placeholder="${isWork ? 'Сервис / магазин' : 'Магазин / поставщик'}" autocomplete="off">`;
   const namePlaceholder = isWork ? 'Замена масла, диагностика…' : (isMaterial ? 'Масло, фильтр, жидкость…' : 'Колодки, фильтр, ремень…');
   return `<div class="to-row ${kind}" data-to-kind="${kind}">
     <input data-to-field="name" value="${esc(data.name || '')}" placeholder="${namePlaceholder}" autocomplete="off">
@@ -5336,7 +5336,7 @@ function exportTOCSV() {
   const rows = [['Дата', 'Машина', 'Пробег, км', 'Запчасти, ₽', 'Работы, ₽', 'Расходники, ₽', 'Итого, ₽', 'Магазины', 'Чек', 'Примечание']];
   list.forEach(record => {
     const totals = toTotals(record);
-    const stores = Array.from(new Set([...(record.parts || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
+    const stores = Array.from(new Set([...(record.parts || []), ...(record.works || []), ...(record.materials || [])].map(item => item.vendor).filter(Boolean)));
     rows.push([record.date, record.carName, csvNum(record.odometer), csvNum(totals.parts), csvNum(totals.works), csvNum(totals.materials), csvNum(totals.total), stores.join(', '), record.receipt?.name || '', record.note || '']);
   });
   downloadFile(`to-${todayISO()}.csv`, toCSV(rows), 'text/csv;charset=utf-8;');
