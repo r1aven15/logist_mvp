@@ -1336,7 +1336,7 @@ body.auth-locked{overflow:hidden}
           <section class="card">
             <div class="card-head"><div><h2>Данные и резервные копии</h2><p>JSON — полный бэкап, CSV — для Excel и 1С</p></div><svg class="icon"><use href="#i-file"/></svg></div>
             <div class="info-list" style="margin-bottom:14px">
-              <div class="info-item"><svg class="icon"><use href="#i-check"/></svg><span id="storageInfo"><b>Автосохранение</b> в Firebase включено. Данные доступны на всех устройствах.</span></div>
+              <div class="info-item"><svg class="icon"><use href="#i-check"/></svg><span id="storageInfo"><b>Автосохранение</b> в Firebase + локальная копия на устройстве. Резервные копии создаются автоматически.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Перед крупными изменениями скачайте JSON-копию.</span></div>
             </div>
             <div class="page-actions">
@@ -1346,13 +1346,14 @@ body.auth-locked{overflow:hidden}
               <button class="btn" data-export="1c"><svg class="icon icon-sm"><use href="#i-file"/></svg> 1С (CSV)</button>
               <button class="btn" data-export="cars"><svg class="icon icon-sm"><use href="#i-file"/></svg> Машины CSV</button>
               <button class="btn" data-export="summary"><svg class="icon icon-sm"><use href="#i-file"/></svg> Сводка CSV</button>
+              <button class="btn" id="backupNowBtn"><svg class="icon icon-sm"><use href="#i-database"/></svg> Создать резервную копию</button>
             </div>
           </section>
 
           <section class="card">
             <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.0 · 2026</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
             <div class="info-list">
-              <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>.</span></div>
+              <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>; резервные копии — <code>gazelle_app/main_data/backups</code>.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-wallet"/></svg><span><b>Бухгалтерия:</b> доходы, расходы на ГСМ, прибыль, оценка налогов, разбивка по организациям и водителям.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-alert"/></svg><span>Калькулятор носит справочный характер и не заменяет консультацию бухгалтера.</span></div>
             </div>
@@ -1614,7 +1615,7 @@ body.auth-locked{overflow:hidden}
    1. FIREBASE — конфигурация и ссылка на документ НЕ ИЗМЕНЕНЫ
    ============================================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -1630,6 +1631,23 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const DOC_REF = doc(db, "gazelle_app", "main_data");
+
+// Офлайн-кэш Firestore: последние данные остаются доступны без сети.
+enableIndexedDbPersistence(db).catch((error) => {
+  console.warn("Offline Firestore cache is unavailable:", error?.code || error);
+});
+
+// Резервные копии: облачные (Firestore subcollection) и локальные (localStorage).
+const CLOUD_BACKUP_COLLECTION = collection(db, "gazelle_app", "main_data", "backups");
+const LOCAL_CACHE_KEY = "autopark_cloud_cache_v1";
+const LOCAL_DAY_PREFIX = "autopark_cloud_day_";
+const LAST_CLOUD_BACKUP_KEY = "autopark_last_cloud_backup";
+const LAST_DEVICE_BACKUP_KEY = "autopark_last_device_backup";
+const CLOUD_BACKUP_INTERVAL = 6 * 60 * 60 * 1000;
+const CLOUD_BACKUP_LIMIT = 28;
+let cloudReady = false;
+let usingLocalCache = false;
+let backupInFlight = false;
 let cloudStarted = false;
 let currentUser = null;
 
@@ -2315,6 +2333,101 @@ function updateDemoCopy() {
   if (carSub) carSub.textContent = 'Демо: данные сохраняются только в браузере';
 }
 
+function cacheState(reason = "auto") {
+  try {
+    const payload = JSON.stringify({
+      savedAt: new Date().toISOString(),
+      reason,
+      state
+    });
+    localStorage.setItem(LOCAL_CACHE_KEY, payload);
+    localStorage.setItem(LOCAL_DAY_PREFIX + todayISO(), payload);
+    const dayKeys = Object.keys(localStorage)
+      .filter(key => key.startsWith(LOCAL_DAY_PREFIX))
+      .sort();
+    dayKeys.slice(0, Math.max(0, dayKeys.length - 7)).forEach(key => localStorage.removeItem(key));
+  } catch (error) {
+    console.warn("Local cache failed:", error);
+  }
+}
+
+function readLocalCache() {
+  try {
+    const raw = localStorage.getItem(LOCAL_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && parsed.state && Array.isArray(parsed.state.cars) ? parsed : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function applyCachedState(reason = "cache") {
+  const cached = readLocalCache();
+  if (!cached) return false;
+  state = { ...state, ...cached.state };
+  usingLocalCache = true;
+  isLoaded = true;
+  normalizeState();
+  applyTheme();
+  applyViewMode();
+  renderAll();
+  setSync("cached");
+  return true;
+}
+
+function maybeDeviceBackup() {
+  if (!window.AndroidApp || typeof window.AndroidApp.saveFile !== "function") return;
+  try {
+    const last = Number(localStorage.getItem(LAST_DEVICE_BACKUP_KEY) || 0);
+    if (Date.now() - last < 24 * 60 * 60 * 1000) return;
+    window.AndroidApp.saveFile(
+      `autopark-auto-${todayISO()}.json`,
+      JSON.stringify(state, null, 2),
+      "application/json"
+    );
+    localStorage.setItem(LAST_DEVICE_BACKUP_KEY, String(Date.now()));
+  } catch (error) {
+    console.warn("Device backup failed:", error);
+  }
+}
+
+async function pruneCloudBackups() {
+  try {
+    const snapshot = await getDocs(query(
+      CLOUD_BACKUP_COLLECTION,
+      orderBy("createdAt", "desc"),
+      limit(CLOUD_BACKUP_LIMIT + 1)
+    ));
+    const extra = snapshot.docs.slice(CLOUD_BACKUP_LIMIT);
+    await Promise.all(extra.map(item => deleteDoc(item.ref)));
+  } catch (error) {
+    console.warn("Backup cleanup failed:", error);
+  }
+}
+
+async function maybeCreateCloudBackup(reason = "auto", force = false) {
+  if (DEMO || !cloudReady || backupInFlight) return;
+  const now = Date.now();
+  const last = Number(localStorage.getItem(LAST_CLOUD_BACKUP_KEY) || 0);
+  if (!force && now - last < CLOUD_BACKUP_INTERVAL) return;
+  backupInFlight = true;
+  try {
+    await setDoc(doc(CLOUD_BACKUP_COLLECTION), {
+      createdAt: serverTimestamp(),
+      reason,
+      appVersion: "3.0",
+      state
+    });
+    localStorage.setItem(LAST_CLOUD_BACKUP_KEY, String(now));
+    await pruneCloudBackups();
+  } catch (error) {
+    console.warn("Cloud backup failed:", error);
+  } finally {
+    backupInFlight = false;
+  }
+}
+
 async function saveState() {
   if (!isLoaded) return;
   if (DEMO) {
@@ -2326,9 +2439,19 @@ async function saveState() {
     }
     return;
   }
+  if (!cloudReady) {
+    cacheState("local-only");
+    setSync("cached");
+    return;
+  }
+  cacheState("pending-save");
   try {
     await setDoc(DOC_REF, state);
+    cacheState("save");
+    maybeDeviceBackup();
+    await maybeCreateCloudBackup("auto");
   } catch (e) {
+    cacheState("save-error");
     console.error(e);
     throw e;
   }
@@ -2340,6 +2463,7 @@ function setSync(mode) {
     saving: 'Сохранение…',
     saved: 'Синхронизировано',
     demo: 'Демо-режим',
+    cached: 'Локальная копия',
     error: 'Ошибка синхронизации'
   };
   $$('[data-sync]').forEach(el => {
@@ -2356,7 +2480,7 @@ function queueSave() {
   saveTimer = setTimeout(async () => {
     try {
       await saveState();
-      setSync(DEMO ? 'demo' : 'saved');
+      setSync(DEMO ? 'demo' : (cloudReady ? 'saved' : 'cached'));
     } catch (e) {
       setSync('error');
       showToast(`Не удалось сохранить: ${e.message}`, 'error');
@@ -2370,7 +2494,7 @@ async function saveNow() {
   setSync(DEMO ? 'demo' : 'saving');
   try {
     await saveState();
-    setSync(DEMO ? 'demo' : 'saved');
+    setSync(DEMO ? 'demo' : (cloudReady ? 'saved' : 'cached'));
   } catch (e) {
     setSync('error');
     showToast(`Не удалось сохранить: ${e.message}`, 'error');
@@ -2389,9 +2513,18 @@ function startCloud(user) {
   currentUser = user;
   setSync('connecting');
   onSnapshot(DOC_REF, (docSnap) => {
+    cloudReady = true;
+    usingLocalCache = false;
     if (docSnap.exists()) {
       const data = docSnap.data();
       state = { ...state, ...data };
+      cacheState("cloud");
+    } else {
+      const cached = readLocalCache();
+      if (cached) {
+        state = { ...state, ...cached.state };
+        showToast("В облаке пока нет данных. Показана локальная копия — проверьте и сохраните.", "info");
+      }
     }
     isLoaded = true;
     normalizeState();
@@ -2399,9 +2532,14 @@ function startCloud(user) {
     applyViewMode();
     renderAll();
     setSync('saved');
+    void maybeCreateCloudBackup('open');
   }, (error) => {
-    setSync('error');
-    showToast('Нет доступа к данным. Проверьте логин или правила Firebase.', 'error');
+    if (applyCachedState('error')) {
+      showToast('Нет связи с облаком. Показаны данные с устройства. Изменения сохраняются локально.', 'info');
+    } else {
+      setSync('error');
+      showToast('Нет доступа к данным. Проверьте логин или правила Firebase.', 'error');
+    }
     console.error('Firestore snapshot error:', error);
   });
 
@@ -5206,6 +5344,16 @@ function bindEvents() {
   $('#confirmOk')?.addEventListener('click', () => resolveConfirm(true));
   $('#confirmCancel')?.addEventListener('click', () => resolveConfirm(false));
   $('#exportBtn')?.addEventListener('click', exportJSON);
+  $('#backupNowBtn')?.addEventListener('click', async () => {
+    if (!isLoaded) return;
+    cacheState('manual');
+    if (!cloudReady) {
+      showToast('Нет связи с облаком. Копия сохранена на устройстве.', 'info');
+      return;
+    }
+    await maybeCreateCloudBackup('manual', true);
+    showToast('Резервная копия создана в облаке и на устройстве', 'success');
+  });
 
   $('#importFile')?.addEventListener('change', async event => {
     const file = event.target.files?.[0];
@@ -5421,9 +5569,18 @@ function init() {
 if (DEMO) {
   state = loadDemoState();
   isLoaded = true;
+} else {
+  const cached = readLocalCache();
+  if (cached) state = { ...state, ...cached.state };
 }
 
 init();
+
+if (!DEMO) {
+  setInterval(() => {
+    if (isLoaded && cloudReady) void maybeCreateCloudBackup('interval');
+  }, 15 * 60 * 1000);
+}
 
 if (DEMO) {
   document.getElementById('demoBar')?.removeAttribute('hidden');
