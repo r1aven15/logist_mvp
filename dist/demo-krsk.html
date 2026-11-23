@@ -1313,7 +1313,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
           <section class="card">
             <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.0 · 2026</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
             <div class="info-list">
-              <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>.</span></div>
+              <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> локальное хранилище браузера (демо).</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-wallet"/></svg><span><b>Бухгалтерия:</b> доходы, расходы на ГСМ, прибыль, оценка налогов, разбивка по организациям и водителям.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-alert"/></svg><span>Калькулятор носит справочный характер и не заменяет консультацию бухгалтера.</span></div>
             </div>
@@ -1360,7 +1360,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
       <div class="field"><label for="carPlate">Госномер</label><input class="input" id="carPlate" placeholder="а123вс77" autocomplete="off"></div>
     </div>
     <div class="grid-2" style="margin-top:12px">
-      <div class="field"><label for="carOdo">Пробег, км</label><input class="input" type="number" id="carOdo" min="0" step="1" inputmode="numeric"><span class="hint-text" id="carOdoHint" hidden>Обновляется из ГЛОНАСС</span></div>
+      <div class="field"><label for="carOdo">Пробег по спидометру, км</label><input class="input" type="number" id="carOdo" min="0" step="1" inputmode="numeric"><span class="hint-text" id="carOdoHint">Введите реальный пробег. К нему будет прибавляться километраж из ГЛОНАСС.</span></div>
       <div class="field"><label for="carFuel">Топливо в баке, л</label><input class="input" type="number" id="carFuel" min="0" step="0.1" inputmode="decimal"><span class="hint-text" id="carFuelHint" hidden>Обновляется из ГЛОНАСС</span></div>
     </div>
     <div class="grid-2" style="margin-top:12px">
@@ -1970,6 +1970,11 @@ function normalizeState() {
     type: CAR_TYPES[car.type] ? car.type : 'van',
     plate: String(car.plate || '').trim(),
     odometer: Math.max(0, num(car.odometer)),
+    odometerSync: car.odometerSync && hasNumber(car.odometerSync.telemetryOdometer) ? {
+      base: Math.max(0, num(car.odometerSync.base)),
+      telemetryOdometer: Math.max(0, num(car.odometerSync.telemetryOdometer)),
+      setAt: String(car.odometerSync.setAt || '')
+    } : null,
     fuelLevel: Math.max(0, num(car.fuelLevel)),
     tank: Math.max(1, num(car.tank) || 60),
     fuelNorm: (car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm)),
@@ -2103,6 +2108,7 @@ function renderGlonassStatus() {
       <li>На сервере задайте <code>GLONASS_LOGIN</code>, <code>GLONASS_PASSWORD</code> и <code>FIREBASE_CREDENTIALS</code>. Список <code>GLONASS_VEHICLE_IDS</code> необязателен: без него воркер берёт все машины из ГЛОНАСС.</li>
       <li>Запускайте <code>python sync_glonass.py</code> по cron каждые 1–5 минут. При первом запуске воркер считает общий пробег по истории ГЛОНАСС, дальше добавляет только новые километры.</li>
       <li>Проверьте привязку: госномер в приложении должен совпадать с номером машины в ГЛОНАСС. Название — запасной вариант.</li>
+      <li>В карточке машины введите реальный пробег по спидометру. Дальше приложение будет прибавлять к нему новые километры из ГЛОНАСС.</li>
       <li>После первого запуска у пробега и топлива появится метка «ГЛОНАСС».</li>
     </ol>
     <p>Проверка без записи: <code>python sync_glonass.py --probe</code></p>
@@ -2132,7 +2138,15 @@ function hasNumber(value) {
 
 function carOdometer(car) {
   const telemetry = glonassForCar(car);
-  return telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : num(car?.odometer);
+  if (telemetry && hasNumber(telemetry.odometer)) {
+    const sync = car?.odometerSync;
+    if (sync && hasNumber(sync.telemetryOdometer) && hasNumber(sync.base)) {
+      const delta = Math.max(0, Number(telemetry.odometer) - Number(sync.telemetryOdometer));
+      return Number(sync.base) + delta;
+    }
+    return Number(telemetry.odometer);
+  }
+  return num(car?.odometer);
 }
 
 function carFuel(car) {
@@ -2770,7 +2784,7 @@ function carCard(car, index) {
   const odometer = carOdometer(car);
   const fuel = carFuel(car);
   const dailyMileage = telemetry && hasNumber(telemetry.dailyMileage) ? Number(telemetry.dailyMileage) : null;
-  const odometerKnown = !telemetry || hasNumber(telemetry.odometer) || num(car.odometer) > 0;
+  const odometerKnown = carOdometer(car) > 0 || num(car.odometer) > 0 || (telemetry && hasNumber(telemetry.odometer));
   const insurance = insuranceStatus(car);
   const tank = num(car.tank) || 60;
   const fuelPct = clamp((fuel / tank) * 100, 0, 100);
@@ -2790,14 +2804,14 @@ function carCard(car, index) {
       </div>
     </div>
     <div class="car-metrics">
-      <div class="car-metric"><span>Пробег${telemetry ? ' · ГЛОНАСС' : ''}</span><strong>${odometerKnown ? `${fmtNum(odometer)} <small>км</small>` : '—'}</strong></div>
+      <div class="car-metric"><span>Пробег${telemetry ? (car.odometerSync ? ' · спидометр + ГЛОНАСС' : ' · ГЛОНАСС') : ''}</span><strong>${odometerKnown ? `${fmtNum(odometer)} <small>км</small>` : '—'}</strong></div>
       <div class="car-metric"><span>Топливо${telemetry ? ' · ГЛОНАСС' : ''}</span><strong>${fmtLiters(fuel)} <small>л</small></strong></div>
     </div>
     ${dailyMileage !== null ? `<div class="telemetry-line">${icon('route', 'icon-sm')} За 24 ч по ГЛОНАСС: <b>${fmtNum(dailyMileage)} км</b></div>` : ''}
     <div class="fuel-top"><span>Бак ${Math.round(fuelPct)}%</span><b>~${fmtNum(range)} км запаса</b></div>
     <div class="progress ${fuelClass} thin"><i style="width:${fuelPct}%"></i></div>
     <div class="insurance-line ${insurance.status}">${icon('shield', 'icon-sm')} ${esc(insurance.label)}</div>
-    ${telemetry ? `<div class="telemetry-note">${icon('gauge', 'icon-sm')} Пробег и топливо обновляются из ГЛОНАСС${telemetry.updatedAt ? ` · ${esc(fmtSyncTime(telemetry.updatedAt))}` : ''}</div>` : `<div class="car-quick">
+    ${telemetry ? `<div class="telemetry-note">${icon('gauge', 'icon-sm')} ${car.odometerSync ? 'Пробег: ваш спидометр + км из ГЛОНАСС' : 'Пробег и топливо обновляются из ГЛОНАСС'}${telemetry.updatedAt ? ` · ${esc(fmtSyncTime(telemetry.updatedAt))}` : ''}</div>` : `<div class="car-quick">
       <label>Пробег, км<input type="number" min="0" step="1" data-car-quick="odometer" data-car-id="${esc(car.id)}" value="${num(car.odometer)}"></label>
       <label>Топливо, л<input type="number" min="0" step="0.1" data-car-quick="fuelLevel" data-car-id="${esc(car.id)}" value="${num(car.fuelLevel)}"></label>
     </div>`}
@@ -3621,13 +3635,16 @@ function openCarModal(id = null) {
   $('#carPlate').value = car ? (car.plate || carPlate(car)) : '';
   const telemetry = car ? glonassForCar(car) : null;
   const insurance = car?.insurance || {};
-  $('#carOdo').value = car ? num(car.odometer) : '';
+  $('#carOdo').value = car ? Math.round(carOdometer(car)) : '';
   $('#carFuel').value = car ? num(car.fuelLevel) : '';
   $('#carTank').value = car ? num(car.tank) : 60;
   $('#carNorm').value = car ? num(car.fuelNorm) : 15;
-  $('#carOdo').disabled = !!telemetry;
+  $('#carOdo').disabled = false;
   $('#carFuel').disabled = !!telemetry;
-  $('#carOdoHint').hidden = !telemetry;
+  $('#carOdoHint').hidden = false;
+  $('#carOdoHint').textContent = telemetry
+    ? 'Введите реальный пробег по спидометру — ГЛОНАСС будет прибавлять километры сверх него.'
+    : 'Введите реальный пробег по спидометру.';
   $('#carFuelHint').hidden = !telemetry;
   $('#insType').value = insurance.type || 'ОСАГО';
   $('#insCompany').value = insurance.company || '';
@@ -3652,11 +3669,24 @@ function saveCar() {
     $('#carName').focus();
     return;
   }
+  const currentCar = id ? state.cars.find(c => c.id === id) : null;
+  const telemetry = currentCar ? glonassForCar(currentCar) : null;
+  const odometerValue = Math.max(0, num($('#carOdo').value));
+  if (telemetry && hasNumber(telemetry.odometer) && odometerValue <= 0) {
+    showToast('Введите реальный пробег по спидометру', 'error');
+    $('#carOdo').focus();
+    return;
+  }
   const payload = {
     name,
     type: CAR_TYPES[$('#carType').value] ? $('#carType').value : 'van',
     plate: $('#carPlate').value.trim(),
-    odometer: Math.max(0, num($('#carOdo').value)),
+    odometer: odometerValue,
+    odometerSync: telemetry && hasNumber(telemetry.odometer) ? {
+      base: odometerValue,
+      telemetryOdometer: Number(telemetry.odometer),
+      setAt: new Date().toISOString()
+    } : null,
     fuelLevel: Math.max(0, num($('#carFuel').value)),
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
