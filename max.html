@@ -13,6 +13,7 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
   body{
     background:#e9ecf6;color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -38,6 +39,8 @@
   .top b{font-size:13px;display:block;letter-spacing:-.1px}
   .top small{display:block;color:var(--muted);font-size:9.2px;margin-top:.4mm}
   .top .pill{margin-left:auto;font-size:8.2px;font-weight:800;color:#5b21b6;background:#f3efff;border:1px solid #e4dcff;border-radius:999px;padding:2.2mm 3mm;white-space:nowrap}
+  .jump{font-size:8.2px;font-weight:850;color:#312e81;text-decoration:none;background:#fff;border:1px solid #dfe5ff;border-radius:999px;padding:2.2mm 3mm;white-space:nowrap}
+  .jump:hover{background:#eef2ff}
 
   .badge{display:inline-flex;align-items:center;gap:1.6mm;padding:1.5mm 2.8mm;border-radius:999px;background:#f5f3ff;color:#5b21b6;font-size:8.2px;font-weight:800;margin-bottom:2.8mm;letter-spacing:.1px}
   .badge i{width:1.8mm;height:1.8mm;border-radius:50%;background:#7c3aed;display:inline-block}
@@ -167,6 +170,7 @@
     <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
     <div><b>Автопарк Контроль</b><small>учёт транспорта · 2026 · Красноярск</small></div>
     <div class="pill">● демо без установки</div>
+    <a class="jump" href="#warehouse">Склад →</a>
   </div>
 
   <div class="badge"><i></i> Для автопарков 5–50 машин</div>
@@ -223,7 +227,7 @@
 </section>
 
 <!-- ================= СТРАНИЦА 2 ================= -->
-<section class="page page2">
+<section class="page page2" id="warehouse">
   <div class="top">
     <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
     <div><b>Автопарк Контроль</b><small>склад · сервис · рейсы</small></div>
