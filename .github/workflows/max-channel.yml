@@ -2,9 +2,9 @@ name: MAX channel posts
 
 on:
   schedule:
-    - cron: "0 3 * * *"
-    - cron: "0 8 * * *"
-    - cron: "0 13 * * *"
+    # Every 30 minutes: the publisher skips posts already present in the channel,
+    # so a delayed or missed run safely catches up instead of duplicating.
+    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       slot:
@@ -12,9 +12,14 @@ on:
         required: false
         default: "auto"
 
+concurrency:
+  group: max-channel-posts
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
