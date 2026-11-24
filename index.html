@@ -243,7 +243,7 @@ h1,h2,h3,h4,p{margin-top:0}
 .mobile-topbar .sync span{display:none}
 
 .bottom-nav{display:none;position:fixed;z-index:60;left:10px;width:calc(100vw - 20px);bottom:calc(10px + env(safe-area-inset-bottom));padding:7px;border-radius:20px;background:var(--surface);-webkit-backdrop-filter:blur(26px) saturate(160%);backdrop-filter:blur(26px) saturate(160%);border:1px solid var(--border);box-shadow:var(--shadow-lg)}
-.bottom-nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 1px;border:0;border-radius:14px;background:transparent;color:var(--muted);font-size:8.8px;font-weight:700;cursor:pointer;transition:.18s}
+.bottom-nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:0;border-radius:14px;background:transparent;color:var(--muted);font-size:8.8px;font-weight:700;cursor:pointer;transition:.18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bottom-nav button .icon{width:21px;height:21px}
 .bottom-nav button.active{color:var(--accent);background:var(--surface-2)}
 .bottom-nav button:active{transform:scale(.96)}
@@ -368,7 +368,32 @@ h1,h2,h3,h4,p{margin-top:0}
 .cars-view.carousel{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .cars-view.carousel::-webkit-scrollbar{display:none}
 .cars-view.carousel .car-card{flex:0 0 min(340px,86vw);scroll-snap-align:center}
-.cars-view[class~="3d"] .car-card{transform-style:preserve-3d;will-change:transform;transition:transform .12s ease-out,box-shadow .3s}
+.cars-view.compact{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.cars-view.compact .car-card{padding:12px;cursor:pointer;min-height:0}
+.cars-view.compact .car-card .car-avatar{width:38px;height:38px;border-radius:12px}
+.cars-view.compact .car-card .car-avatar .icon{width:19px;height:19px}
+.cars-view.compact .car-card .car-title h3{font-size:13.5px}
+.cars-view.compact .car-card .car-title .plate{font-size:9.5px}
+.cars-view.compact .car-card:not(.expanded) .car-metrics,
+.cars-view.compact .car-card:not(.expanded) .fuel-top,
+.cars-view.compact .car-card:not(.expanded) .progress,
+.cars-view.compact .car-card:not(.expanded) .insurance-line,
+.cars-view.compact .car-card:not(.expanded) .telemetry-note,
+.cars-view.compact .car-card:not(.expanded) .car-quick,
+.cars-view.compact .car-card:not(.expanded) .car-foot,
+.cars-view.compact .car-card:not(.expanded) .telemetry-line{display:none}
+.cars-view.compact .car-card:not(.expanded) .car-actions{display:none}
+.cars-view.compact .car-card:not(.expanded) .car-head{margin-bottom:8px}
+.cars-view.compact .compact-summary{display:flex;flex-wrap:wrap;gap:5px}
+.cars-view.compact .car-card.expanded{grid-column:span 2}
+.cars-view.compact .car-card.expanded .compact-summary{display:none}
+.compact-summary{display:none}
+.compact-pill{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:750;white-space:nowrap}
+.compact-pill .icon{width:11px;height:11px}
+.compact-pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.compact-pill.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.compact-pill.danger{background:var(--danger-soft);color:var(--danger);border-color:transparent}
+@media(max-width:640px){.cars-view.compact{grid-template-columns:repeat(2,minmax(0,1fr))}.cars-view.compact .car-card.expanded{grid-column:1/-1}}
 .car-card{
   position:relative;overflow:hidden;padding:18px;border-radius:var(--radius);
   background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-sm);
@@ -403,6 +428,35 @@ h1,h2,h3,h4,p{margin-top:0}
 .car-foot .badge{max-width:62%}
 .carousel-nav{display:flex;gap:6px}
 .carousel-nav.hidden{display:none}
+
+.odometer-diag{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--surface-2);border:1px dashed var(--border);font-size:10.5px;color:var(--muted);line-height:1.45}
+.odometer-diag .diag-row{display:flex;justify-content:space-between;gap:10px;padding:2px 0}
+.odometer-diag .diag-row b{color:var(--text);font-weight:750;text-align:right}
+.odometer-diag .diag-log{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);font-size:10px}
+
+/* Склад */
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.stock-card{padding:15px;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm);animation:fadeUp .4s var(--ease) both;transition:box-shadow .2s,border-color .2s}
+.stock-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+.stock-card.low{border-color:color-mix(in srgb,var(--warn) 45%,var(--border))}
+.stock-card.danger{border-color:color-mix(in srgb,var(--danger) 45%,var(--border))}
+.stock-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:12px}
+.stock-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:0 0 auto}
+.stock-ico .icon{width:17px;height:17px}
+.stock-title{flex:1;min-width:0}
+.stock-title h3{margin:0;font-size:13.5px;font-weight:750;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.stock-title span{display:block;margin-top:2px;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stock-qty{font-size:30px;line-height:1;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.stock-qty small{font-size:12px;font-weight:650;color:var(--muted);letter-spacing:0}
+.stock-min{font-size:10.5px;color:var(--muted);margin:5px 0 8px}
+.stock-meta{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:10.5px;color:var(--muted)}
+.stock-meta b{color:var(--text);font-weight:750}
+.stock-note{margin-top:8px;padding:7px 8px;border-radius:8px;background:var(--surface-2);font-size:10.5px;color:var(--muted);line-height:1.35}
+.stock-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border)}
+.stock-actions .btn{flex:1 1 64px;min-width:0;padding:0 6px;font-size:11px;gap:4px;overflow:hidden}
+.stock-actions .btn .icon{width:13px;height:13px;flex:0 0 auto}
+.stock-actions .icon-btn{flex:0 0 auto;width:28px;height:28px}
+@media(max-width:640px){.stock-grid{grid-template-columns:1fr}}
 
 /* ============================================================
    РЕЙСЫ
@@ -572,7 +626,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .preview-box b.pos{color:var(--ok)}
 .confirm-text{font-size:13px;color:var(--muted);line-height:1.5;margin:0}
 
-.toast-stack{position:fixed;right:20px;bottom:20px;z-index:200;display:flex;flex-direction:column;gap:9px;max-width:calc(100vw - 40px)}
+.toast-stack{position:fixed;right:20px;bottom:20px;z-index:220;display:flex;flex-direction:column;gap:9px;max-width:calc(100vw - 40px)}
 .toast{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:13px;background:var(--surface-solid);border:1px solid var(--border);box-shadow:var(--shadow-lg);font-size:12.5px;font-weight:650;min-width:220px;animation:toastIn .25s var(--ease) both;transition:opacity .2s,transform .2s}
 .toast .icon{width:17px;height:17px}
 .toast.ok .icon{color:var(--ok)}
@@ -580,6 +634,34 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .toast.info .icon{color:var(--info)}
 .toast span{overflow-wrap:anywhere}
 .toast.out{opacity:0;transform:translateY(8px)}
+.notify-btn{position:relative}
+.nav-badge[hidden],.notify-badge[hidden]{display:none}
+.notify-badge{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;display:grid;place-items:center;background:var(--danger);color:#fff;font-size:9px;font-weight:800;border:2px solid var(--surface-solid);line-height:1}
+.notify-panel{position:fixed;right:20px;bottom:20px;z-index:205;width:min(390px,calc(100vw - 40px));max-height:min(72vh,560px);display:flex;flex-direction:column;border-radius:20px;background:var(--surface-solid);border:1px solid var(--border);box-shadow:var(--shadow-lg);overflow:hidden;animation:toastIn .2s var(--ease) both}
+.notify-panel[hidden]{display:none}
+.notify-panel-head{display:flex;align-items:flex-start;gap:10px;padding:16px 16px 12px;border-bottom:1px solid var(--border)}
+.notify-panel-head strong{display:block;font-size:14px}
+.notify-panel-head span{display:block;margin-top:2px;font-size:10.5px;color:var(--muted)}
+.notify-panel-head .icon-btn{margin-left:auto;flex:0 0 auto}
+.notify-list{overflow:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+.notify-item{display:flex;align-items:flex-start;gap:9px;width:100%;padding:10px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--text);text-align:left;cursor:pointer;font:inherit;transition:.15s}
+.notify-item:hover{background:var(--surface-2);border-color:var(--border)}
+.notify-item-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;background:var(--surface-2);color:var(--accent)}
+.notify-item.danger .notify-item-icon{background:var(--danger-soft);color:var(--danger)}
+.notify-item.warn .notify-item-icon{background:var(--warn-soft);color:var(--warn)}
+.notify-item-icon .icon{width:15px;height:15px}
+.notify-item-body{flex:1;min-width:0}
+.notify-item-body b{display:block;font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notify-item-body span{display:block;margin-top:1px;font-size:10.5px;color:var(--muted);line-height:1.35}
+.notify-item-status{flex:0 0 auto;padding:2px 6px;border-radius:999px;font-size:9px;font-weight:800}
+.notify-item-status.danger{background:var(--danger-soft);color:var(--danger)}
+.notify-item-status.warn{background:var(--warn-soft);color:var(--warn)}
+.notify-panel-foot{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border)}
+.notify-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:30px 18px;text-align:center;color:var(--muted)}
+.notify-empty .icon{width:28px;height:28px;color:var(--ok)}
+.notify-empty b{color:var(--text);font-size:13px}
+.notify-empty span{font-size:11px;max-width:230px}
+@media(max-width:640px){.notify-panel{left:10px;right:10px;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:70vh}.notify-panel-foot .btn{flex:1}}
 .menu-wrap{position:relative}
 .menu{position:absolute;right:0;top:calc(100% + 7px);z-index:80;min-width:210px;padding:6px;border-radius:14px;background:var(--surface-solid);border:1px solid var(--border);box-shadow:var(--shadow-lg);opacity:0;transform:translateY(-5px) scale(.98);pointer-events:none;transition:.16s var(--ease)}
 .menu.open{opacity:1;transform:none;pointer-events:auto}
@@ -611,6 +693,11 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
   .bottom-nav{display:flex}
   .page-head{margin-top:4px}
   .settings-grid{grid-template-columns:1fr}
+}
+@media (max-width:700px){
+  .bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:8px}
+  .bottom-nav button{min-height:46px;font-size:9px;padding:5px 2px}
+  .main{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 }
 @media (max-width:820px){
   .dash-grid-2{grid-template-columns:1fr}
@@ -934,6 +1021,10 @@ body.auth-locked{overflow:hidden}
   <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
   <symbol id="i-carousel" viewBox="0 0 24 24"><rect x="7" y="5" width="10" height="14" rx="2"/><path d="M3 8v8M21 8v8"/></symbol>
   <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7Z"/><path d="m3 7 9 5 9-5M12 12v10"/></symbol>
+  <symbol id="i-compact" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><path d="M15 17h6M18 14v6"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
 </svg>
 
 <div class="auth-gate" id="authGate">
@@ -973,6 +1064,7 @@ body.auth-locked{overflow:hidden}
     <nav class="side-nav" aria-label="Основная навигация">
       <button class="nav-item active" data-tab="dashboard"><span class="nav-ico"><svg class="icon"><use href="#i-dashboard"/></svg></span>Дашборд</button>
       <button class="nav-item" data-tab="cars"><span class="nav-ico"><svg class="icon"><use href="#i-truck"/></svg></span>Машины<span class="nav-badge" id="navCarsBadge">0</span></button>
+      <button class="nav-item" data-tab="warehouse"><span class="nav-ico"><svg class="icon"><use href="#i-box"/></svg></span>Склад<span class="nav-badge" id="navWarehouseBadge" hidden>0</span></button>
       <button class="nav-item" data-tab="service"><span class="nav-ico"><svg class="icon"><use href="#i-wrench"/></svg></span>Сервис</button>
       <button class="nav-item" data-tab="drivers"><span class="nav-ico"><svg class="icon"><use href="#i-user"/></svg></span>Водители</button>
       <button class="nav-item" data-tab="trips"><span class="nav-ico"><svg class="icon"><use href="#i-route"/></svg></span>Рейсы<span class="nav-badge" id="navTripsBadge">0</span></button>
@@ -983,6 +1075,7 @@ body.auth-locked{overflow:hidden}
     <div class="side-foot">
       <div class="sync" data-sync data-state="connecting"><i></i><span>Подключение…</span></div>
       <div class="side-actions">
+        <button class="icon-btn notify-btn" data-notify-toggle title="Уведомления" aria-label="Уведомления"><svg class="icon"><use href="#i-bell"/></svg><span class="notify-badge" data-notify-badge hidden>0</span></button>
         <button class="icon-btn" data-theme-toggle title="Сменить тему" aria-label="Сменить тему"><span data-theme-icon><svg class="icon"><use href="#i-moon"/></svg></span></button>
         <button class="icon-btn" id="exportBtn" title="Экспорт JSON" aria-label="Экспорт JSON"><svg class="icon"><use href="#i-download"/></svg></button>
         <button class="icon-btn" data-import title="Импорт JSON" aria-label="Импорт JSON"><svg class="icon"><use href="#i-upload"/></svg></button>
@@ -998,6 +1091,7 @@ body.auth-locked{overflow:hidden}
       <span class="brand-text"><strong>Автопарк Контроль</strong><span>2026</span></span>
     </a>
     <div class="sync" data-sync data-state="connecting"><i></i><span>Облако</span></div>
+    <button class="icon-btn notify-btn" data-notify-toggle title="Уведомления" aria-label="Уведомления"><svg class="icon"><use href="#i-bell"/></svg><span class="notify-badge" data-notify-badge hidden>0</span></button>
     <button class="icon-btn" data-theme-toggle aria-label="Сменить тему"><span data-theme-icon><svg class="icon"><use href="#i-moon"/></svg></span></button>
     <button class="icon-btn" data-tab="settings" aria-label="Настройки"><svg class="icon"><use href="#i-settings"/></svg></button>
   </header>
@@ -1073,7 +1167,7 @@ body.auth-locked{overflow:hidden}
             <div class="segmented" id="viewSeg">
               <button data-view-set="grid" class="active" title="Сетка"><svg class="icon"><use href="#i-grid"/></svg><span class="desktop-only">Сетка</span></button>
               <button data-view-set="carousel" title="Карусель"><svg class="icon"><use href="#i-carousel"/></svg><span class="desktop-only">Свайп</span></button>
-              <button data-view-set="3d" title="3D"><svg class="icon"><use href="#i-cube"/></svg><span class="desktop-only">3D</span></button>
+              <button data-view-set="compact" title="Компакт"><svg class="icon"><use href="#i-compact"/></svg><span class="desktop-only">Компакт</span></button>
             </div>
             <button class="btn btn-primary" data-action="new-car"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Машина</button>
           </div>
@@ -1087,6 +1181,34 @@ body.auth-locked{overflow:hidden}
           </div>
           <div id="fuelLogStats" class="stat-grid" style="margin-bottom:14px"></div>
           <div id="fuelLogList"></div>
+        </section>
+      </section>
+
+      <!-- ================= СКЛАД ================= -->
+      <section class="view" data-view="warehouse">
+        <div class="page-head">
+          <div><h1>Склад</h1><p id="warehouseSubtitle">Остатки масла и запчастей</p></div>
+          <div class="page-actions">
+            <button class="btn btn-sm" data-export="stock"><svg class="icon icon-sm"><use href="#i-file"/></svg> CSV</button>
+            <button class="btn btn-primary" data-action="new-stock"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Позиция</button>
+          </div>
+        </div>
+        <div class="stat-grid" id="stockKpis"></div>
+        <section class="card">
+          <div class="card-head"><div><h2>Остатки</h2><p>Что есть на складе и сколько осталось</p></div><svg class="icon"><use href="#i-box"/></svg></div>
+          <div class="trip-toolbar">
+            <div class="search" style="flex:1;min-width:200px"><svg class="icon"><use href="#i-search"/></svg><input class="input" id="stockSearch" placeholder="Найти масло, фильтр, место..." autocomplete="off"></div>
+            <select class="input" id="stockFilter" style="max-width:220px">
+              <option value="">Все категории</option>
+              <option value="oil">Масло</option>
+              <option value="filter">Фильтры</option>
+              <option value="brake">Тормоза</option>
+              <option value="tire">Шины</option>
+              <option value="tool">Инструмент</option>
+              <option value="other">Прочее</option>
+            </select>
+          </div>
+          <div id="stockList"></div>
         </section>
       </section>
 
@@ -1430,12 +1552,23 @@ body.auth-locked{overflow:hidden}
               <div class="segmented" id="viewSegSettings">
                 <button data-view-set="grid"><svg class="icon"><use href="#i-grid"/></svg> Сетка</button>
                 <button data-view-set="carousel"><svg class="icon"><use href="#i-carousel"/></svg> Карусель</button>
-                <button data-view-set="3d"><svg class="icon"><use href="#i-cube"/></svg> 3D</button>
+                <button data-view-set="compact"><svg class="icon"><use href="#i-compact"/></svg> Компакт</button>
               </div>
             </div>
             <div class="info-list" style="margin-top:14px">
-              <div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Карусель поддерживает свайп на телефоне, 3D-режим реагирует на курсор мыши.</span></div>
+              <div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Карусель поддерживает свайп на телефоне. Компакт — плитки: нажмите на машину, чтобы раскрыть подробности.</span></div>
             </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><div><h2>Уведомления</h2><p>Напоминания о ТО, страховке и датчиках</p></div><svg class="icon"><use href="#i-bell"/></svg></div>
+            <label class="check-row"><input type="checkbox" id="notifyEnabled"> Показывать всплывающие уведомления</label>
+            <div class="grid-2" style="margin-top:4px">
+              <div class="field"><label for="reminderKm">Напомнить заранее, км</label><input class="input" type="number" id="reminderKm" min="0" step="100" inputmode="numeric"><span class="hint-text">Например, 1000 — за 1000 км до замены</span></div>
+              <div class="field"><label for="reminderDays">Напоминать заранее, дней</label><input class="input" type="number" id="reminderDays" min="0" step="1" inputmode="numeric"><span class="hint-text">Например, 30 — за месяц до срока</span></div>
+            </div>
+            <div class="info-list" style="margin-top:10px"><div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Порог применяется ко всем расходникам: маслу, фильтрам, колодкам и шинам.</span></div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn btn-sm btn-primary" id="notifyCheck">Проверить сейчас</button><button class="btn btn-sm btn-ghost" id="notifyTest">Показать пример</button></div>
           </section>
 
           <section class="card">
@@ -1472,7 +1605,7 @@ body.auth-locked{overflow:hidden}
           </section>
 
           <section class="card">
-            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.1 · 2026</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
+            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.3 · 2026 · склад</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
             <div class="info-list">
               <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>; резервные копии — <code>gazelle_app/main_data/backups</code>.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-wallet"/></svg><span><b>Бухгалтерия:</b> доходы, расходы на ГСМ, прибыль, оценка налогов, разбивка по организациям и водителям.</span></div>
@@ -1489,6 +1622,7 @@ body.auth-locked{overflow:hidden}
   <nav class="bottom-nav" aria-label="Мобильная навигация">
     <button class="active" data-tab="dashboard"><svg class="icon"><use href="#i-dashboard"/></svg>Дашборд</button>
     <button data-tab="cars"><svg class="icon"><use href="#i-truck"/></svg>Машины</button>
+    <button data-tab="warehouse"><svg class="icon"><use href="#i-box"/></svg>Склад</button>
     <button data-tab="service"><svg class="icon"><use href="#i-wrench"/></svg>Сервис</button>
     <button data-tab="drivers"><svg class="icon"><use href="#i-user"/></svg>Водители</button>
     <button data-tab="trips"><svg class="icon"><use href="#i-route"/></svg>Рейсы</button>
@@ -1528,6 +1662,7 @@ body.auth-locked{overflow:hidden}
       <div class="field"><label for="carTank">Объём бака, л</label><input class="input" type="number" id="carTank" min="1" step="1" value="60" inputmode="numeric"></div>
       <div class="field"><label for="carNorm">Норма расхода, л/100 км</label><input class="input" type="number" id="carNorm" min="0" step="0.1" value="15" inputmode="decimal"><span class="hint-text">Для прогноза запаса хода и анализа ГСМ.</span></div>
     </div>
+    <div class="odometer-diag" id="carOdoDiag"></div>
     <div class="form-section">
       <div class="section-title"><svg class="icon icon-sm"><use href="#i-shield"/></svg> Страховка</div>
       <div class="grid-2">
@@ -1564,6 +1699,53 @@ body.auth-locked{overflow:hidden}
     <div class="modal-foot">
       <button class="btn btn-ghost" data-close="carModal">Отмена</button>
       <button class="btn btn-primary" id="carSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛКА: СКЛАД ================= -->
+<div class="modal-backdrop" id="stockModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stockModalTitle">
+    <div class="modal-grab"></div>
+    <div class="modal-head">
+      <div><h3 id="stockModalTitle">Новая позиция</h3><p>Остаток масла или запчасти на складе</p></div>
+      <button class="icon-btn sm" data-close="stockModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <input type="hidden" id="stockEditId">
+    <div class="field"><label for="stockName">Название</label><input class="input" id="stockName" placeholder="Масло 5W-30, фильтр масляный..." autocomplete="off"></div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="stockCategory">Категория</label><select class="input" id="stockCategory"></select></div>
+      <div class="field"><label for="stockUnit">Ед. изм.</label><select class="input" id="stockUnit"></select></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="stockQty">Остаток</label><input class="input" type="number" id="stockQty" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="field"><label for="stockMin">Минимум</label><input class="input" type="number" id="stockMin" min="0" step="0.01" inputmode="decimal"><span class="hint-text">Когда остаток ниже — придёт уведомление</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="stockPrice">Цена за ед., ₽</label><input class="input" type="number" id="stockPrice" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="field"><label for="stockLocation">Место</label><input class="input" id="stockLocation" placeholder="Стеллаж 2, полка 3" autocomplete="off"></div>
+    </div>
+    <div class="field" style="margin-top:12px"><label for="stockNote">Комментарий</label><input class="input" id="stockNote" placeholder="Для какой машины, поставщик, артикул" autocomplete="off"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="stockModal">Отмена</button>
+      <button class="btn btn-primary" id="stockSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="stockMoveModal" aria-hidden="true">
+  <div class="modal" style="max-width:420px" role="dialog" aria-modal="true" aria-labelledby="stockMoveTitle">
+    <div class="modal-grab"></div>
+    <div class="modal-head">
+      <div><h3 id="stockMoveTitle">Приход на склад</h3><p id="stockMoveSub"></p></div>
+      <button class="icon-btn sm" data-close="stockMoveModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <input type="hidden" id="stockMoveId">
+    <input type="hidden" id="stockMoveType">
+    <div class="field"><label for="stockMoveQty">Количество</label><input class="input" type="number" id="stockMoveQty" min="0" step="0.01" inputmode="decimal" placeholder="Например, 10"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="stockMoveModal">Отмена</button>
+      <button class="btn btn-primary" id="stockMoveSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
     </div>
   </div>
 </div>
@@ -1797,6 +1979,18 @@ body.auth-locked{overflow:hidden}
 
 <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
+<div class="notify-panel" id="notifyPanel" hidden role="dialog" aria-label="Уведомления">
+  <div class="notify-panel-head">
+    <div><strong>Уведомления</strong><span id="notifySubtitle">Проверяю…</span></div>
+    <button class="icon-btn sm" data-notify-close aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="notify-list" id="notifyList"></div>
+  <div class="notify-panel-foot">
+    <button class="btn btn-sm btn-ghost" data-tab="service" data-notify-close>Все напоминания</button>
+    <button class="btn btn-sm btn-ghost" data-tab="settings" data-notify-close>Настроить</button>
+  </div>
+</div>
+
 <script type="module">
 /* ============================================================
    1. FIREBASE — конфигурация и ссылка на документ НЕ ИЗМЕНЕНЫ
@@ -1845,7 +2039,7 @@ const DEMO = new URLSearchParams(location.search).has('demo') || /\/demo(\.html)
 /* ============================================================
    2. КОНСТАНТЫ И УТИЛИТЫ
    ============================================================ */
-const TABS = ['dashboard', 'cars', 'drivers', 'service', 'trips', 'reports', 'taxes', 'settings'];
+const TABS = ['dashboard', 'cars', 'warehouse', 'drivers', 'service', 'trips', 'reports', 'taxes', 'settings'];
 const CAR_TYPES = {
   van: { label: 'Фургон / малотоннаж', short: 'Фургон' },
   truck: { label: 'Грузовик', short: 'Грузовик' },
@@ -1883,6 +2077,7 @@ function esc(v) {
 
 const fmtNum = (v) => num(v).toLocaleString('ru-RU', { maximumFractionDigits: 0 });
 const fmtLiters = (v) => num(v).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+const fmtQty = (v) => num(v).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
 const fmtPct = (v) => `${num(v).toLocaleString('ru-RU', { maximumFractionDigits: 1 })}%`;
 const fmtMoney = (v) => {
   const n = num(v);
@@ -1943,6 +2138,15 @@ const PART_CATEGORIES = {
   other: { label: 'Прочее', km: 0, months: 0 }
 };
 const MAINTENANCE_KEYS = ['oil', 'oil_filter', 'air_filter', 'fuel_filter', 'brakes', 'tires'];
+const STOCK_CATEGORIES = {
+  oil: 'Масло',
+  filter: 'Фильтры',
+  brake: 'Тормоза',
+  tire: 'Шины',
+  tool: 'Инструмент',
+  other: 'Прочее'
+};
+const STOCK_UNITS = ['л', 'шт', 'кг', 'компл', 'м'];
 
 const DRIVER_STATUSES = {
   staff: { label: 'В штате', tone: 'accent', note: 'Трудовой договор, НДФЛ 13%' },
@@ -2084,9 +2288,11 @@ function maintenanceStatus(car, category) {
   const nextDate = intervalMonths ? addMonths(part.date, intervalMonths) : '';
   const kmLeft = nextKm === null ? null : Math.round(nextKm - carOdometer(car));
   const daysLeft = nextDate ? daysBetween(todayISO(), nextDate) : null;
+  const warnKm = Math.max(0, num(state.reminderKm ?? 1000));
+  const warnDays = Math.max(0, num(state.reminderDays ?? 30));
   let status = 'ok';
   if ((kmLeft !== null && kmLeft <= 0) || (daysLeft !== null && daysLeft < 0)) status = 'danger';
-  else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 30)) status = 'warn';
+  else if ((kmLeft !== null && kmLeft <= warnKm) || (daysLeft !== null && daysLeft <= warnDays)) status = 'warn';
   return { category, label: defaults.label, status, part, nextKm, nextDate, kmLeft, daysLeft };
 }
 const monthKey = (iso) => normalizeDate(iso).slice(0, 7);
@@ -2161,6 +2367,7 @@ function showToast(message, type = 'ok') {
 let state = {
   cars: [],
   trips: [],
+  warehouse: [],
   drivers: [],
   organizations: ["ИП Иванов", "ООО Ромашка"],
   theme: 'light',
@@ -2168,7 +2375,10 @@ let state = {
   isNdsPayer: false,
   taxSystem: 'usn6',
   toRecords: [],
-  weeklyDriverRate: 45
+  weeklyDriverRate: 45,
+  reminderKm: 1000,
+  reminderDays: 30,
+  notificationsEnabled: true
 };
 let isLoaded = false;
 let glonassVehicles = {};
@@ -2176,6 +2386,7 @@ let glonassStatus = null;
 let saveTimer = null;
 let confirmResolver = null;
 const tripFilters = { q: '', month: '', carId: '', org: '' };
+const stockFilters = { q: '', category: '' };
 const reportFilters = { type: 'trips', carId: '', org: '', driver: '', category: '', vendor: '' };
 
 function normalizeNdsRate(v) {
@@ -2325,7 +2536,12 @@ function normalizeState() {
         base: Math.max(0, num(car.odometerSync.base)),
         telemetryOdometer: hasNumber(car.odometerSync.telemetryOdometer) ? Math.max(0, num(car.odometerSync.telemetryOdometer)) : null,
         setAt: String(car.odometerSync.setAt || '')
-      } : null,
+      } : (num(car.odometer) > 0 ? {
+        base: Math.max(0, num(car.odometer)),
+        telemetryOdometer: null,
+        setAt: String(car.odometerSync?.setAt || todayISO())
+      } : null),
+      odometerLog: Array.isArray(car.odometerLog) ? car.odometerLog.slice(-20) : [],
       fuelLevel: Math.max(0, num(car.fuelLevel)),
       tank: Math.max(1, num(car.tank) || 60),
       fuelNorm: (car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm)),
@@ -2380,6 +2596,20 @@ function normalizeState() {
     };
   });
 
+  state.warehouse = (Array.isArray(state.warehouse) ? state.warehouse : []).map(item => ({
+    ...item,
+    id: item.id || uid(),
+    name: String(item.name || '').trim(),
+    category: STOCK_CATEGORIES[item.category] ? item.category : 'other',
+    unit: String(item.unit || 'шт').trim() || 'шт',
+    qty: Math.max(0, num(item.qty)),
+    minQty: Math.max(0, num(item.minQty)),
+    price: Math.max(0, num(item.price)),
+    location: String(item.location || '').trim(),
+    note: String(item.note || '').trim(),
+    updatedAt: normalizeDate(item.updatedAt) || todayISO()
+  })).filter(item => item.name);
+
   state.toRecords = state.toRecords.map(record => normalizeToRecord(record));
 
   state.trips = state.trips.map(trip => {
@@ -2417,7 +2647,11 @@ function normalizeState() {
   });
 
   if (!['light', 'dark'].includes(state.theme)) state.theme = 'light';
-  if (!['grid', 'carousel', '3d'].includes(state.viewMode)) state.viewMode = 'grid';
+  if (state.viewMode === '3d') state.viewMode = 'compact';
+  if (!['grid', 'carousel', 'compact'].includes(state.viewMode)) state.viewMode = 'grid';
+  state.reminderKm = state.reminderKm === undefined || state.reminderKm === null || state.reminderKm === '' ? 1000 : Math.max(0, num(state.reminderKm));
+  state.reminderDays = state.reminderDays === undefined || state.reminderDays === null || state.reminderDays === '' ? 30 : Math.max(0, num(state.reminderDays));
+  state.notificationsEnabled = state.notificationsEnabled !== false && state.notificationsEnabled !== 'false';
   if (!['usn6', 'usn15'].includes(state.taxSystem)) state.taxSystem = 'usn6';
   state.isNdsPayer = state.isNdsPayer === true || state.isNdsPayer === 'true';
   state.ndsRate = normalizeNdsRate(state.ndsRate);
@@ -2504,19 +2738,60 @@ function carOdometer(car) {
       }
       return Number(sync.base);
     }
+    if (num(car?.odometer) > 0) return num(car.odometer);
     return Number(telemetry.odometer);
   }
   return num(car?.odometer);
+}
+
+function appendOdometerLog(car, entry) {
+  if (!car) return;
+  if (!Array.isArray(car.odometerLog)) car.odometerLog = [];
+  car.odometerLog.push({ at: new Date().toISOString(), ...entry });
+  car.odometerLog = car.odometerLog.slice(-20);
+}
+
+function mergeOdometerAnchors(cloudCars, localCars) {
+  if (!Array.isArray(cloudCars)) return cloudCars;
+  const localById = new Map((localCars || []).map(car => [car.id, car]));
+  return cloudCars.map(car => {
+    const local = localById.get(car.id);
+    if (!local) return car;
+    const cloudSync = car.odometerSync;
+    const localSync = local.odometerSync;
+    if (!localSync || !hasNumber(localSync.base)) return car;
+    if (!cloudSync || !hasNumber(cloudSync.base)) {
+      return { ...car, odometer: local.odometer ?? car.odometer, odometerSync: localSync, odometerLog: local.odometerLog || car.odometerLog };
+    }
+    const cloudAt = Date.parse(cloudSync.setAt || '') || 0;
+    const localAt = Date.parse(localSync.setAt || '') || 0;
+    if (localAt > cloudAt) {
+      return { ...car, odometer: local.odometer ?? car.odometer, odometerSync: localSync, odometerLog: local.odometerLog || car.odometerLog };
+    }
+    return car;
+  });
 }
 
 function ensureOdometerAnchors(cars) {
   let changed = false;
   (cars || []).forEach(car => {
     const telemetry = glonassForCar(car);
-    if (!telemetry || !hasNumber(telemetry.odometer) || !car.odometerSync) return;
+    if (!telemetry || !hasNumber(telemetry.odometer)) return;
+    if (!car.odometerSync || !hasNumber(car.odometerSync.base)) {
+      if (num(car.odometer) <= 0) return;
+      car.odometerSync = {
+        base: num(car.odometer),
+        telemetryOdometer: Number(telemetry.odometer),
+        setAt: new Date().toISOString()
+      };
+      appendOdometerLog(car, { action: 'anchor-created', base: num(car.odometer), telemetryOdometer: Number(telemetry.odometer) });
+      changed = true;
+      return;
+    }
     if (hasNumber(car.odometerSync.telemetryOdometer)) return;
     car.odometerSync.telemetryOdometer = Number(telemetry.odometer);
     car.odometerSync.setAt = new Date().toISOString();
+    appendOdometerLog(car, { action: 'anchor-set', base: num(car.odometerSync.base), telemetryOdometer: Number(telemetry.odometer) });
     changed = true;
   });
   if (changed) saveNow();
@@ -2643,10 +2918,16 @@ function buildDemoState() {
   ];
   return {
     cars, trips, organizations, fuelLog, parts, toRecords,
+    warehouse: [
+      { id: 'demo-stock-1', name: 'Масло моторное 5W-30', category: 'oil', qty: 18, unit: 'л', minQty: 10, price: 850, location: 'Стеллаж 1', note: 'Для Volvo и KAMAZ', updatedAt: todayISO() },
+      { id: 'demo-stock-2', name: 'Фильтр масляный', category: 'filter', qty: 4, unit: 'шт', minQty: 5, price: 1200, location: 'Стеллаж 2', note: '', updatedAt: todayISO() },
+      { id: 'demo-stock-3', name: 'Колодки передние', category: 'brake', qty: 2, unit: 'компл', minQty: 1, price: 7400, location: 'Стеллаж 3', note: '', updatedAt: todayISO() }
+    ],
     drivers: driverProfiles, log: [], expenses: [],
-    theme: 'light', viewMode: 'grid',
+    theme: 'light', viewMode: 'compact',
     isNdsPayer: false, taxSystem: 'usn6', ndsRate: 22,
-    taxContrib: 57390, taxEmployees: false
+    taxContrib: 57390, taxEmployees: false,
+    reminderKm: 1000, reminderDays: 30, notificationsEnabled: true
   };
 }
 
@@ -2858,7 +3139,11 @@ function startCloud(user) {
     usingLocalCache = false;
     if (docSnap.exists()) {
       const data = docSnap.data();
-      state = { ...state, ...data };
+      state = {
+        ...state,
+        ...data,
+        cars: Array.isArray(data.cars) ? mergeOdometerAnchors(data.cars, state.cars) : state.cars
+      };
       cacheState("cloud");
     } else {
       const cached = readLocalCache();
@@ -3007,8 +3292,11 @@ function renderAll() {
   applyViewMode();
   renderDashboard();
   renderCars();
+  renderWarehouse();
   renderGlonassStatus();
   renderService();
+  renderNotifications();
+  applyNotificationSettings();
   renderOrgs();
   renderDriverDatalist();
   renderDrivers();
@@ -3309,7 +3597,7 @@ function carCard(car, index) {
   const fuelClass = fuelPct <= 15 ? 'danger' : fuelPct <= 35 ? 'warn' : 'ok';
   const range = num(car.fuelNorm) > 0 ? (fuel / num(car.fuelNorm)) * 100 : 0;
 
-  return `<article class="car-card" style="--i:${index}">
+  return `<article class="car-card" data-car-card="${esc(car.id)}" style="--i:${index}">
     <div class="car-head">
       <div class="car-avatar">${icon('truck')}</div>
       <div class="car-title">
@@ -3321,6 +3609,11 @@ function carCard(car, index) {
         <button class="icon-btn sm" data-edit-car="${esc(car.id)}" title="Изменить" aria-label="Изменить машину">${icon('edit')}</button>
         <button class="icon-btn sm danger" data-del-car="${esc(car.id)}" title="Удалить" aria-label="Удалить машину">${icon('trash')}</button>
       </div>
+    </div>
+    <div class="compact-summary">
+      <span class="compact-pill ${fuelClass}">${icon('fuel')} ${fmtLiters(fuel)} л</span>
+      <span class="compact-pill">${icon('gauge')} ${odometerKnown ? `${fmtNum(odometer)} км` : '—'}</span>
+      ${['danger', 'warn'].includes(insurance.status) ? `<span class="compact-pill ${insurance.status}">${icon('shield')} ${insurance.status === 'danger' ? 'просрочена' : 'скоро'}</span>` : ''}
     </div>
     <div class="car-metrics">
       <div class="car-metric"><span>Пробег${telemetry ? (car.odometerSync ? ' · спидометр + ГЛОНАСС' : ' · ГЛОНАСС') : ''}</span><strong>${odometerKnown ? `${fmtNum(odometer)} <small>км</small>` : '—'}</strong></div>
@@ -3366,7 +3659,181 @@ function renderCars() {
   grid.scrollLeft = scrollLeft;
   populateCarSelects();
   renderFuelLog();
-  if (state.viewMode === '3d') init3DTilt();
+}
+
+function isStockLow(item) {
+  const min = num(item.minQty);
+  return min > 0 && num(item.qty) <= min;
+}
+
+function stockQtyText(item) {
+  return `${fmtQty(item.qty)} ${item.unit || 'шт'}`;
+}
+
+function stockCard(item) {
+  const qty = num(item.qty);
+  const min = num(item.minQty);
+  const unit = item.unit || 'шт';
+  const empty = qty <= 0;
+  const low = isStockLow(item);
+  const pct = min > 0 ? clamp((qty / min) * 100, 0, 100) : 100;
+  const price = num(item.price);
+  const total = qty * price;
+  return `<article class="stock-card ${empty ? 'danger' : low ? 'low' : ''}">
+    <div class="stock-head">
+      <span class="stock-ico">${icon('box')}</span>
+      <div class="stock-title"><h3>${esc(item.name)}</h3><span>${esc(STOCK_CATEGORIES[item.category] || 'Прочее')}${item.location ? ` · ${esc(item.location)}` : ''}</span></div>
+      <span class="badge ${empty ? 'danger' : low ? 'warn' : 'ok'}">${empty ? 'нет' : low ? 'мало' : 'есть'}</span>
+    </div>
+    <div class="stock-qty">${fmtQty(qty)} <small>${esc(unit)}</small></div>
+    <div class="stock-min">Минимум: ${min > 0 ? `${fmtQty(min)} ${esc(unit)}` : 'не задан'}</div>
+    <div class="progress ${empty ? 'danger' : low ? 'warn' : 'ok'} thin"><i style="width:${pct}%"></i></div>
+    <div class="stock-meta"><span>${price > 0 ? `${fmtMoney(price)} / ${esc(unit)}` : 'цена не указана'}</span>${total > 0 ? `<b>${fmtMoney(total)}</b>` : ''}</div>
+    ${item.note ? `<div class="stock-note">${esc(item.note)}</div>` : ''}
+    <div class="stock-actions">
+      <button class="btn btn-sm btn-primary" data-stock-in="${esc(item.id)}">${icon('plus', 'icon-sm')} Приход</button>
+      <button class="btn btn-sm btn-ghost" data-stock-out="${esc(item.id)}">${icon('minus', 'icon-sm')} Расход</button>
+      <button class="icon-btn sm" data-edit-stock="${esc(item.id)}" title="Изменить">${icon('edit', 'icon-sm')}</button>
+      <button class="icon-btn sm danger" data-del-stock="${esc(item.id)}" title="Удалить">${icon('trash', 'icon-sm')}</button>
+    </div>
+  </article>`;
+}
+
+function renderWarehouse() {
+  const box = $('#stockList');
+  if (!box) return;
+  const all = state.warehouse || [];
+  const low = all.filter(item => num(item.qty) <= 0 || isStockLow(item));
+  const empty = all.filter(item => num(item.qty) <= 0);
+  const totalValue = all.reduce((sum, item) => sum + num(item.qty) * num(item.price), 0);
+  const subtitle = $('#warehouseSubtitle');
+  if (subtitle) {
+    subtitle.textContent = `${all.length} ${plural(all.length, ['позиция', 'позиции', 'позиций'])} · ${low.length ? `${low.length} заканчивается` : 'все в норме'}`;
+  }
+  const badge = $('#navWarehouseBadge');
+  if (badge) {
+    badge.textContent = low.length;
+    badge.hidden = !low.length;
+  }
+  const kpis = $('#stockKpis');
+  if (kpis) {
+    kpis.innerHTML = [
+      statItem('Позиций', String(all.length)),
+      statItem('Заканчивается', String(low.length), 'поз.'),
+      statItem('Нет в наличии', String(empty.length), 'поз.'),
+      statItem('Стоимость остатка', fmtMoney(totalValue))
+    ].join('');
+  }
+  const query = stockFilters.q.trim().toLowerCase();
+  const filtered = all.filter(item => (!stockFilters.category || item.category === stockFilters.category)
+    && (!query || `${item.name} ${item.location} ${item.note}`.toLowerCase().includes(query)));
+  if (!all.length) {
+    box.innerHTML = emptyState(
+      'box', 'Склад пока пуст',
+      'Добавьте масло, фильтры или другие запчасти — приложение покажет остаток и предупредит, когда заканчивается',
+      '<button class="btn btn-sm btn-primary" data-action="new-stock">Добавить позицию</button>'
+    );
+    return;
+  }
+  if (!filtered.length) {
+    box.innerHTML = emptyState('search', 'Ничего не найдено', 'Измените запрос или категорию', '');
+    return;
+  }
+  box.innerHTML = `<div class="stock-grid">${filtered.map(stockCard).join('')}</div>`;
+}
+
+function openStockModal(id = null) {
+  const item = id ? (state.warehouse || []).find(entry => entry.id === id) : null;
+  $('#stockModalTitle').textContent = item ? 'Изменить позицию' : 'Новая позиция';
+  $('#stockEditId').value = item?.id || '';
+  $('#stockName').value = item?.name || '';
+  $('#stockCategory').innerHTML = Object.entries(STOCK_CATEGORIES).map(([key, label]) => `<option value="${key}">${esc(label)}</option>`).join('');
+  $('#stockCategory').value = item?.category || 'oil';
+  $('#stockUnit').innerHTML = STOCK_UNITS.map(unit => `<option value="${unit}">${unit}</option>`).join('');
+  $('#stockUnit').value = item?.unit || 'л';
+  $('#stockQty').value = item ? num(item.qty) : 0;
+  $('#stockMin').value = item ? num(item.minQty) : 5;
+  $('#stockPrice').value = item ? num(item.price) : '';
+  $('#stockLocation').value = item?.location || '';
+  $('#stockNote').value = item?.note || '';
+  openModal('stockModal');
+}
+
+function saveStock() {
+  if (!ensureLoaded()) return;
+  const name = $('#stockName').value.trim();
+  if (!name) { showToast('Введите название позиции', 'error'); return; }
+  const payload = {
+    name,
+    category: $('#stockCategory').value,
+    unit: $('#stockUnit').value,
+    qty: Math.max(0, num($('#stockQty').value)),
+    minQty: Math.max(0, num($('#stockMin').value)),
+    price: Math.max(0, num($('#stockPrice').value)),
+    location: $('#stockLocation').value.trim(),
+    note: $('#stockNote').value.trim(),
+    updatedAt: todayISO()
+  };
+  const id = $('#stockEditId').value;
+  if (id) {
+    const item = (state.warehouse || []).find(entry => entry.id === id);
+    if (!item) { showToast('Позиция не найдена', 'error'); return; }
+    Object.assign(item, payload);
+    showToast('Позиция обновлена');
+  } else {
+    state.warehouse.push({ id: uid(), ...payload });
+    showToast('Позиция добавлена на склад');
+  }
+  saveNow();
+  closeModal('stockModal');
+  renderAll();
+}
+
+async function deleteStock(id) {
+  if (!ensureLoaded()) return;
+  const item = (state.warehouse || []).find(entry => entry.id === id);
+  if (!item) return;
+  const ok = await askConfirm({
+    title: 'Удалить позицию?',
+    text: `«${item.name}» исчезнет со склада.`,
+    ok: 'Удалить позицию'
+  });
+  if (!ok) return;
+  state.warehouse = (state.warehouse || []).filter(entry => entry.id !== id);
+  saveNow();
+  renderAll();
+  showToast('Позиция удалена');
+}
+
+function openStockMove(id, type = 'in') {
+  const item = (state.warehouse || []).find(entry => entry.id === id);
+  if (!item) return;
+  $('#stockMoveId').value = item.id;
+  $('#stockMoveType').value = type;
+  $('#stockMoveTitle').textContent = type === 'in' ? 'Приход на склад' : 'Списание со склада';
+  $('#stockMoveSub').textContent = `${item.name} · сейчас ${stockQtyText(item)}`;
+  $('#stockMoveQty').value = '';
+  openModal('stockMoveModal');
+}
+
+function saveStockMove() {
+  if (!ensureLoaded()) return;
+  const id = $('#stockMoveId').value;
+  const type = $('#stockMoveType').value;
+  const amount = Math.max(0, num($('#stockMoveQty').value));
+  const item = (state.warehouse || []).find(entry => entry.id === id);
+  if (!item) { showToast('Позиция не найдена', 'error'); return; }
+  if (!amount) { showToast('Укажите количество', 'error'); return; }
+  if (type === 'out' && amount > num(item.qty)) {
+    showToast(`На складе только ${stockQtyText(item)}`, 'error');
+    return;
+  }
+  item.qty = type === 'in' ? num(item.qty) + amount : Math.max(0, num(item.qty) - amount);
+  item.updatedAt = todayISO();
+  saveNow();
+  closeModal('stockMoveModal');
+  renderAll();
+  showToast(type === 'in' ? 'Приход сохранён' : 'Списание сохранено');
 }
 
 function renderFuelLog() {
@@ -3431,22 +3898,130 @@ function renderFuelLog() {
   <div class="info-item" style="margin-top:10px">${icon('info')}<span>Показаны последние 12 заправок. Стоимость заправок справочная и не дублируется в расходах рейсов.</span></div>`;
 }
 
-function init3DTilt() {
-  if (state.viewMode !== '3d') return;
-  $$('.cars-view[class~="3d"] .car-card').forEach(card => {
-    if (card.dataset.tilt) return;
-    card.dataset.tilt = '1';
-    card.addEventListener('pointermove', event => {
-      if (event.pointerType !== 'mouse') return;
-      const rect = card.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = `perspective(900px) rotateX(${(-y * 7).toFixed(2)}deg) rotateY(${(x * 9).toFixed(2)}deg) translateY(-2px)`;
+function toggleCompactCard(card) {
+  if (!card || state.viewMode !== 'compact') return;
+  const expanded = card.classList.contains('expanded');
+  $$('.cars-view.compact .car-card.expanded').forEach(el => el.classList.remove('expanded'));
+  if (!expanded) card.classList.add('expanded');
+}
+
+function collectNotifications() {
+  const items = [];
+  (state.cars || []).forEach(car => {
+    MAINTENANCE_KEYS.forEach(category => {
+      const maintenance = maintenanceStatus(car, category);
+      if (!['danger', 'warn'].includes(maintenance.status)) return;
+      const kmText = maintenance.kmLeft === null ? '' : maintenance.kmLeft <= 0
+        ? `просрочено на ${fmtNum(Math.abs(maintenance.kmLeft))} км`
+        : `осталось ${fmtNum(maintenance.kmLeft)} км`;
+      const dateText = maintenance.daysLeft === null ? '' : maintenance.daysLeft < 0
+        ? `просрочено на ${Math.abs(maintenance.daysLeft)} дн.`
+        : `через ${maintenance.daysLeft} дн.`;
+      items.push({
+        kind: 'maintenance', severity: maintenance.status, carId: car.id, carName: car.name,
+        category: maintenance.category, icon: 'wrench', title: maintenance.label,
+        detail: [kmText, dateText].filter(Boolean).join(' · ') || 'пора проверить',
+        action: 'part'
+      });
     });
-    card.addEventListener('pointerleave', () => {
-      card.style.transform = '';
+
+    const insurance = insuranceStatus(car);
+    if (['danger', 'warn'].includes(insurance.status)) {
+      items.push({
+        kind: 'insurance', severity: insurance.status, carId: car.id, carName: car.name,
+        icon: 'shield', title: insurance.label,
+        detail: insurance.status === 'danger' ? 'Полис просрочен — продлите' : 'Полис скоро заканчивается',
+        action: 'car'
+      });
+    }
+
+    const telemetry = glonassForCar(car);
+    if (telemetry && telemetry.fuelSensorStatus && !/^ok$/i.test(String(telemetry.fuelSensorStatus))) {
+      items.push({
+        kind: 'sensor', severity: 'warn', carId: car.id, carName: car.name,
+        icon: 'gauge', title: 'Датчик топлива', detail: 'Нет данных — показано последнее значение', action: 'car'
+      });
+    }
+
+    const fuel = carFuel(car);
+    const tank = num(car.tank) || 60;
+    if (telemetry && hasNumber(telemetry.fuelLevel) && tank > 0 && fuel / tank <= 0.15) {
+      items.push({
+        kind: 'fuel', severity: 'warn', carId: car.id, carName: car.name,
+        icon: 'fuel', title: 'Низкий уровень топлива',
+        detail: `${fmtLiters(fuel)} л · ${Math.round((fuel / tank) * 100)}% бака`, action: 'fuel'
+      });
+    }
+  });
+  (state.warehouse || []).forEach(item => {
+    const qty = num(item.qty);
+    if (qty > 0 && !isStockLow(item)) return;
+    items.push({
+      kind: 'stock', severity: qty <= 0 ? 'danger' : 'warn', carId: '', carName: 'Склад', stockId: item.id,
+      icon: 'box', title: item.name,
+      detail: `Осталось ${fmtQty(qty)} ${item.unit || 'шт'}${num(item.minQty) > 0 ? ` · минимум ${fmtQty(item.minQty)}` : ''}`,
+      action: 'stock'
     });
   });
+  const rank = { danger: 0, warn: 1 };
+  items.sort((a, b) => (rank[a.severity] ?? 2) - (rank[b.severity] ?? 2));
+  return items;
+}
+
+let notificationsShown = false;
+
+function maybeShowNotificationToast(items, force = false) {
+  if (!items.length) return;
+  if (!force && (!state.notificationsEnabled || notificationsShown)) return;
+  notificationsShown = true;
+  const first = items[0];
+  showToast(`${first.carName}: ${first.title} — ${first.detail}`, first.severity === 'danger' ? 'error' : 'info');
+}
+
+function renderNotifications(options = {}) {
+  const items = collectNotifications();
+  $$('[data-notify-badge]').forEach(badge => {
+    badge.textContent = items.length > 9 ? '9+' : String(items.length);
+    badge.hidden = !items.length;
+  });
+  const subtitle = $('#notifySubtitle');
+  if (subtitle) {
+    subtitle.textContent = items.length
+      ? `${items.length} ${plural(items.length, ['напоминание', 'напоминания', 'напоминаний'])}`
+      : 'Всё в норме';
+  }
+  const list = $('#notifyList');
+  if (list) {
+    list.innerHTML = items.length ? items.map(item => `
+      <button class="notify-item ${item.severity}" data-notify-car="${esc(item.carId || '')}" data-notify-stock="${esc(item.stockId || '')}" data-notify-action="${esc(item.action)}" data-notify-category="${esc(item.category || '')}">
+        <span class="notify-item-icon">${icon(item.icon)}</span>
+        <span class="notify-item-body"><b>${esc(item.carName)} · ${esc(item.title)}</b><span>${esc(item.detail)}</span></span>
+        <span class="notify-item-status ${item.severity}">${item.severity === 'danger' ? 'срочно' : 'скоро'}</span>
+      </button>`).join('') : `<div class="notify-empty">${icon('check')}<b>Всё в норме</b><span>Новых напоминаний нет. Порог можно изменить в настройках.</span></div>`;
+  }
+  maybeShowNotificationToast(items, options.forceToast === true);
+}
+
+function applyNotificationSettings() {
+  const km = $('#reminderKm');
+  const days = $('#reminderDays');
+  const enabled = $('#notifyEnabled');
+  if (km) km.value = num(state.reminderKm);
+  if (days) days.value = num(state.reminderDays);
+  if (enabled) enabled.checked = state.notificationsEnabled !== false;
+}
+
+function closeNotifyPanel() {
+  const panel = $('#notifyPanel');
+  if (panel) panel.hidden = true;
+}
+
+function toggleNotifyPanel(force) {
+  const panel = $('#notifyPanel');
+  if (!panel) return;
+  const open = force === undefined ? panel.hidden : force;
+  panel.hidden = !open;
+  if (open) renderNotifications();
 }
 
 function scrollCars(direction) {
@@ -4372,7 +4947,8 @@ function openCarModal(id = null) {
   $('#carPlate').value = car ? (car.plate || carPlate(car)) : '';
   const telemetry = car ? glonassForCar(car) : null;
   const insurance = car?.insurance || {};
-  $('#carOdo').value = car ? Math.round(carOdometer(car)) : '';
+  const baseOdo = car ? (hasNumber(car.odometerSync?.base) ? num(car.odometerSync.base) : num(car.odometer)) : 0;
+  $('#carOdo').value = car ? Math.round(baseOdo) : '';
   $('#carFuel').value = car ? num(car.fuelLevel) : '';
   $('#carTank').value = car ? num(car.tank) : 60;
   $('#carNorm').value = car ? num(car.fuelNorm) : 15;
@@ -4382,6 +4958,16 @@ function openCarModal(id = null) {
   $('#carOdoHint').textContent = telemetry
     ? 'Введите реальный пробег по спидометру — ГЛОНАСС будет прибавлять километры сверх него.'
     : 'Введите реальный пробег по спидометру.';
+  const diag = $('#carOdoDiag');
+  if (diag) {
+    const sync = car?.odometerSync;
+    const log = (car?.odometerLog || []).slice(-4).reverse();
+    diag.innerHTML = car ? `<div class="diag-row"><span>База спидометра</span><b>${sync && hasNumber(sync.base) ? `${fmtNum(sync.base)} км` : 'не задана'}</b></div>
+      <div class="diag-row"><span>Якорь ГЛОНАСС</span><b>${sync && hasNumber(sync.telemetryOdometer) ? `${fmtNum(sync.telemetryOdometer)} км` : '—'}</b></div>
+      <div class="diag-row"><span>Последнее сохранение</span><b>${sync?.setAt ? esc(fmtSyncTime(sync.setAt)) : '—'}</b></div>
+      ${log.length ? `<div class="diag-log">${log.map(entry => `<div>${esc(fmtSyncTime(entry.at))} · ${esc(entry.action || 'set')}: ${fmtNum(entry.base)} км${hasNumber(entry.telemetryOdometer) ? ` / ГЛОНАСС ${fmtNum(entry.telemetryOdometer)} км` : ''}</div>`).join('')}</div>` : ''}`
+      : 'Диагностика появится после сохранения машины.';
+  }
   $('#carFuelHint').hidden = !telemetry;
   $('#insType').value = insurance.type || 'ОСАГО';
   $('#insCompany').value = insurance.company || car?.insuranceCompany || '';
@@ -4398,6 +4984,23 @@ function openCarModal(id = null) {
   $('#insPdfFile').value = '';
   $('#insScanStatus').textContent = 'Наведите камеру на QR/штрихкод полиса';
   openModal('carModal');
+}
+
+function applyManualOdometer(car, value, action = 'manual-edit') {
+  if (!car) return;
+  const base = Math.max(0, num(value));
+  car.odometer = base;
+  car.odometerSync = car.odometerSync || {};
+  car.odometerSync.base = base;
+  car.odometerSync.setAt = new Date().toISOString();
+  const telemetry = glonassForCar(car);
+  car.odometerSync.telemetryOdometer = telemetry && hasNumber(telemetry.odometer) ? num(telemetry.odometer) : null;
+  const log = [...(car.odometerLog || [])];
+  const last = log[log.length - 1];
+  if (!last || last.action !== action || last.base !== base || last.telemetryOdometer !== car.odometerSync.telemetryOdometer) {
+    log.push({ at: car.odometerSync.setAt, action, base, telemetryOdometer: car.odometerSync.telemetryOdometer });
+  }
+  car.odometerLog = log.slice(-20);
 }
 
 function saveCar() {
@@ -4427,6 +5030,12 @@ function saveCar() {
       telemetryOdometer: telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : null,
       setAt: new Date().toISOString()
     },
+    odometerLog: [...(currentCar?.odometerLog || []), {
+      at: new Date().toISOString(),
+      action: currentCar ? 'manual-edit' : 'created',
+      base: odometerValue,
+      telemetryOdometer: telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : null
+    }].slice(-20),
     fuelLevel: Math.max(0, num($('#carFuel').value)),
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
@@ -4452,9 +5061,10 @@ function saveCar() {
       return;
     }
     Object.assign(car, payload);
+    applyManualOdometer(car, odometerValue, 'manual-edit');
     state.trips.forEach(t => { if (t.carId === id) t.carName = name; });
     state.fuelLog.forEach(f => { if (f.carId === id) f.carName = name; });
-    showToast('Машина обновлена');
+    showToast(telemetry ? `Пробег ${fmtNum(odometerValue)} км сохранён — ГЛОНАСС прибавится сверху` : 'Машина обновлена');
   } else {
     state.cars.push({ id: uid(), ...payload });
     showToast('Машина добавлена');
@@ -4486,15 +5096,9 @@ function updateCarQuick(input) {
   if (!car) return;
   const field = input.dataset.carQuick;
   if (field !== 'odometer' && field !== 'fuelLevel') return;
-  car[field] = Math.max(0, num(input.value));
-  if (field === 'odometer') {
-    const telemetry = glonassForCar(car);
-    car.odometerSync = {
-      base: car.odometer,
-      telemetryOdometer: telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : null,
-      setAt: new Date().toISOString()
-    };
-  }
+  const value = Math.max(0, num(input.value));
+  if (field === 'odometer') applyManualOdometer(car, value, 'quick-set');
+  else car.fuelLevel = value;
   saveNow();
   renderCars();
   renderDashboard();
@@ -4610,62 +5214,6 @@ function parseInsuranceText(raw) {
   return filled;
 }
 
-function loadScriptOnce(src) {
-  if (!window.__loadedScripts) window.__loadedScripts = new Map();
-  if (window.__loadedScripts.has(src)) return window.__loadedScripts.get(src);
-  const promise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Не удалось загрузить ${src}`));
-    document.head.appendChild(script);
-  });
-  window.__loadedScripts.set(src, promise);
-  return promise;
-}
-
-async function ocrImage(source, statusEl) {
-  await loadScriptOnce('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-  if (!window.Tesseract) throw new Error('OCR-библиотека не загрузилась');
-  const result = await window.Tesseract.recognize(source, 'rus+eng', {
-    logger: message => {
-      if (statusEl && message.status === 'recognizing text') {
-        statusEl.textContent = `Распознаю текст… ${Math.round((message.progress || 0) * 100)}%`;
-      }
-    }
-  });
-  return result?.data?.text || '';
-}
-
-async function extractPdfText(file, statusEl) {
-  await loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js');
-  const pdfjs = window.pdfjsLib;
-  if (!pdfjs) throw new Error('PDF-библиотека не загрузилась');
-  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-  const data = new Uint8Array(await file.arrayBuffer());
-  const pdf = await pdfjs.getDocument({ data }).promise;
-  let text = '';
-  const pages = Math.min(pdf.numPages || 1, 5);
-  for (let i = 1; i <= pages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map(item => item.str || '').join(' ') + '\n';
-    if (statusEl) statusEl.textContent = `Читаю PDF… ${i}/${pages}`;
-  }
-  let image = '';
-  if (!text.trim()) {
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: 2 });
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.ceil(viewport.width);
-    canvas.height = Math.ceil(viewport.height);
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-    image = canvas.toDataURL('image/jpeg', 0.82);
-  }
-  return { text, image };
-}
-
 async function handleInsurancePdf(file) {
   const status = $('#insScanStatus');
   if (!file) return;
@@ -4710,23 +5258,9 @@ async function handleInsurancePdf(file) {
   if (status) status.textContent = attached
     ? 'PDF прикреплён. Читаю реквизиты…'
     : 'PDF больше 600 КБ — прикрепите файл меньше или введите данные вручную.';
-  try {
-    const { text, image } = await extractPdfText(file, status);
-    let recognized = text;
-    if (!recognized.trim() && image) {
-      if (status) status.textContent = 'PDF без текста, распознаю как фото…';
-      recognized = await ocrImage(image, status);
-    }
-    const filled = parseInsuranceText(recognized);
-    if (status) status.textContent = filled
-      ? 'PDF прикреплён, данные подставлены. Проверьте поля и сохраните.'
-      : (attached ? 'PDF прикреплён. Реквизиты не найдены — проверьте поля.' : 'В PDF не найдены реквизиты.');
-  } catch (error) {
-    console.error('PDF insurance error:', error);
-    if (status) status.textContent = attached
-      ? 'PDF прикреплён. Автоматически прочитать не удалось — данные можно ввести вручную.'
-      : 'Не удалось прочитать PDF. Попробуйте фото или введите вручную.';
-  }
+  if (status) status.textContent = attached
+    ? 'PDF прикреплён. Реквизиты можно ввести вручную.'
+    : 'Не удалось прикрепить PDF. Введите данные вручную.';
 }
 
 function compressImage(file, maxSide = 420, quality = 0.45) {
@@ -4772,16 +5306,15 @@ async function handleInsuranceScan(file) {
     insurancePhotoDraft = await compressImage(file);
     insurancePreviewMarkup();
     const raw = await detectInsuranceBarcode(file);
-    let text = raw;
-    if (!text) {
-      if (status) status.textContent = 'QR не найден, распознаю текст с фото…';
-      text = await ocrImage(file, status);
+    if (!raw) {
+      if (status) status.textContent = 'QR или штрихкод не найден. Введите данные вручную.';
+      return;
     }
-    const filled = parseInsuranceText(text);
+    const filled = parseInsuranceText(raw);
     if (status) {
       status.textContent = filled
         ? 'Данные с полиса подставлены. Проверьте и сохраните.'
-        : 'Текст распознан, но реквизиты не найдены. Введите вручную.';
+        : 'Штрихкод прочитан, но реквизиты не найдены. Введите вручную.';
     }
   } catch (error) {
     console.error('Insurance OCR error:', error);
@@ -5941,7 +6474,7 @@ function saveFuel() {
     odometer
   });
   car.fuelLevel = Math.min(num(car.tank) || Infinity, num(car.fuelLevel) + liters);
-  car.odometer = Math.max(num(car.odometer), odometer);
+  if (odometer > 0) applyManualOdometer(car, Math.max(num(car.odometer), odometer), 'fuel');
   saveNow();
   closeModal('fuelModal');
   renderAll();
@@ -6036,9 +6569,9 @@ function setTab(name, { push = true, scroll = true } = {}) {
   }
   if (name === 'reports') renderReports();
   if (name === 'drivers') renderDrivers();
+  if (name === 'warehouse') renderWarehouse();
   if (name === 'service') renderService();
   if (name === 'taxes') renderTaxControls();
-  if (name === 'cars' && state.viewMode === '3d') init3DTilt();
   if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -6195,6 +6728,31 @@ function exportCarsCSV() {
 }
 
 
+function exportStockCSV() {
+  const list = [...(state.warehouse || [])].sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ru'));
+  if (!list.length) {
+    showToast('Склад пуст — нечего экспортировать', 'error');
+    return;
+  }
+  const rows = [['Название', 'Категория', 'Остаток', 'Ед.', 'Минимум', 'Цена за ед., ₽', 'Стоимость остатка, ₽', 'Место', 'Комментарий', 'Обновлено']];
+  list.forEach(item => {
+    rows.push([
+      item.name || '',
+      STOCK_CATEGORIES[item.category] || 'Прочее',
+      csvNum(item.qty),
+      item.unit || 'шт',
+      csvNum(item.minQty),
+      csvNum(item.price),
+      csvNum(num(item.qty) * num(item.price)),
+      item.location || '',
+      item.note || '',
+      fmtDate(item.updatedAt)
+    ]);
+  });
+  downloadFile(`sklad-${todayISO()}.csv`, toCSV(rows), 'text/csv;charset=utf-8;');
+  showToast(`Экспортировано позиций: ${list.length}`);
+}
+
 function exportPartsCSV() {
   const list = [...(state.parts || [])].sort((a, b) => String(b.date).localeCompare(String(a.date)));
   if (!list.length) {
@@ -6347,6 +6905,7 @@ async function handleImport(file) {
       log: Array.isArray(payload.log) ? payload.log : (state.log || []),
       expenses: Array.isArray(payload.expenses) ? payload.expenses : (state.expenses || []),
       parts: Array.isArray(payload.parts) ? payload.parts : [],
+      warehouse: Array.isArray(payload.warehouse) ? payload.warehouse : (state.warehouse || []),
       toRecords: Array.isArray(payload.toRecords) ? payload.toRecords : []
     };
     normalizeState();
@@ -6392,6 +6951,7 @@ function bindEvents() {
       else if (action === 'new-part') openPartModal();
       else if (action === 'new-to') openToModal();
       else if (action === 'new-driver') openDriverModal();
+      else if (action === 'new-stock') openStockModal();
       return;
     }
 
@@ -6405,6 +6965,7 @@ function bindEvents() {
       else if (kind === 'cars') exportCarsCSV();
       else if (kind === 'summary') exportSummaryCSV();
       else if (kind === 'parts') exportPartsCSV();
+      else if (kind === 'stock') exportStockCSV();
       else if (kind === 'drivers') exportDriversCSV();
       else if (kind === 'to') exportTOCSV();
       else if (kind === 'weekly-salary') exportWeeklySalaryCSV();
@@ -6438,6 +6999,12 @@ function bindEvents() {
       queueSave();
       applyViewMode();
       renderCars();
+      return;
+    }
+
+    const compactCard = event.target.closest('.cars-view.compact .car-card[data-car-card]');
+    if (compactCard && !event.target.closest('button,input,select,a')) {
+      toggleCompactCard(compactCard);
       return;
     }
 
@@ -6484,6 +7051,15 @@ function bindEvents() {
       return;
     }
 
+    const editStock = event.target.closest('[data-edit-stock]');
+    if (editStock) { openStockModal(editStock.dataset.editStock); return; }
+    const stockIn = event.target.closest('[data-stock-in]');
+    if (stockIn) { openStockMove(stockIn.dataset.stockIn, 'in'); return; }
+    const stockOut = event.target.closest('[data-stock-out]');
+    if (stockOut) { openStockMove(stockOut.dataset.stockOut, 'out'); return; }
+    const delStock = event.target.closest('[data-del-stock]');
+    if (delStock) { await deleteStock(delStock.dataset.delStock); return; }
+
     const editCar = event.target.closest('[data-edit-car]');
     if (editCar) { openCarModal(editCar.dataset.editCar); return; }
     const fuelCar = event.target.closest('[data-fuel-car]');
@@ -6502,6 +7078,7 @@ function bindEvents() {
 
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
+    if ($('#notifyPanel') && !$('#notifyPanel').hidden) { closeNotifyPanel(); return; }
     if ($('#confirmModal')?.classList.contains('open')) {
       resolveConfirm(false);
       return;
@@ -6510,11 +7087,53 @@ function bindEvents() {
     if (open.length) closeModal(open[open.length - 1].id);
   });
 
+  $('#notifyCheck')?.addEventListener('click', () => { renderNotifications({ forceToast: true }); toggleNotifyPanel(true); });
+  $('#notifyTest')?.addEventListener('click', () => showToast('Пример: Газель т445ук124 · Масло двигателя — осталось 800 км', 'info'));
+  $('#notifyEnabled')?.addEventListener('change', event => {
+    state.notificationsEnabled = event.target.checked;
+    queueSave();
+    renderNotifications();
+  });
+  ['reminderKm', 'reminderDays'].forEach(id => {
+    const input = $('#' + id);
+    input?.addEventListener('change', () => {
+      state[id] = Math.max(0, num(input.value));
+      queueSave();
+      renderAll();
+      showToast('Порог напоминаний сохранён');
+    });
+  });
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-notify-toggle]')) {
+      event.preventDefault();
+      toggleNotifyPanel();
+      return;
+    }
+    if (event.target.closest('[data-notify-close]')) {
+      closeNotifyPanel();
+      return;
+    }
+    const item = event.target.closest('[data-notify-car]');
+    if (item) {
+      closeNotifyPanel();
+      const carId = item.dataset.notifyCar;
+      if (item.dataset.notifyAction === 'part') openPartModal(null, { carId, category: item.dataset.notifyCategory });
+      else if (item.dataset.notifyAction === 'fuel') openFuelModal(carId);
+      else if (item.dataset.notifyAction === 'stock') openStockModal(item.dataset.notifyStock);
+      else openCarModal(carId);
+      return;
+    }
+    if (!event.target.closest('#notifyPanel') && !event.target.closest('#notifyCheck')) closeNotifyPanel();
+  });
   $('#carSave')?.addEventListener('click', saveCar);
   $('#driverSave')?.addEventListener('click', saveDriver);
   $('#driverPayType')?.addEventListener('change', updateDriverPayFields);
   $('#driverStatus')?.addEventListener('change', updateDriverPayFields);
   $('#driverMonth')?.addEventListener('change', renderDrivers);
+  $('#stockSave')?.addEventListener('click', saveStock);
+  $('#stockMoveSave')?.addEventListener('click', saveStockMove);
+  $('#stockSearch')?.addEventListener('input', event => { stockFilters.q = event.target.value; renderWarehouse(); });
+  $('#stockFilter')?.addEventListener('change', event => { stockFilters.category = event.target.value; renderWarehouse(); });
   $('#partSave')?.addEventListener('click', savePart);
   $('#partCategory')?.addEventListener('change', onPartCategoryChange);
   $('#serviceCarFilter')?.addEventListener('change', event => { serviceFilters.carId = event.target.value; renderPartsList(); renderPartsAnalytics(); });
