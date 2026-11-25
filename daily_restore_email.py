@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build and email a daily restore pack for Autopark Control.
+"""Build and email a restore pack for Autopark Control.
 
-Default is a dry run. Use --send to actually send the email.
+Default is a light email and a dry run. Use --send to send, --full to attach the ZIP.
 """
 
 from __future__ import annotations
@@ -25,6 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent
 ENV_FILE = BASE_DIR / "outreach" / ".env"
 BACKUP_DIR = BASE_DIR / "backup"
 LOG_FILE = BASE_DIR / "crm" / "daily_restore.log"
+
+sys.path.insert(0, str(BASE_DIR / "crm"))
+try:
+    from context_usage import latest_conversation, usage as context_usage
+except Exception:
+    latest_conversation = None
+    context_usage = None
 
 EXCLUDED_DIRS = {
     ".git", ".secrets", "secrets", "backup", "data", "dist", "node_modules",
@@ -102,6 +109,16 @@ def pid_running(pid_file: Path) -> tuple[int | None, bool]:
     return pid, Path(f"/proc/{pid}").exists()
 
 
+def context_snapshot() -> dict:
+    if not latest_conversation or not context_usage:
+        return {}
+    try:
+        conversation = latest_conversation()
+        return context_usage(conversation) if conversation else {}
+    except Exception:
+        return {}
+
+
 def build_checks() -> dict:
     index = (BASE_DIR / "index.html").read_text(encoding="utf-8", errors="replace")
     app = (BASE_DIR / "app.html").read_text(encoding="utf-8", errors="replace")
@@ -164,53 +181,66 @@ def should_include(path: Path) -> bool:
     return path.is_file()
 
 
-def build_manifest(zip_name: str, files: list[Path]) -> dict:
+def build_manifest(zip_name: str | None, files: list[Path]) -> dict:
     key_files = [
         "index.html", "app.html", "download.html", "offer-krsk.html", "max.html",
         "RESTORE_CONTEXT.md", "README_RESTORE.md", "restore.py",
         "server/requirements.txt", "crm/max_bot.py", "crm/run_max_bot.sh",
+        "crm/context_usage.py",
     ]
     key_info = {}
     for name in key_files:
         path = BASE_DIR / name
         if path.exists():
             key_info[name] = {"size": path.stat().st_size, "sha256": sha256(path)}
-    return {
+    manifest = {
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "project": "Автопарк Контроль",
         "root": str(BASE_DIR),
         "git": git_info(),
         "checks": build_checks(),
+        "context_usage": context_snapshot(),
         "key_files": key_info,
-        "zip": {
-            "name": zip_name,
-            "files": len(files),
-            "bytes_uncompressed": sum(p.stat().st_size for p in files),
-        },
+        "zip": None,
         "links": {
             "site": "https://r1aven15.github.io/logist_mvp/",
             "github": "https://github.com/r1aven15/logist_mvp",
+            "branch": "https://github.com/r1aven15/logist_mvp/tree/openhands/restore-2026-11-25",
             "preview_demo": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/demo-krsk.html",
+            "preview_offer": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/offer-krsk.html",
+            "preview_offer_pdf": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/offer-krsk.pdf",
+            "preview_max": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/max.html",
+            "preview_max_pdf": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/max-presentation.pdf",
         },
     }
+    if zip_name:
+        manifest["zip"] = {
+            "name": zip_name,
+            "files": len(files),
+            "bytes_uncompressed": sum(p.stat().st_size for p in files),
+        }
+    return manifest
 
 
-def build_zip() -> tuple[Path, dict]:
+def build_zip(full: bool = True) -> tuple[Path | None, dict]:
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
     date_tag = datetime.now().strftime("%Y-%m-%d")
-    zip_name = f"autopark-restore-{date_tag}.zip"
-    zip_path = BACKUP_DIR / zip_name
-    files = [p for p in BASE_DIR.rglob("*") if should_include(p)]
+    zip_name = f"autopark-restore-{date_tag}.zip" if full else None
+    files = [p for p in BASE_DIR.rglob("*") if should_include(p)] if full else []
     manifest = build_manifest(zip_name, files)
     manifest_path = BACKUP_DIR / "MANIFEST.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in files:
-            archive.write(path, path.relative_to(BASE_DIR).as_posix())
-        if manifest_path.exists():
+    zip_path = None
+    if full:
+        zip_path = BACKUP_DIR / zip_name
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path in files:
+                archive.write(path, path.relative_to(BASE_DIR).as_posix())
             archive.write(manifest_path, f"backup/{manifest_path.name}")
-    log(f"ZIP готов: {zip_path} ({zip_path.stat().st_size} байт, файлов: {len(files)})")
+        log(f"ZIP готов: {zip_path} ({zip_path.stat().st_size} байт, файлов: {len(files)})")
+    else:
+        log("Лёгкий режим: ZIP не собирался.")
     return zip_path, manifest
 
 
@@ -232,31 +262,56 @@ def connect_smtp() -> smtplib.SMTP:
     return server
 
 
-def send_email(zip_path: Path, manifest: dict, recipient: str) -> None:
+def send_email(zip_path: Path | None, manifest: dict, recipient: str, full: bool = True) -> None:
     sender = os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or ""
     if not sender:
         raise SystemExit("Set SMTP_FROM or SMTP_USER in outreach/.env")
     sender_name = os.getenv("SMTP_NAME", "").strip() or "Автопарк Контроль"
     date_human = datetime.now().strftime("%d.%m.%Y")
+    links = manifest.get("links", {})
+    ctx = manifest.get("context_usage") or {}
+    if ctx:
+        context_line = (
+            f"{ctx.get('percent', '?')}% "
+            f"({ctx.get('used_tokens', 0):,} / {ctx.get('context_window', 0):,} токенов)"
+        )
+    else:
+        context_line = "нет данных"
 
-    body = f"""Владимир, это ежедневный пакет восстановления «Автопарк Контроль» за {date_human}.
+    if full:
+        title = "полный пакет восстановления"
+        archive_line = f"- {zip_path.name} — исходники и публичные файлы без секретов."
+    else:
+        title = "лёгкий пакет восстановления"
+        archive_line = "- ZIP не прикладываю: код и файлы лежат в GitHub, письмо лёгкое."
 
-Внутри:
+    body = f"""Владимир, это {title} «Автопарк Контроль» за {date_human}.
+
+Что внутри:
 - RESTORE_CONTEXT.md — кто ты, что делаем, где что лежит и как восстановить.
-- MANIFEST.json — состояние проекта, проверки и список файлов.
-- {zip_path.name} — исходники и публичные файлы без секретов.
+- MANIFEST.json — состояние проекта, проверки и контекст.
+{archive_line}
+
+Ссылки:
+- Презентация: {links.get('preview_offer')}
+- PDF презентации: {links.get('preview_offer_pdf')}
+- Короткая версия: {links.get('preview_max')}
+- PDF короткой версии: {links.get('preview_max_pdf')}
+- GitHub-ветка: {links.get('branch')}
+
+Контекст сейчас: {context_line}.
 
 Как продолжить в новом чате:
 «Прочитай /workspace/project/RESTORE_CONTEXT.md и продолжай».
 
-Проверки на момент отправки:
+Проверки:
 - firebaseConfig на месте: {manifest['checks']['firebase_config_present']}
 - строка DOC_REF на месте: {manifest['checks']['doc_ref_exact']}
 - демо без Firebase SDK: {all(v['offline_no_firebase_sdk'] for v in manifest['checks']['demo'].values())}
 - реальные организации в демо: {manifest['checks']['real_orgs_in_demo']}
 - предзаполненный email на входе: {manifest['checks']['login_email_prefilled']}
 
-Важно: в архиве нет secrets/, .secrets/ и реальных data/. Секреты лежат отдельно. Не пересылай это письмо.
+Важно: секреты и реальные data/ в письмо не кладу. Они лежат отдельно.
 """
     message = EmailMessage()
     message["From"] = formataddr((sender_name, sender))
@@ -264,14 +319,22 @@ def send_email(zip_path: Path, manifest: dict, recipient: str) -> None:
     message["Reply-To"] = sender
     message["Date"] = formatdate(localtime=True)
     message["Message-ID"] = make_msgid()
-    message["Subject"] = f"Автопарк Контроль — пакет восстановления {date_human}"
+    suffix = "полный пакет" if full else "контекст восстановления"
+    message["Subject"] = f"Автопарк Контроль — {suffix} {date_human}"
     message.set_content(body)
 
-    for path in [BASE_DIR / "RESTORE_CONTEXT.md", BACKUP_DIR / "MANIFEST.json", zip_path]:
+    attachments = [BASE_DIR / "RESTORE_CONTEXT.md", BACKUP_DIR / "MANIFEST.json"]
+    if zip_path:
+        attachments.append(zip_path)
+    for path in attachments:
         if not path.exists():
             continue
-        maintype = "text" if path.suffix == ".md" else "application"
-        subtype = "markdown" if path.suffix == ".md" else ("json" if path.suffix == ".json" else "zip")
+        if path.suffix == ".md":
+            maintype, subtype = "text", "markdown"
+        elif path.suffix == ".json":
+            maintype, subtype = "application", "json"
+        else:
+            maintype, subtype = "application", "zip"
         message.add_attachment(
             path.read_bytes(), maintype=maintype, subtype=subtype, filename=path.name
         )
@@ -284,23 +347,24 @@ def send_email(zip_path: Path, manifest: dict, recipient: str) -> None:
             server.quit()
         except Exception:
             pass
-    log(f"Письмо отправлено на {recipient}")
+    log(f"Письмо отправлено на {recipient} ({'полный' if full else 'лёгкий'} режим)")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Daily restore pack for Autopark Control")
+    parser = argparse.ArgumentParser(description="Restore email for Autopark Control")
     parser.add_argument("--send", action="store_true", help="Send email; default is build only")
+    parser.add_argument("--full", action="store_true", help="Attach full ZIP; default is light")
     parser.add_argument("--to", default=os.getenv("RESTORE_EMAIL_TO", ""), help="Recipient email")
     args = parser.parse_args()
 
     load_env(ENV_FILE)
-    zip_path, manifest = build_zip()
+    zip_path, manifest = build_zip(full=args.full)
     recipient = args.to or os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or ""
     if not recipient:
         raise SystemExit("Set RESTORE_EMAIL_TO or SMTP_FROM/SMTP_USER")
     log(f"Получатель: {recipient}")
     if args.send:
-        send_email(zip_path, manifest, recipient)
+        send_email(zip_path, manifest, recipient, full=args.full)
     else:
         log("Dry run: письмо не отправлено. Добавь --send.")
     return 0
