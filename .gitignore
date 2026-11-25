@@ -26,6 +26,7 @@ crm/.max_marker
 crm/.max_channel_state.json
 crm/.telegram_offset
 crm/.daily_restore_last
+crm/.vk_channel_state.json
 outreach/recipients.csv
 outreach/prospects-krsk.csv
 outreach/sent.log

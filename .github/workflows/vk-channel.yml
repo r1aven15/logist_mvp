@@ -1,0 +1,33 @@
+name: VK channel post
+
+on:
+  workflow_dispatch:
+    inputs:
+      index:
+        description: "Номер поста из очереди (пусто = следующий)"
+        required: false
+        default: ""
+  # Включи расписание после того, как добавишь секреты VK_ACCESS_TOKEN и VK_GROUP_ID.
+  # schedule:
+  #   - cron: "0 3 * * *"  # 10:00 по Красноярску
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publish to VK
+        env:
+          VK_ACCESS_TOKEN: ${{ secrets.VK_ACCESS_TOKEN }}
+          VK_GROUP_ID: ${{ secrets.VK_GROUP_ID }}
+          INDEX: ${{ github.event.inputs.index }}
+        run: |
+          if [ -n "$INDEX" ]; then
+            python3 crm/vk_channel_publish.py --index "$INDEX" --send
+          else
+            python3 crm/vk_channel_publish.py --send
+          fi

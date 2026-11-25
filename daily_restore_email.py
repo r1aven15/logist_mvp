@@ -46,7 +46,7 @@ EXCLUDED_FILES = {
     "crm/leads.csv", "crm/companies-2gis.csv", "crm/telegram_leads.csv",
     "crm/candidates.csv", "crm/queue.csv", "crm/config.json",
     "crm/.max_marker", "crm/.max_channel_state.json", "crm/.telegram_offset",
-    "crm/.max_bot.pid", "crm/.max_channel_scheduler.pid", "crm/.daily_restore_last",
+    "crm/.max_bot.pid", "crm/.max_channel_scheduler.pid", "crm/.daily_restore_last", "crm/.vk_channel_state.json",
     "outreach/recipients.csv", "outreach/prospects-krsk.csv", "outreach/sent.log",
     "android/build/autopark.keystore",
 }
@@ -186,7 +186,8 @@ def build_manifest(zip_name: str | None, files: list[Path]) -> dict:
         "index.html", "app.html", "download.html", "offer-krsk.html", "max.html",
         "RESTORE_CONTEXT.md", "README_RESTORE.md", "restore.py",
         "server/requirements.txt", "crm/max_bot.py", "crm/run_max_bot.sh",
-        "crm/context_usage.py",
+        "crm/context_usage.py", "crm/vk_channel_publish.py",
+        "crm/vk_content_plan.md", "crm/VK_CHANNEL.md",
     ]
     key_info = {}
     for name in key_files:

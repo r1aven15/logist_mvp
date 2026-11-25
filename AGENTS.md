@@ -8,5 +8,6 @@
 - Не удалять бэкапы без прямой команды.
 - Не публиковать `secrets/`, `.secrets/`, `data/`, `crm/.env`, `outreach/.env`.
 - Рабочее приложение: `index.html`, `app.html` (Firebase). Демо: `demo*.html` — офлайн-сборка без Firebase SDK.
+- ВКонтакте: `crm/vk_content_plan.md` (23 поста), `crm/vk_channel_queue.json`, `crm/vk_channel_publish.py`, инструкция `crm/VK_CHANNEL.md`. Токен — только в `outreach/.env`/GitHub Secrets; VK может запретить `wall.post`.
 - Еженедельный лёгкий пакет восстановления: `daily_restore_email.py`, воскресенье 23:30 по Красноярску на `vsend15@mail.ru`; полный ZIP — по команде `--full`. Заполнение контекста: `python3 crm/context_usage.py`.
 - Незакрытое: бухгалтер просил проверить расчёт маршрута в последнем обновлении; ссылки `outreach-kit.zip` и старые `backup/...` в `download.html`; скиллы из другого чата.
