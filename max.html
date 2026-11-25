@@ -120,6 +120,21 @@
   .stock-row .status{font-size:6.6px;font-weight:850;text-align:right;white-space:nowrap}
   .status.ok{color:#047857}
   .status.low{color:#b45309}
+  .status.bad{color:#be123c}
+  .driver-row{display:grid;grid-template-columns:1.35fr .72fr .62fr .9fr;gap:1.5mm;align-items:center;padding:2.1mm 0;border-bottom:1px solid #f1f3fa;font-size:7.8px}
+  .driver-row.head{font-size:6.6px;text-transform:uppercase;letter-spacing:.35px;color:var(--muted);font-weight:850;padding-top:1.2mm}
+  .driver-row .name{font-weight:750;color:#1f2937}
+  .driver-row .name span{display:block;font-weight:400;color:var(--muted);font-size:6.9px;margin-top:.2mm}
+  .driver-row .num{text-align:right;white-space:nowrap}
+  .driver-row .license{font-size:6.6px;font-weight:850;text-align:right;white-space:nowrap}
+  .driver-row .license.ok{color:#047857}
+  .driver-row .license.warn{color:#b45309}
+  .driver-row .license.bad{color:#be123c}
+  .driver-note{font-size:6.8px;color:#98a2b3;margin-top:1.4mm}
+  .driver-shot{display:grid;grid-template-columns:1fr 1fr;gap:2.4mm;margin-bottom:2.6mm}
+  .driver-shot .doc{position:relative;min-height:28mm;border-radius:3mm;border:1px dashed #d8d5ee;background:linear-gradient(135deg,#fbfaff,#f4fdff);display:grid;place-items:center;text-align:center;color:#6b7280;font-size:7px;line-height:1.35;padding:2mm}
+  .driver-shot .doc b{display:block;color:#312e81;font-size:7.6px;margin-bottom:.6mm}
+  .driver-shot .doc:after{content:"фото";position:absolute;right:2mm;bottom:2mm;font-size:5.8px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:#5b21b6;background:#ede9fe;border-radius:99px;padding:.7mm 1.4mm}
   .stock-foot{font-size:6.8px;color:#98a2b3;margin-top:1.4mm}
   .benefits{display:grid;gap:2.2mm}
   .benefit{display:flex;gap:2.2mm;align-items:flex-start;padding:2mm 0;border-bottom:1px solid #f0f2f9}
@@ -170,6 +185,7 @@
     <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
     <div><b>Автопарк Контроль</b><small>учёт транспорта · 2026 · Красноярск</small></div>
     <div class="pill">● демо без установки</div>
+    <a class="jump" href="#drivers">Водители →</a>
     <a class="jump" href="#warehouse">Склад →</a>
   </div>
 
@@ -193,7 +209,7 @@
     <div class="feature"><b>Рейсы:</b> дата, машина, водитель, маршрут, доход, бензин</div>
     <div class="feature hot"><b>Склад:</b> остатки, минимумы, приход и списание</div>
     <div class="feature"><b>Сервис:</b> ТО, запчасти, напоминания</div>
-    <div class="feature"><b>Водители:</b> статус, машина, оплата, НДФЛ/НПД</div>
+    <div class="feature hot"><b>Водители:</b> карточка, права и сроки, машина, оплата, НДФЛ/НПД</div>
     <div class="feature"><b>Прибыль</b> по каждой машине и организации</div>
     <div class="feature"><b>Налоги 2026:</b> УСН 6/15%, НДС 22%, лимиты</div>
     <div class="feature"><b>Отчёты:</b> ИП/ООО, водители, месяцы, CSV/1С</div>
@@ -232,6 +248,7 @@
     <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
     <div><b>Автопарк Контроль</b><small>склад · сервис · рейсы</small></div>
     <div class="pill">● склад в версии 3.3</div>
+    <a class="jump" href="#drivers">Водители →</a>
   </div>
 
   <div class="badge"><i></i> Новый модуль</div>
@@ -292,6 +309,76 @@
 
   <div class="cta">
     <div><b>Показать склад на демо-данных?</b><p>10 минут — и видно, как это работает на вашем парке. Сначала разбор процесса, потом решение. Без установки.</p></div>
+    <div class="links"><a class="link" href="demo-krsk.html">Открыть демо →</a><a class="link ghost" href="max-presentation.pdf">Скачать PDF</a></div>
+  </div>
+  <div class="contact"><span><b>Владимир Анисимов</b> · разработчик</span><span>+7 983 502-45-66 · vsend15@mail.ru</span></div>
+  <div class="foot">Демо-данные вымышленные. Программа не заменяет бухгалтера; налоговые расчёты носят справочный характер.</div>
+</section>
+
+<!-- ================= СТРАНИЦА 3 ================= -->
+<section class="page page2 page3" id="drivers">
+  <div class="top">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
+    <div><b>Автопарк Контроль</b><small>водители · права · выплаты</small></div>
+    <div class="pill">● контроль допуска</div>
+    <a class="jump" href="#warehouse">← Склад</a>
+    <a class="jump" href="demo-krsk.html">Демо →</a>
+  </div>
+
+  <div class="badge"><i></i> Водители и права</div>
+  <h1>Водитель, права и выплата<br><span>в одной карточке</span></h1>
+  <p class="lead">Профиль, телефон, статус, машина, оплата и обе стороны прав. Срок действия виден сразу: зелёный — можно ставить рейс, жёлтый — пора обновить, красный — допуска нет. Данные можно распознать по фото, штрихкоду или вставить текстом.</p>
+
+  <div class="warehouse">
+    <div class="panel">
+      <h3>Карточка водителя</h3>
+      <p class="sub">Фото прав, срок и допуск — без папок и переписок</p>
+      <div class="driver-shot">
+        <div class="doc"><b>Лицевая сторона</b>Фото или скан прав<br>номер, категории, срок</div>
+        <div class="doc"><b>Обратная сторона</b>Фото или скан<br>кем выданы</div>
+      </div>
+      <div class="driver-row head"><span>Водитель</span><span>Статус</span><span class="num">Рейсов</span><span class="license">Права</span></div>
+      <div class="driver-row"><span class="name">Иванов Пётр<span>Volvo FH 460</span></span><span>В штате</span><span class="num">1</span><span class="license ok">до 12.04.2029</span></div>
+      <div class="driver-row"><span class="name">Петров Сергей<span>Ford Transit</span></span><span>Самозанятый</span><span class="num">1</span><span class="license warn">20 дн.</span></div>
+      <div class="driver-row"><span class="name">Сидоров Алексей<span>KAMAZ 5490</span></span><span>ИП</span><span class="num">1</span><span class="license bad">просрочены</span></div>
+      <div class="driver-note">Демо-данные. В приложении — ваши водители и реальные сроки.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Что под контролем</h3>
+      <p class="sub">Не только «список людей», а допуск к работе и деньги</p>
+      <div class="benefits">
+        <div class="benefit"><div class="ico">Ф</div><div><b>Права с двух сторон</b><span>Фото хранится в карточке, а не в галерее телефона.</span></div></div>
+        <div class="benefit"><div class="ico">OCR</div><div><b>Распознавание данных</b><span>Штрихкод, текст с фото или ручная вставка — номер, категории и срок.</span></div></div>
+        <div class="benefit"><div class="ico">!</div><div><b>Напоминание о сроке</b><span>За 30 дней — жёлтый статус, после — красный и уведомление.</span></div></div>
+        <div class="benefit"><div class="ico">₽</div><div><b>Выплаты и налоги</b><span>Процент, оклад, за рейс, НДФЛ/НПД и сумма к выплате.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="node">Права<small>фото, номер, срок</small></div><div class="arrow">→</div>
+    <div class="node">Допуск к рейсу<small>зелёный / жёлтый / красный</small></div><div class="arrow">→</div>
+    <div class="node">Выплата<small>рейсы, налог, к выплате</small></div>
+  </div>
+
+  <div class="case"><span class="tag">пример</span><div><b>Проверка прав перед рейсом.</b> Раньше срок смотрели в бумажной папке или в переписке. Теперь карточка сразу показывает, у кого права заканчиваются, а у кого уже просрочены. Это пример из пилота, а не обещание для каждого парка.</div></div>
+
+  <div class="use-cases">
+    <div class="use-case"><b>Диспетчеру</b><span>Видно, кого можно ставить на рейс, а кого нельзя.</span></div>
+    <div class="use-case"><b>Бухгалтеру</b><span>Ставка, рейсы, налог и сумма к выплате — в одном расчёте.</span></div>
+    <div class="use-case"><b>Руководителю</b><span>Сроки прав, статусы и загрузка водителей без звонков.</span></div>
+  </div>
+
+  <h2>Как это работает</h2>
+  <div class="steps3">
+    <div class="step"><b>1</b><span>Заполните карточку и сфотографируйте права с двух сторон.</span></div>
+    <div class="step"><b>2</b><span>Проверьте распознанные номер, категории и срок действия.</span></div>
+    <div class="step"><b>3</b><span>Смотрите статус допуска и считайте выплату за месяц.</span></div>
+  </div>
+
+  <div class="cta">
+    <div><b>Открыть демо и посмотреть карточку водителя?</b><p>10 минут — и видно, как работают права, допуск и выплаты на демо-данных. Без установки.</p></div>
     <div class="links"><a class="link" href="demo-krsk.html">Открыть демо →</a><a class="link ghost" href="max-presentation.pdf">Скачать PDF</a></div>
   </div>
   <div class="contact"><span><b>Владимир Анисимов</b> · разработчик</span><span>+7 983 502-45-66 · vsend15@mail.ru</span></div>

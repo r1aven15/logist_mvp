@@ -880,6 +880,31 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .driver-meta b.money{color:var(--accent);font-variant-numeric:tabular-nums}
 .driver-actions{display:flex;align-items:center;gap:7px;margin-top:10px}
 .driver-actions .input{flex:1;min-width:0;padding:7px 9px;font-size:11.5px}
+.driver-license-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px dashed var(--border)}
+.driver-license-row .badge{display:inline-flex;align-items:center;gap:4px;max-width:100%;margin-right:auto}
+.driver-license-row .badge .icon{width:12px;height:12px;flex:0 0 auto}
+.driver-license-row .btn{padding:5px 8px;font-size:10.5px}
+.driver-doc-thumbs{display:flex;gap:5px;margin-top:8px}
+.driver-doc-thumbs img{width:42px;height:30px;object-fit:cover;border-radius:7px;border:1px solid var(--border);background:var(--surface)}
+.license-doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.license-doc [hidden]{display:none!important}
+.license-doc{padding:10px;border:1px solid var(--border);border-radius:13px;background:var(--surface-2)}
+.license-doc-head{display:flex;justify-content:space-between;gap:6px;align-items:center;margin-bottom:7px}
+.license-doc-head b{font-size:11px}
+.license-doc-state{font-size:9px;font-weight:800;color:var(--muted);white-space:nowrap}
+.license-doc-state.ok{color:var(--ok)}
+.license-doc-preview{position:relative;display:grid;place-items:center;aspect-ratio:1.58;border-radius:9px;overflow:hidden;background:var(--surface);border:1px dashed var(--border)}
+.license-doc-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.license-doc-empty{display:grid;place-items:center;gap:4px;padding:8px;text-align:center;color:var(--muted);font-size:9.5px;line-height:1.3}
+.license-doc-empty .icon{width:20px;height:20px}
+.license-doc-actions{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.license-doc-actions .btn{flex:1;min-width:0;padding:6px 7px;font-size:10px}
+.license-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
+.license-tools .hint-text{flex:1;min-width:140px}
+.license-paste{margin-top:8px;border:1px solid var(--border);border-radius:11px;padding:8px 10px;background:var(--surface-2)}
+.license-paste summary{cursor:pointer;font-size:11px;font-weight:750;color:var(--muted)}
+.license-paste textarea{width:100%;min-height:64px;margin-top:7px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:11px;resize:vertical}
+.license-paste .btn{margin-top:6px}
 .driver-history-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--border);font-size:11.5px}
 .driver-history-row:last-child{border-bottom:0}
 .driver-history-row span{color:var(--muted)}
@@ -889,6 +914,8 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 @media (max-width:720px){
   .driver-grid{grid-template-columns:1fr}
   .driver-meta{grid-template-columns:1fr 1fr}
+  .license-doc-grid{grid-template-columns:1fr}
+  .driver-license-row .btn{margin-left:0}
 }
 
 /* ===== ГЛОНАСС: диагностика ===== */
@@ -1605,7 +1632,7 @@ body.auth-locked{overflow:hidden}
           </section>
 
           <section class="card">
-            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.2 · 2026</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
+            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.3 · 2026 · склад</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
             <div class="info-list">
               <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>; резервные копии — <code>gazelle_app/main_data/backups</code>.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-wallet"/></svg><span><b>Бухгалтерия:</b> доходы, расходы на ГСМ, прибыль, оценка налогов, разбивка по организациям и водителям.</span></div>
@@ -1874,11 +1901,61 @@ body.auth-locked{overflow:hidden}
       <div class="field"><label for="driverSince">Дата назначения</label><input class="input" type="date" id="driverSince"><span class="hint-text">С какой даты водитель на этой машине</span></div>
       <div class="field"><label for="driverNote">Комментарий</label><input class="input" id="driverNote" placeholder="Например, график 5/2" autocomplete="off"></div>
     </div>
+
+    <div class="form-section" id="driverLicenseSection">
+      <div class="section-title"><svg class="icon icon-sm"><use href="#i-file"/></svg> Права водителя</div>
+      <div class="hint-text" style="margin-bottom:8px">Сфотографируйте обе стороны. Номер, срок и категории можно распознать по штрихкоду или вставить текстом — данные скопируются в один клик.</div>
+      <div class="license-doc-grid">
+        <div class="license-doc" data-license-card="front">
+          <div class="license-doc-head"><b>Лицевая сторона</b><span class="license-doc-state" id="licenseFrontState">не загружена</span></div>
+          <div class="license-doc-preview">
+            <img id="licenseFrontImg" alt="Права, лицевая сторона" hidden>
+            <div class="license-doc-empty" id="licenseFrontEmpty"><svg class="icon"><use href="#i-camera"/></svg><span>Фото или скан</span></div>
+          </div>
+          <div class="license-doc-actions">
+            <button class="btn btn-sm" type="button" data-license-pick="front"><svg class="icon icon-sm"><use href="#i-camera"/></svg> Снять / загрузить</button>
+            <button class="btn btn-sm btn-ghost" type="button" data-license-remove="front" hidden>Убрать</button>
+          </div>
+        </div>
+        <div class="license-doc" data-license-card="back">
+          <div class="license-doc-head"><b>Обратная сторона</b><span class="license-doc-state" id="licenseBackState">не загружена</span></div>
+          <div class="license-doc-preview">
+            <img id="licenseBackImg" alt="Права, обратная сторона" hidden>
+            <div class="license-doc-empty" id="licenseBackEmpty"><svg class="icon"><use href="#i-camera"/></svg><span>Фото или скан</span></div>
+          </div>
+          <div class="license-doc-actions">
+            <button class="btn btn-sm" type="button" data-license-pick="back"><svg class="icon icon-sm"><use href="#i-camera"/></svg> Снять / загрузить</button>
+            <button class="btn btn-sm btn-ghost" type="button" data-license-remove="back" hidden>Убрать</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label for="driverLicenseNumber">Серия и номер</label><input class="input" id="driverLicenseNumber" placeholder="9900 123456" autocomplete="off"></div>
+        <div class="field"><label for="driverLicenseCategories">Категории</label><input class="input" id="driverLicenseCategories" placeholder="B, C, D" autocomplete="off"></div>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label for="driverLicenseIssuedAt">Дата выдачи</label><input class="input" type="date" id="driverLicenseIssuedAt"></div>
+        <div class="field"><label for="driverLicenseExpiresAt">Действительны до</label><input class="input" type="date" id="driverLicenseExpiresAt"><span class="hint-text" id="driverLicenseExpiryHint">Напомним за 30 дней до окончания</span></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label for="driverLicenseIssuedBy">Кем выданы</label><input class="input" id="driverLicenseIssuedBy" placeholder="ГИБДД 2401" autocomplete="off"></div>
+      <div class="license-tools">
+        <button class="btn btn-sm" type="button" id="driverLicenseScanBtn"><svg class="icon icon-sm"><use href="#i-scan"/></svg> Распознать по фото</button>
+        <button class="btn btn-sm" type="button" id="driverLicenseCopyBtn"><svg class="icon icon-sm"><use href="#i-file"/></svg> Скопировать данные</button>
+        <span class="hint-text" id="driverLicenseStatus">Фото не загружены</span>
+      </div>
+      <details class="license-paste">
+        <summary>Вставить текст с фото (если OCR уже сделан)</summary>
+        <textarea id="driverLicenseText" placeholder="ФИО, серия и номер, категории, дата выдачи, действительны до, кем выданы…"></textarea>
+        <button class="btn btn-sm" type="button" id="driverLicenseParseBtn">Разобрать текст</button>
+      </details>
+    </div>
+
     <div class="form-section" id="driverHistoryWrap" hidden>
       <div class="section-title"><svg class="icon icon-sm"><use href="#i-route"/></svg> История машин</div>
       <div id="driverHistory"></div>
     </div>
     <div class="hint info" style="margin-top:12px"><svg class="icon"><use href="#i-info"/></svg><span>Остаток топлива в баке принадлежит машине. При переводе водителя он не удерживается и не влияет на расчёт.</span></div>
+    <input type="file" id="driverLicenseFile" accept="image/*" capture="environment" hidden>
     <div class="modal-foot">
       <button class="btn btn-ghost" data-close="driverModal">Отмена</button>
       <button class="btn btn-primary" id="driverSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
@@ -2034,7 +2111,7 @@ let cloudStarted = false;
 let currentUser = null;
 
 const DEMO_KEY = 'autopark_demo_v2';
-const DEMO = new URLSearchParams(location.search).has('demo') || /\/demo(\.html)?$/i.test(location.pathname);
+const DEMO = new URLSearchParams(location.search).has('demo') || /\/demo[^/]*(\.html)?$/i.test(location.pathname);
 
 /* ============================================================
    2. КОНСТАНТЫ И УТИЛИТЫ
@@ -2419,6 +2496,34 @@ function normalizeInsurance(value) {
   };
 }
 
+function normalizeDriverDoc(value) {
+  if (!value || typeof value !== 'object') return null;
+  const data = typeof value.data === 'string' ? value.data : '';
+  const url = typeof value.url === 'string' ? value.url : '';
+  if (!data && !url) return null;
+  return {
+    name: String(value.name || 'Права.jpg').trim() || 'Права.jpg',
+    type: String(value.type || 'image/jpeg'),
+    size: Math.max(0, num(value.size)),
+    data,
+    url,
+    at: String(value.at || '').trim()
+  };
+}
+
+function normalizeDriverLicense(value) {
+  const license = value && typeof value === 'object' ? value : {};
+  return {
+    number: String(license.number || '').trim(),
+    categories: String(license.categories || '').trim(),
+    issuedAt: normalizeDate(license.issuedAt),
+    expiresAt: normalizeDate(license.expiresAt),
+    issuedBy: String(license.issuedBy || '').trim(),
+    front: normalizeDriverDoc(license.front),
+    back: normalizeDriverDoc(license.back)
+  };
+}
+
 function normalizeToReceipt(value) {
   if (!value || typeof value !== 'object') return null;
   const data = typeof value.data === 'string' ? value.data : '';
@@ -2496,6 +2601,7 @@ function normalizeDriver(value, index = 0) {
     rate: Math.max(0, num(driver.rate)),
     carId,
     assignments,
+    license: normalizeDriverLicense(driver.license),
     active: driver.active !== false,
     note: String(driver.note || '').trim()
   };
@@ -2829,6 +2935,7 @@ function buildDemoState() {
     {
       id: 'demo-driver-1', name: 'Иванов Пётр', phone: '+7 900 111-22-33', status: 'staff', payType: 'percent_income', rate: 30,
       carId: 'demo-car-1', note: 'График 5/2',
+      license: { number: '9900 123456', categories: 'B, C', issuedAt: '2019-04-12', expiresAt: '2029-04-12', issuedBy: 'ГИБДД 2401' },
       assignments: [
         { id: 'demo-assign-1', carId: 'demo-car-2', carName: 'Ford Transit', from: dateIn(-8, 1), to: dateIn(-3, 1) },
         { id: 'demo-assign-2', carId: 'demo-car-1', carName: 'Volvo FH 460', from: dateIn(-3, 1), to: '' }
@@ -2837,16 +2944,19 @@ function buildDemoState() {
     {
       id: 'demo-driver-2', name: 'Петров Сергей', phone: '+7 900 222-33-44', status: 'self', payType: 'per_trip', rate: 2500,
       carId: 'demo-car-2', note: 'Самозанятый, НПД',
+      license: { number: '9910 654321', categories: 'B', issuedAt: '2018-09-03', expiresAt: '2026-12-15', issuedBy: 'ГИБДД 2401' },
       assignments: [{ id: 'demo-assign-3', carId: 'demo-car-2', carName: 'Ford Transit', from: dateIn(-10, 1), to: '' }]
     },
     {
       id: 'demo-driver-3', name: 'Сидоров Алексей', phone: '+7 900 333-44-55', status: 'ip', payType: 'percent_profit', rate: 25,
       carId: 'demo-car-3', note: 'ИП, договор перевозки',
+      license: { number: '9920 112233', categories: 'B, C, E', issuedAt: '2017-02-18', expiresAt: '2026-10-01', issuedBy: 'ГИБДД 2401' },
       assignments: [{ id: 'demo-assign-4', carId: 'demo-car-3', carName: 'KAMAZ 5490', from: dateIn(-6, 1), to: '' }]
     },
     {
       id: 'demo-driver-4', name: 'Кузнецов Андрей', phone: '+7 900 444-55-66', status: 'contract', payType: 'fixed', rate: 60000,
       carId: 'demo-car-4', note: 'ГПХ, подменный водитель',
+      license: { number: '9930 445566', categories: 'B', issuedAt: '2020-06-20', expiresAt: '2028-06-20', issuedBy: 'ГИБДД 2401' },
       assignments: [{ id: 'demo-assign-5', carId: 'demo-car-4', carName: 'Hyundai Solaris', from: dateIn(-2, 1), to: '' }]
     }
   ];
@@ -3953,6 +4063,14 @@ function collectNotifications() {
       });
     }
   });
+  (state.drivers || []).forEach(driver => {
+    const license = driverLicenseStatus(driver);
+    if (!['danger', 'warn'].includes(license.status)) return;
+    items.push({
+      kind: 'license', severity: license.status, carId: '', driverId: driver.id, carName: driver.name,
+      icon: 'file', title: 'Права водителя', detail: license.detail || license.label, action: 'driver'
+    });
+  });
   (state.warehouse || []).forEach(item => {
     const qty = num(item.qty);
     if (qty > 0 && !isStockLow(item)) return;
@@ -3993,7 +4111,7 @@ function renderNotifications(options = {}) {
   const list = $('#notifyList');
   if (list) {
     list.innerHTML = items.length ? items.map(item => `
-      <button class="notify-item ${item.severity}" data-notify-car="${esc(item.carId || '')}" data-notify-stock="${esc(item.stockId || '')}" data-notify-action="${esc(item.action)}" data-notify-category="${esc(item.category || '')}">
+      <button class="notify-item ${item.severity}" data-notify-car="${esc(item.carId || '')}" data-notify-stock="${esc(item.stockId || '')}" data-notify-driver="${esc(item.driverId || '')}" data-notify-action="${esc(item.action)}" data-notify-category="${esc(item.category || '')}">
         <span class="notify-item-icon">${icon(item.icon)}</span>
         <span class="notify-item-body"><b>${esc(item.carName)} · ${esc(item.title)}</b><span>${esc(item.detail)}</span></span>
         <span class="notify-item-status ${item.severity}">${item.severity === 'danger' ? 'срочно' : 'скоро'}</span>
@@ -5111,6 +5229,9 @@ function updateCarQuick(input) {
 let insurancePhotoDraft = '';
 let insurancePdfDraft = null;
 let toReceiptDraft = null;
+let driverLicenseDraft = null;
+let driverLicenseFiles = { front: null, back: null };
+let driverLicenseSide = 'front';
 let toHistoryCarId = '';
 let serviceFilters = { carId: '', category: '', vendor: '' };
 
@@ -6013,6 +6134,248 @@ function driverCarName(driver) {
   return state.cars.find(car => car.id === driver.carId)?.name || 'Не назначена';
 }
 
+function driverLicenseStatus(driver) {
+  const license = normalizeDriverLicense(driver?.license);
+  const hasDoc = Boolean(license.number || license.issuedAt || license.expiresAt || license.front || license.back);
+  if (!hasDoc) return { status: 'empty', tone: 'plain', label: 'Права не загружены', days: null };
+  if (!license.expiresAt) return { status: 'warn', tone: 'warn', label: 'Права: не указан срок', days: null };
+  const days = daysBetween(todayISO(), license.expiresAt);
+  if (days < 0) return { status: 'danger', tone: 'danger', label: 'Права просрочены', detail: `Просрочены на ${Math.abs(days)} дн.`, days };
+  if (days <= 30) return { status: 'warn', tone: 'warn', label: `Права: ${days} дн.`, detail: `Истекают через ${days} дн.`, days };
+  return { status: 'ok', tone: 'ok', label: `Права до ${fmtDate(license.expiresAt)}`, detail: `Действительны до ${fmtDate(license.expiresAt)}`, days };
+}
+
+function driverDataText(data) {
+  const license = normalizeDriverLicense(data?.license);
+  const status = data?.status ? driverStatusInfo(data.status).label : '';
+  return [
+    ['ФИО', data?.name],
+    ['Телефон', data?.phone],
+    ['Статус', status],
+    ['Права', license.number],
+    ['Категории', license.categories],
+    ['Дата выдачи', license.issuedAt ? fmtDate(license.issuedAt) : ''],
+    ['Действительны до', license.expiresAt ? fmtDate(license.expiresAt) : ''],
+    ['Кем выданы', license.issuedBy]
+  ].filter(([, value]) => String(value || '').trim()).map(([label, value]) => `${label}: ${value}`).join('\n');
+}
+
+function driverFormData() {
+  return {
+    name: $('#driverName')?.value.trim() || '',
+    phone: $('#driverPhone')?.value.trim() || '',
+    status: $('#driverStatus')?.value || 'staff',
+    license: {
+      number: $('#driverLicenseNumber')?.value.trim() || '',
+      categories: $('#driverLicenseCategories')?.value.trim() || '',
+      issuedAt: $('#driverLicenseIssuedAt')?.value || '',
+      expiresAt: $('#driverLicenseExpiresAt')?.value || '',
+      issuedBy: $('#driverLicenseIssuedBy')?.value.trim() || '',
+      front: driverLicenseDraft?.front || null,
+      back: driverLicenseDraft?.back || null
+    }
+  };
+}
+
+async function copyDriverText(text, message = 'Данные скопированы') {
+  if (!String(text || '').trim()) {
+    showToast('Нет данных для копирования', 'error');
+    return;
+  }
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+    showToast(message, 'success');
+  } catch (error) {
+    showToast('Браузер не дал скопировать. Выделите текст вручную.', 'error');
+  }
+}
+
+function driverLicensePreviewMarkup() {
+  const license = normalizeDriverLicense(driverLicenseDraft || {});
+  [['front', 'Front'], ['back', 'Back']].forEach(([side, suffix]) => {
+    const doc = license[side];
+    const image = $(`#license${suffix}Img`);
+    const empty = $(`#license${suffix}Empty`);
+    const stateLabel = $(`#license${suffix}State`);
+    const remove = $(`[data-license-remove="${side}"]`);
+    const src = doc?.url || doc?.data || '';
+    if (image) {
+      if (src) {
+        image.src = src;
+        image.hidden = false;
+      } else {
+        image.removeAttribute('src');
+        image.hidden = true;
+      }
+    }
+    if (empty) empty.hidden = Boolean(src);
+    if (stateLabel) {
+      stateLabel.textContent = src ? 'загружена' : 'не загружена';
+      stateLabel.classList.toggle('ok', Boolean(src));
+    }
+    if (remove) remove.hidden = !src;
+  });
+  const status = $('#driverLicenseStatus');
+  if (status) {
+    const count = [license.front, license.back].filter(Boolean).length;
+    status.textContent = count ? `Загружено сторон: ${count} из 2` : 'Фото не загружены';
+  }
+}
+
+function updateDriverLicenseExpiryHint() {
+  const hint = $('#driverLicenseExpiryHint');
+  if (!hint) return;
+  const value = $('#driverLicenseExpiresAt')?.value;
+  if (!value) {
+    hint.textContent = 'Напомним за 30 дней до окончания';
+    return;
+  }
+  const days = daysBetween(todayISO(), value);
+  hint.textContent = days < 0
+    ? `Просрочены на ${Math.abs(days)} дн.`
+    : days <= 30
+      ? `Осталось ${days} дн. — пора обновить`
+      : `Осталось ${days} дн.`;
+}
+
+function parseDriverLicenseText(raw, options = {}) {
+  const text = String(raw || '').replace(/ё/gi, 'е').replace(/\u00a0/g, ' ');
+  const compact = text.replace(/\s+/g, ' ').trim();
+  let filled = false;
+  const set = (selector, value) => {
+    const input = $(selector);
+    if (!input || !value || input.value.trim()) return;
+    input.value = value;
+    filled = true;
+  };
+  const toISO = (value) => {
+    const match = String(value || '').match(/^(\d{2})[.\-/](\d{2})[.\-/](\d{4})$/);
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+  };
+
+  const number = compact.match(/(?:серия\s*)?(\d{2}\s?\d{2})\s*(?:номер|№|N|N[оo]?\.?)?\s*(\d{6})/i)
+    || compact.match(/\b(\d{4})\s+(\d{6})\b/);
+  if (number) set('#driverLicenseNumber', `${number[1].replace(/\s/g, '')} ${number[2]}`);
+
+  const categoriesRaw = compact.match(/(?:категори[ия]|кат\.?)\s*[:\-]?\s*([A-ZА-Я0-9,./\s-]{1,48})/i)?.[1] || '';
+  const cyrToLat = { 'А': 'A', 'В': 'B', 'С': 'C', 'Е': 'E', 'М': 'M', 'Т': 'T' };
+  const categories = categoriesRaw.toUpperCase().replace(/[^A-ZА-Я0-9,\s]/g, ' ')
+    .split(/[\s,]+/)
+    .map(token => token.split('').map(char => cyrToLat[char] || char).join(''))
+    .filter(token => /^(A|B|C|D|E|BE|CE|DE|TM|TB|M|A1|B1|C1|D1|E1|T)$/.test(token));
+  if (categories.length) set('#driverLicenseCategories', [...new Set(categories)].join(', '));
+
+  const allDates = Array.from(compact.matchAll(/(\d{2})[.\-/](\d{2})[.\-/](\d{4})/g)).map(match => `${match[3]}-${match[2]}-${match[1]}`);
+  const issued = compact.match(/(?:дата\s+выдачи|выдан[ао]?)[^\d]{0,35}(\d{2}[.\-/]\d{2}[.\-/]\d{4})/i);
+  const expires = compact.match(/(?:действительн[а-я]*\s+до|окончани[ея]\s+срока|срок\s+действия|права\s+до)[^\d]{0,35}(\d{2}[.\-/]\d{2}[.\-/]\d{4})/i);
+  const issuedAt = issued ? toISO(issued[1]) : allDates[0] || '';
+  const expiresAt = expires ? toISO(expires[1]) : allDates[1] || '';
+  if (issuedAt) set('#driverLicenseIssuedAt', issuedAt);
+  if (expiresAt) set('#driverLicenseExpiresAt', expiresAt);
+
+  const issuerLine = text.split(/\n+/).map(line => line.trim()).find(line => /(гибдд|мрэо|умвд|овд|подразделен)/i.test(line));
+  if (issuerLine) {
+    set('#driverLicenseIssuedBy', issuerLine.replace(/^(кем\s+выдан[ао]?|подразделение)\s*[:\-]?\s*/i, '').trim());
+  }
+
+  if (!options.silent) {
+    showToast(filled ? 'Данные разобраны — проверьте поля' : 'Не удалось разобрать текст — заполните вручную', filled ? 'success' : 'info');
+  }
+  updateDriverLicenseExpiryHint();
+  return filled;
+}
+
+async function detectDriverLicenseText(file) {
+  const barcode = await detectInsuranceBarcode(file);
+  if (barcode) return barcode;
+  if (!('TextDetector' in window)) return '';
+  try {
+    const detector = new window.TextDetector();
+    const bitmap = await createImageBitmap(file);
+    const blocks = await detector.detect(bitmap);
+    bitmap.close?.();
+    return blocks.map(block => block.rawValue).filter(Boolean).join('\n');
+  } catch (error) {
+    console.warn('TextDetector unavailable:', error);
+    return '';
+  }
+}
+
+async function handleDriverLicensePhoto(file, side = 'front') {
+  if (!file) return;
+  const status = $('#driverLicenseStatus');
+  if (status) status.textContent = 'Обрабатываю фото…';
+  try {
+    const preview = await compressImage(file, 1400, 0.7);
+    driverLicenseDraft = normalizeDriverLicense(driverLicenseDraft || {});
+    driverLicenseDraft[side] = {
+      name: file.name || 'Права.jpg',
+      type: 'image/jpeg',
+      size: file.size || 0,
+      data: preview,
+      url: '',
+      at: new Date().toISOString()
+    };
+    driverLicenseFiles[side] = file;
+    driverLicensePreviewMarkup();
+    if (status) status.textContent = 'Распознаю данные…';
+    const raw = await detectDriverLicenseText(file);
+    if (raw) {
+      const filled = parseDriverLicenseText(raw, { silent: true });
+      if (status) status.textContent = filled ? 'Данные распознаны — проверьте поля' : 'Текст найден, но поля не распознаны';
+      if (filled) showToast('Данные с прав подставлены', 'success');
+    } else if (status) {
+      status.textContent = 'Фото загружено. Текст не распознан — вставьте его вручную.';
+    }
+  } catch (error) {
+    console.error('Driver license photo error:', error);
+    if (status) status.textContent = 'Не удалось прочитать фото';
+    showToast('Не удалось обработать фото', 'error');
+  }
+}
+
+async function uploadDriverLicensePhoto(file, side) {
+  const compressed = await compressImage(file, 1600, 0.72);
+  const blob = await (await fetch(compressed)).blob();
+  const name = `prava-${side}.jpg`;
+  if (!DEMO && currentUser) {
+    try {
+      const storage = getStorage(app);
+      const objectRef = storageRef(storage, `drivers/${currentUser.uid}/${Date.now()}-${side}.jpg`);
+      const snapshot = await uploadBytes(objectRef, blob, { contentType: 'image/jpeg' });
+      return {
+        name,
+        type: 'image/jpeg',
+        size: blob.size,
+        data: '',
+        url: await getDownloadURL(snapshot.ref),
+        at: new Date().toISOString()
+      };
+    } catch (error) {
+      console.warn('Driver license upload error, using local copy:', error);
+    }
+  }
+  return {
+    name,
+    type: 'image/jpeg',
+    size: blob.size,
+    data: compressed,
+    url: '',
+    at: new Date().toISOString()
+  };
+}
+
 function renderDriverKpis() {
   const box = $('#driverKpis');
   if (!box) return;
@@ -6049,6 +6412,9 @@ function renderDriversList() {
     const status = driverStatusInfo(driver.status);
     const pay = calculateDriverPay(driver, month);
     const car = state.cars.find(item => item.id === driver.carId);
+    const license = normalizeDriverLicense(driver.license);
+    const licenseStatus = driverLicenseStatus(driver);
+    const docs = [license.front, license.back].filter(Boolean);
     return `<div class="driver-card">
       <div class="driver-head">
         <div class="driver-avatar">${esc(driverInitials(driver.name))}</div>
@@ -6064,6 +6430,12 @@ function renderDriversList() {
         <div><span>Рейсов за месяц</span><b>${pay.count}</b></div>
         <div><span>Начислено</span><b class="money">${fmtMoney(pay.gross)}</b></div>
       </div>
+      <div class="driver-license-row">
+        <span class="badge ${licenseStatus.tone}" title="${esc(licenseStatus.detail || licenseStatus.label)}">${icon('file', 'icon-sm')}${esc(licenseStatus.label)}</span>
+        <button class="btn btn-sm btn-ghost" data-license-driver="${esc(driver.id)}">Права</button>
+        <button class="btn btn-sm btn-ghost" data-copy-driver="${esc(driver.id)}">Копировать</button>
+      </div>
+      ${docs.length ? `<div class="driver-doc-thumbs">${docs.map(doc => `<img src="${esc(doc.url || doc.data)}" alt="Документ водителя ${esc(driver.name)}" loading="lazy">`).join('')}</div>` : ''}
       <div class="driver-actions">
         <select class="input" data-driver-assign="${esc(driver.id)}" aria-label="Перевести на машину">${carsOptions}</select>
         <button class="btn btn-sm btn-ghost" data-edit-driver="${esc(driver.id)}">Настроить</button>
@@ -6169,7 +6541,7 @@ function updateDriverPayFields() {
   if (statusHint) statusHint.textContent = driverStatusInfo(status).note;
 }
 
-function openDriverModal(id = null) {
+function openDriverModal(id = null, options = {}) {
   const driver = id ? (state.drivers || []).find(item => item.id === id) : null;
   $('#driverModalTitle').textContent = driver ? 'Настроить водителя' : 'Новый водитель';
   $('#driverEditId').value = driver?.id || '';
@@ -6183,12 +6555,27 @@ function openDriverModal(id = null) {
   $('#driverCar').value = driver?.carId || '';
   const currentAssignment = (driver?.assignments || []).find(item => !item.to);
   $('#driverSince').value = currentAssignment?.from || todayISO();
+  const license = normalizeDriverLicense(driver?.license);
+  driverLicenseDraft = license;
+  driverLicenseFiles = { front: null, back: null };
+  driverLicenseSide = 'front';
+  $('#driverLicenseNumber').value = license.number;
+  $('#driverLicenseCategories').value = license.categories;
+  $('#driverLicenseIssuedAt').value = license.issuedAt;
+  $('#driverLicenseExpiresAt').value = license.expiresAt;
+  $('#driverLicenseIssuedBy').value = license.issuedBy;
+  $('#driverLicenseText').value = '';
+  driverLicensePreviewMarkup();
+  updateDriverLicenseExpiryHint();
   renderDriverHistory(driver);
   updateDriverPayFields();
   openModal('driverModal');
+  if (options.focusLicense) {
+    setTimeout(() => $('#driverLicenseSection')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 180);
+  }
 }
 
-function saveDriver() {
+async function saveDriver() {
   if (!ensureLoaded()) return;
   const id = $('#driverEditId').value;
   const existing = id ? (state.drivers || []).find(item => item.id === id) : null;
@@ -6209,6 +6596,22 @@ function saveDriver() {
       assignments.push({ id: uid(), carId: newCarId, carName: car?.name || '', from: since, to: '' });
     }
   }
+  const license = normalizeDriverLicense(driverLicenseDraft || {});
+  license.number = $('#driverLicenseNumber').value.trim();
+  license.categories = $('#driverLicenseCategories').value.trim();
+  license.issuedAt = $('#driverLicenseIssuedAt').value;
+  license.expiresAt = $('#driverLicenseExpiresAt').value;
+  license.issuedBy = $('#driverLicenseIssuedBy').value.trim();
+  for (const side of ['front', 'back']) {
+    const file = driverLicenseFiles[side];
+    if (!file) continue;
+    try {
+      license[side] = await uploadDriverLicensePhoto(file, side);
+    } catch (error) {
+      console.warn(`Driver license ${side} upload error:`, error);
+      if (!license[side]?.data) showToast('Фото не загрузилось — попробуйте ещё раз', 'error');
+    }
+  }
   const payload = {
     name,
     phone: $('#driverPhone').value.trim(),
@@ -6217,6 +6620,7 @@ function saveDriver() {
     rate: Math.max(0, num($('#driverRate').value)),
     carId: newCarId,
     assignments,
+    license,
     note: $('#driverNote').value.trim(),
     active: true
   };
@@ -6235,7 +6639,9 @@ function saveDriver() {
       trip.driver = name;
     }
   });
-  saveNow();
+  driverLicenseDraft = null;
+  driverLicenseFiles = { front: null, back: null };
+  await saveNow();
   closeModal('driverModal');
   renderAll();
 }
@@ -6279,10 +6685,12 @@ function exportDriversCSV() {
   const drivers = state.drivers || [];
   if (!drivers.length) { showToast('Водителей пока нет', 'error'); return; }
   const rows = [
-    ['Водитель', 'Телефон', 'Статус', 'Модель оплаты', 'Ставка', 'Текущая машина', 'Рейсов за месяц', 'Доход, ₽', 'Начислено, ₽', 'НДФЛ, ₽', 'НПД (справочно), ₽', 'К выплате, ₽']
+    ['Водитель', 'Телефон', 'Статус', 'Модель оплаты', 'Ставка', 'Текущая машина', 'Права', 'Категории', 'Права до', 'Статус прав', 'Рейсов за месяц', 'Доход, ₽', 'Начислено, ₽', 'НДФЛ, ₽', 'НПД (справочно), ₽', 'К выплате, ₽']
   ];
   drivers.forEach(driver => {
     const pay = calculateDriverPay(driver, month);
+    const license = normalizeDriverLicense(driver.license);
+    const licenseStatus = driverLicenseStatus(driver);
     rows.push([
       driver.name,
       driver.phone,
@@ -6290,6 +6698,10 @@ function exportDriversCSV() {
       driverPayLabel(driver),
       csvNum(driver.rate),
       driverCarName(driver),
+      license.number,
+      license.categories,
+      license.expiresAt ? fmtDate(license.expiresAt) : '',
+      licenseStatus.label,
       pay.count,
       csvNum(pay.income),
       csvNum(pay.gross),
@@ -7042,6 +7454,29 @@ function bindEvents() {
     if (delDriver) { await deleteDriver(delDriver.dataset.delDriver); return; }
     const editDriver = event.target.closest('[data-edit-driver]');
     if (editDriver) { openDriverModal(editDriver.dataset.editDriver); return; }
+    const licenseDriver = event.target.closest('[data-license-driver]');
+    if (licenseDriver) { openDriverModal(licenseDriver.dataset.licenseDriver, { focusLicense: true }); return; }
+    const copyDriver = event.target.closest('[data-copy-driver]');
+    if (copyDriver) {
+      const driver = (state.drivers || []).find(item => item.id === copyDriver.dataset.copyDriver);
+      if (driver) copyDriverText(driverDataText(driver), 'Данные водителя скопированы');
+      return;
+    }
+    const licensePick = event.target.closest('[data-license-pick]');
+    if (licensePick) {
+      driverLicenseSide = licensePick.dataset.licensePick;
+      $('#driverLicenseFile').click();
+      return;
+    }
+    const licenseRemove = event.target.closest('[data-license-remove]');
+    if (licenseRemove) {
+      const side = licenseRemove.dataset.licenseRemove;
+      driverLicenseDraft = normalizeDriverLicense(driverLicenseDraft || {});
+      driverLicenseDraft[side] = null;
+      driverLicenseFiles[side] = null;
+      driverLicensePreviewMarkup();
+      return;
+    }
 
     const editPart = event.target.closest('[data-edit-part]');
     if (editPart) { openPartModal(editPart.dataset.editPart); return; }
@@ -7120,6 +7555,7 @@ function bindEvents() {
       if (item.dataset.notifyAction === 'part') openPartModal(null, { carId, category: item.dataset.notifyCategory });
       else if (item.dataset.notifyAction === 'fuel') openFuelModal(carId);
       else if (item.dataset.notifyAction === 'stock') openStockModal(item.dataset.notifyStock);
+      else if (item.dataset.notifyAction === 'driver') openDriverModal(item.dataset.notifyDriver, { focusLicense: true });
       else openCarModal(carId);
       return;
     }
@@ -7130,6 +7566,37 @@ function bindEvents() {
   $('#driverPayType')?.addEventListener('change', updateDriverPayFields);
   $('#driverStatus')?.addEventListener('change', updateDriverPayFields);
   $('#driverMonth')?.addEventListener('change', renderDrivers);
+  $('#driverLicenseFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleDriverLicensePhoto(file, driverLicenseSide);
+  });
+  $('#driverLicenseScanBtn')?.addEventListener('click', async () => {
+    const file = driverLicenseFiles[driverLicenseSide] || driverLicenseFiles.front || driverLicenseFiles.back;
+    const status = $('#driverLicenseStatus');
+    if (!file) {
+      if (status) status.textContent = 'Сначала загрузите фото прав';
+      showToast('Сначала загрузите фото прав', 'info');
+      return;
+    }
+    if (status) status.textContent = 'Распознаю данные…';
+    const raw = await detectDriverLicenseText(file);
+    if (!raw) {
+      if (status) status.textContent = 'Текст не распознан — вставьте его вручную';
+      showToast('Не удалось распознать текст. Вставьте его вручную или заполните поля.', 'info');
+      return;
+    }
+    const filled = parseDriverLicenseText(raw);
+    if (status) status.textContent = filled ? 'Данные распознаны — проверьте поля' : 'Текст найден, но поля не распознаны';
+  });
+  $('#driverLicenseCopyBtn')?.addEventListener('click', () => {
+    copyDriverText(driverDataText(driverFormData()), 'Данные водителя скопированы');
+  });
+  $('#driverLicenseParseBtn')?.addEventListener('click', () => {
+    parseDriverLicenseText($('#driverLicenseText')?.value || '');
+  });
+  $('#driverLicenseExpiresAt')?.addEventListener('change', updateDriverLicenseExpiryHint);
+  $('#driverLicenseExpiresAt')?.addEventListener('input', updateDriverLicenseExpiryHint);
   $('#stockSave')?.addEventListener('click', saveStock);
   $('#stockMoveSave')?.addEventListener('click', saveStockMove);
   $('#stockSearch')?.addEventListener('input', event => { stockFilters.q = event.target.value; renderWarehouse(); });
