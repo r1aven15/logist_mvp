@@ -243,7 +243,7 @@ h1,h2,h3,h4,p{margin-top:0}
 .mobile-topbar .sync span{display:none}
 
 .bottom-nav{display:none;position:fixed;z-index:60;left:10px;width:calc(100vw - 20px);bottom:calc(10px + env(safe-area-inset-bottom));padding:7px;border-radius:20px;background:var(--surface);-webkit-backdrop-filter:blur(26px) saturate(160%);backdrop-filter:blur(26px) saturate(160%);border:1px solid var(--border);box-shadow:var(--shadow-lg)}
-.bottom-nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 1px;border:0;border-radius:14px;background:transparent;color:var(--muted);font-size:8.8px;font-weight:700;cursor:pointer;transition:.18s}
+.bottom-nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:0;border-radius:14px;background:transparent;color:var(--muted);font-size:8.8px;font-weight:700;cursor:pointer;transition:.18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bottom-nav button .icon{width:21px;height:21px}
 .bottom-nav button.active{color:var(--accent);background:var(--surface-2)}
 .bottom-nav button:active{transform:scale(.96)}
@@ -368,7 +368,32 @@ h1,h2,h3,h4,p{margin-top:0}
 .cars-view.carousel{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .cars-view.carousel::-webkit-scrollbar{display:none}
 .cars-view.carousel .car-card{flex:0 0 min(340px,86vw);scroll-snap-align:center}
-.cars-view[class~="3d"] .car-card{transform-style:preserve-3d;will-change:transform;transition:transform .12s ease-out,box-shadow .3s}
+.cars-view.compact{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.cars-view.compact .car-card{padding:12px;cursor:pointer;min-height:0}
+.cars-view.compact .car-card .car-avatar{width:38px;height:38px;border-radius:12px}
+.cars-view.compact .car-card .car-avatar .icon{width:19px;height:19px}
+.cars-view.compact .car-card .car-title h3{font-size:13.5px}
+.cars-view.compact .car-card .car-title .plate{font-size:9.5px}
+.cars-view.compact .car-card:not(.expanded) .car-metrics,
+.cars-view.compact .car-card:not(.expanded) .fuel-top,
+.cars-view.compact .car-card:not(.expanded) .progress,
+.cars-view.compact .car-card:not(.expanded) .insurance-line,
+.cars-view.compact .car-card:not(.expanded) .telemetry-note,
+.cars-view.compact .car-card:not(.expanded) .car-quick,
+.cars-view.compact .car-card:not(.expanded) .car-foot,
+.cars-view.compact .car-card:not(.expanded) .telemetry-line{display:none}
+.cars-view.compact .car-card:not(.expanded) .car-actions{display:none}
+.cars-view.compact .car-card:not(.expanded) .car-head{margin-bottom:8px}
+.cars-view.compact .compact-summary{display:flex;flex-wrap:wrap;gap:5px}
+.cars-view.compact .car-card.expanded{grid-column:span 2}
+.cars-view.compact .car-card.expanded .compact-summary{display:none}
+.compact-summary{display:none}
+.compact-pill{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:750;white-space:nowrap}
+.compact-pill .icon{width:11px;height:11px}
+.compact-pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.compact-pill.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.compact-pill.danger{background:var(--danger-soft);color:var(--danger);border-color:transparent}
+@media(max-width:640px){.cars-view.compact{grid-template-columns:repeat(2,minmax(0,1fr))}.cars-view.compact .car-card.expanded{grid-column:1/-1}}
 .car-card{
   position:relative;overflow:hidden;padding:18px;border-radius:var(--radius);
   background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-sm);
@@ -403,6 +428,35 @@ h1,h2,h3,h4,p{margin-top:0}
 .car-foot .badge{max-width:62%}
 .carousel-nav{display:flex;gap:6px}
 .carousel-nav.hidden{display:none}
+
+.odometer-diag{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--surface-2);border:1px dashed var(--border);font-size:10.5px;color:var(--muted);line-height:1.45}
+.odometer-diag .diag-row{display:flex;justify-content:space-between;gap:10px;padding:2px 0}
+.odometer-diag .diag-row b{color:var(--text);font-weight:750;text-align:right}
+.odometer-diag .diag-log{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);font-size:10px}
+
+/* Склад */
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.stock-card{padding:15px;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm);animation:fadeUp .4s var(--ease) both;transition:box-shadow .2s,border-color .2s}
+.stock-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+.stock-card.low{border-color:color-mix(in srgb,var(--warn) 45%,var(--border))}
+.stock-card.danger{border-color:color-mix(in srgb,var(--danger) 45%,var(--border))}
+.stock-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:12px}
+.stock-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:0 0 auto}
+.stock-ico .icon{width:17px;height:17px}
+.stock-title{flex:1;min-width:0}
+.stock-title h3{margin:0;font-size:13.5px;font-weight:750;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.stock-title span{display:block;margin-top:2px;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stock-qty{font-size:30px;line-height:1;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.stock-qty small{font-size:12px;font-weight:650;color:var(--muted);letter-spacing:0}
+.stock-min{font-size:10.5px;color:var(--muted);margin:5px 0 8px}
+.stock-meta{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:10.5px;color:var(--muted)}
+.stock-meta b{color:var(--text);font-weight:750}
+.stock-note{margin-top:8px;padding:7px 8px;border-radius:8px;background:var(--surface-2);font-size:10.5px;color:var(--muted);line-height:1.35}
+.stock-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border)}
+.stock-actions .btn{flex:1 1 64px;min-width:0;padding:0 6px;font-size:11px;gap:4px;overflow:hidden}
+.stock-actions .btn .icon{width:13px;height:13px;flex:0 0 auto}
+.stock-actions .icon-btn{flex:0 0 auto;width:28px;height:28px}
+@media(max-width:640px){.stock-grid{grid-template-columns:1fr}}
 
 /* ============================================================
    РЕЙСЫ
@@ -570,9 +624,16 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .preview-box b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .preview-box b.neg{color:var(--danger)}
 .preview-box b.pos{color:var(--ok)}
+.trip-calc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.trip-calc-grid>div{min-width:0;padding:9px 10px;border:1px solid var(--border);border-radius:11px;background:var(--surface-2)}
+.trip-calc-grid span{display:block;font-size:9.5px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.trip-calc-grid b{display:block;margin-top:2px;font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip-calc-grid b.neg{color:var(--danger)}
+.trip-calc-grid b.pos{color:var(--ok)}
+@media(max-width:640px){.trip-calc-grid{grid-template-columns:1fr 1fr}}
 .confirm-text{font-size:13px;color:var(--muted);line-height:1.5;margin:0}
 
-.toast-stack{position:fixed;right:20px;bottom:20px;z-index:200;display:flex;flex-direction:column;gap:9px;max-width:calc(100vw - 40px)}
+.toast-stack{position:fixed;right:20px;bottom:20px;z-index:220;display:flex;flex-direction:column;gap:9px;max-width:calc(100vw - 40px)}
 .toast{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:13px;background:var(--surface-solid);border:1px solid var(--border);box-shadow:var(--shadow-lg);font-size:12.5px;font-weight:650;min-width:220px;animation:toastIn .25s var(--ease) both;transition:opacity .2s,transform .2s}
 .toast .icon{width:17px;height:17px}
 .toast.ok .icon{color:var(--ok)}
@@ -580,6 +641,34 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .toast.info .icon{color:var(--info)}
 .toast span{overflow-wrap:anywhere}
 .toast.out{opacity:0;transform:translateY(8px)}
+.notify-btn{position:relative}
+.nav-badge[hidden],.notify-badge[hidden]{display:none}
+.notify-badge{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;display:grid;place-items:center;background:var(--danger);color:#fff;font-size:9px;font-weight:800;border:2px solid var(--surface-solid);line-height:1}
+.notify-panel{position:fixed;right:20px;bottom:20px;z-index:205;width:min(390px,calc(100vw - 40px));max-height:min(72vh,560px);display:flex;flex-direction:column;border-radius:20px;background:var(--surface-solid);border:1px solid var(--border);box-shadow:var(--shadow-lg);overflow:hidden;animation:toastIn .2s var(--ease) both}
+.notify-panel[hidden]{display:none}
+.notify-panel-head{display:flex;align-items:flex-start;gap:10px;padding:16px 16px 12px;border-bottom:1px solid var(--border)}
+.notify-panel-head strong{display:block;font-size:14px}
+.notify-panel-head span{display:block;margin-top:2px;font-size:10.5px;color:var(--muted)}
+.notify-panel-head .icon-btn{margin-left:auto;flex:0 0 auto}
+.notify-list{overflow:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+.notify-item{display:flex;align-items:flex-start;gap:9px;width:100%;padding:10px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--text);text-align:left;cursor:pointer;font:inherit;transition:.15s}
+.notify-item:hover{background:var(--surface-2);border-color:var(--border)}
+.notify-item-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;background:var(--surface-2);color:var(--accent)}
+.notify-item.danger .notify-item-icon{background:var(--danger-soft);color:var(--danger)}
+.notify-item.warn .notify-item-icon{background:var(--warn-soft);color:var(--warn)}
+.notify-item-icon .icon{width:15px;height:15px}
+.notify-item-body{flex:1;min-width:0}
+.notify-item-body b{display:block;font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notify-item-body span{display:block;margin-top:1px;font-size:10.5px;color:var(--muted);line-height:1.35}
+.notify-item-status{flex:0 0 auto;padding:2px 6px;border-radius:999px;font-size:9px;font-weight:800}
+.notify-item-status.danger{background:var(--danger-soft);color:var(--danger)}
+.notify-item-status.warn{background:var(--warn-soft);color:var(--warn)}
+.notify-panel-foot{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border)}
+.notify-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:30px 18px;text-align:center;color:var(--muted)}
+.notify-empty .icon{width:28px;height:28px;color:var(--ok)}
+.notify-empty b{color:var(--text);font-size:13px}
+.notify-empty span{font-size:11px;max-width:230px}
+@media(max-width:640px){.notify-panel{left:10px;right:10px;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:70vh}.notify-panel-foot .btn{flex:1}}
 .menu-wrap{position:relative}
 .menu{position:absolute;right:0;top:calc(100% + 7px);z-index:80;min-width:210px;padding:6px;border-radius:14px;background:var(--surface-solid);border:1px solid var(--border);box-shadow:var(--shadow-lg);opacity:0;transform:translateY(-5px) scale(.98);pointer-events:none;transition:.16s var(--ease)}
 .menu.open{opacity:1;transform:none;pointer-events:auto}
@@ -611,6 +700,11 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
   .bottom-nav{display:flex}
   .page-head{margin-top:4px}
   .settings-grid{grid-template-columns:1fr}
+}
+@media (max-width:700px){
+  .bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:8px}
+  .bottom-nav button{min-height:46px;font-size:9px;padding:5px 2px}
+  .main{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 }
 @media (max-width:820px){
   .dash-grid-2{grid-template-columns:1fr}
@@ -793,6 +887,31 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .driver-meta b.money{color:var(--accent);font-variant-numeric:tabular-nums}
 .driver-actions{display:flex;align-items:center;gap:7px;margin-top:10px}
 .driver-actions .input{flex:1;min-width:0;padding:7px 9px;font-size:11.5px}
+.driver-license-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px dashed var(--border)}
+.driver-license-row .badge{display:inline-flex;align-items:center;gap:4px;max-width:100%;margin-right:auto}
+.driver-license-row .badge .icon{width:12px;height:12px;flex:0 0 auto}
+.driver-license-row .btn{padding:5px 8px;font-size:10.5px}
+.driver-doc-thumbs{display:flex;gap:5px;margin-top:8px}
+.driver-doc-thumbs img{width:42px;height:30px;object-fit:cover;border-radius:7px;border:1px solid var(--border);background:var(--surface)}
+.license-doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.license-doc [hidden]{display:none!important}
+.license-doc{padding:10px;border:1px solid var(--border);border-radius:13px;background:var(--surface-2)}
+.license-doc-head{display:flex;justify-content:space-between;gap:6px;align-items:center;margin-bottom:7px}
+.license-doc-head b{font-size:11px}
+.license-doc-state{font-size:9px;font-weight:800;color:var(--muted);white-space:nowrap}
+.license-doc-state.ok{color:var(--ok)}
+.license-doc-preview{position:relative;display:grid;place-items:center;aspect-ratio:1.58;border-radius:9px;overflow:hidden;background:var(--surface);border:1px dashed var(--border)}
+.license-doc-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.license-doc-empty{display:grid;place-items:center;gap:4px;padding:8px;text-align:center;color:var(--muted);font-size:9.5px;line-height:1.3}
+.license-doc-empty .icon{width:20px;height:20px}
+.license-doc-actions{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.license-doc-actions .btn{flex:1;min-width:0;padding:6px 7px;font-size:10px}
+.license-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
+.license-tools .hint-text{flex:1;min-width:140px}
+.license-paste{margin-top:8px;border:1px solid var(--border);border-radius:11px;padding:8px 10px;background:var(--surface-2)}
+.license-paste summary{cursor:pointer;font-size:11px;font-weight:750;color:var(--muted)}
+.license-paste textarea{width:100%;min-height:64px;margin-top:7px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:11px;resize:vertical}
+.license-paste .btn{margin-top:6px}
 .driver-history-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--border);font-size:11.5px}
 .driver-history-row:last-child{border-bottom:0}
 .driver-history-row span{color:var(--muted)}
@@ -802,6 +921,8 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 @media (max-width:720px){
   .driver-grid{grid-template-columns:1fr}
   .driver-meta{grid-template-columns:1fr 1fr}
+  .license-doc-grid{grid-template-columns:1fr}
+  .driver-license-row .btn{margin-left:0}
 }
 
 /* ===== ГЛОНАСС: диагностика ===== */
@@ -934,6 +1055,10 @@ body.auth-locked{overflow:hidden}
   <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
   <symbol id="i-carousel" viewBox="0 0 24 24"><rect x="7" y="5" width="10" height="14" rx="2"/><path d="M3 8v8M21 8v8"/></symbol>
   <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7Z"/><path d="m3 7 9 5 9-5M12 12v10"/></symbol>
+  <symbol id="i-compact" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><path d="M15 17h6M18 14v6"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
 </svg>
 
 <div class="auth-gate" id="authGate">
@@ -973,6 +1098,7 @@ body.auth-locked{overflow:hidden}
     <nav class="side-nav" aria-label="Основная навигация">
       <button class="nav-item active" data-tab="dashboard"><span class="nav-ico"><svg class="icon"><use href="#i-dashboard"/></svg></span>Дашборд</button>
       <button class="nav-item" data-tab="cars"><span class="nav-ico"><svg class="icon"><use href="#i-truck"/></svg></span>Машины<span class="nav-badge" id="navCarsBadge">0</span></button>
+      <button class="nav-item" data-tab="warehouse"><span class="nav-ico"><svg class="icon"><use href="#i-box"/></svg></span>Склад<span class="nav-badge" id="navWarehouseBadge" hidden>0</span></button>
       <button class="nav-item" data-tab="service"><span class="nav-ico"><svg class="icon"><use href="#i-wrench"/></svg></span>Сервис</button>
       <button class="nav-item" data-tab="drivers"><span class="nav-ico"><svg class="icon"><use href="#i-user"/></svg></span>Водители</button>
       <button class="nav-item" data-tab="trips"><span class="nav-ico"><svg class="icon"><use href="#i-route"/></svg></span>Рейсы<span class="nav-badge" id="navTripsBadge">0</span></button>
@@ -983,6 +1109,7 @@ body.auth-locked{overflow:hidden}
     <div class="side-foot">
       <div class="sync" data-sync data-state="connecting"><i></i><span>Подключение…</span></div>
       <div class="side-actions">
+        <button class="icon-btn notify-btn" data-notify-toggle title="Уведомления" aria-label="Уведомления"><svg class="icon"><use href="#i-bell"/></svg><span class="notify-badge" data-notify-badge hidden>0</span></button>
         <button class="icon-btn" data-theme-toggle title="Сменить тему" aria-label="Сменить тему"><span data-theme-icon><svg class="icon"><use href="#i-moon"/></svg></span></button>
         <button class="icon-btn" id="exportBtn" title="Экспорт JSON" aria-label="Экспорт JSON"><svg class="icon"><use href="#i-download"/></svg></button>
         <button class="icon-btn" data-import title="Импорт JSON" aria-label="Импорт JSON"><svg class="icon"><use href="#i-upload"/></svg></button>
@@ -998,6 +1125,7 @@ body.auth-locked{overflow:hidden}
       <span class="brand-text"><strong>Автопарк Контроль</strong><span>2026</span></span>
     </a>
     <div class="sync" data-sync data-state="connecting"><i></i><span>Облако</span></div>
+    <button class="icon-btn notify-btn" data-notify-toggle title="Уведомления" aria-label="Уведомления"><svg class="icon"><use href="#i-bell"/></svg><span class="notify-badge" data-notify-badge hidden>0</span></button>
     <button class="icon-btn" data-theme-toggle aria-label="Сменить тему"><span data-theme-icon><svg class="icon"><use href="#i-moon"/></svg></span></button>
     <button class="icon-btn" data-tab="settings" aria-label="Настройки"><svg class="icon"><use href="#i-settings"/></svg></button>
   </header>
@@ -1005,7 +1133,7 @@ body.auth-locked{overflow:hidden}
   <main class="main">
     <div class="container">
       <div class="demo-bar" id="demoBar" hidden>
-        <div class="demo-bar-main"><span class="demo-dot"></span><b>Демо-режим · Красноярск</b><span>Тестовые данные. Меняйте, добавляйте, удаляйте — реальная база не затрагивается.</span></div>
+        <div class="demo-bar-main"><span class="demo-dot"></span><b>Демо-режим</b><span>Тестовые данные. Меняйте, добавляйте, удаляйте — реальная база не затрагивается.</span></div>
         <div class="demo-bar-actions"><button class="btn btn-sm" id="demoReset"><svg class="icon icon-sm"><use href="#i-refresh"/></svg> Сбросить демо</button></div>
       </div>
 
@@ -1073,7 +1201,7 @@ body.auth-locked{overflow:hidden}
             <div class="segmented" id="viewSeg">
               <button data-view-set="grid" class="active" title="Сетка"><svg class="icon"><use href="#i-grid"/></svg><span class="desktop-only">Сетка</span></button>
               <button data-view-set="carousel" title="Карусель"><svg class="icon"><use href="#i-carousel"/></svg><span class="desktop-only">Свайп</span></button>
-              <button data-view-set="3d" title="3D"><svg class="icon"><use href="#i-cube"/></svg><span class="desktop-only">3D</span></button>
+              <button data-view-set="compact" title="Компакт"><svg class="icon"><use href="#i-compact"/></svg><span class="desktop-only">Компакт</span></button>
             </div>
             <button class="btn btn-primary" data-action="new-car"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Машина</button>
           </div>
@@ -1087,6 +1215,34 @@ body.auth-locked{overflow:hidden}
           </div>
           <div id="fuelLogStats" class="stat-grid" style="margin-bottom:14px"></div>
           <div id="fuelLogList"></div>
+        </section>
+      </section>
+
+      <!-- ================= СКЛАД ================= -->
+      <section class="view" data-view="warehouse">
+        <div class="page-head">
+          <div><h1>Склад</h1><p id="warehouseSubtitle">Остатки масла и запчастей</p></div>
+          <div class="page-actions">
+            <button class="btn btn-sm" data-export="stock"><svg class="icon icon-sm"><use href="#i-file"/></svg> CSV</button>
+            <button class="btn btn-primary" data-action="new-stock"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Позиция</button>
+          </div>
+        </div>
+        <div class="stat-grid" id="stockKpis"></div>
+        <section class="card">
+          <div class="card-head"><div><h2>Остатки</h2><p>Что есть на складе и сколько осталось</p></div><svg class="icon"><use href="#i-box"/></svg></div>
+          <div class="trip-toolbar">
+            <div class="search" style="flex:1;min-width:200px"><svg class="icon"><use href="#i-search"/></svg><input class="input" id="stockSearch" placeholder="Найти масло, фильтр, место..." autocomplete="off"></div>
+            <select class="input" id="stockFilter" style="max-width:220px">
+              <option value="">Все категории</option>
+              <option value="oil">Масло</option>
+              <option value="filter">Фильтры</option>
+              <option value="brake">Тормоза</option>
+              <option value="tire">Шины</option>
+              <option value="tool">Инструмент</option>
+              <option value="other">Прочее</option>
+            </select>
+          </div>
+          <div id="stockList"></div>
         </section>
       </section>
 
@@ -1183,7 +1339,7 @@ body.auth-locked{overflow:hidden}
         <div class="page-head">
           <div>
             <h1>Рейсы</h1>
-            <p>Доходы, расходы на топливо и организации</p>
+            <p>Расчёт водителя, счёт клиенту и маржа компании</p>
           </div>
           <div class="page-actions">
             <button class="btn" data-export="trips"><svg class="icon icon-sm"><use href="#i-download"/></svg> CSV</button>
@@ -1203,7 +1359,7 @@ body.auth-locked{overflow:hidden}
           </div>
           <div class="trip-table">
             <div class="trip-head">
-              <span>Дата</span><span>Машина</span><span>Водитель</span><span>Маршрут</span><span>Организация</span><span style="text-align:right">Доход</span><span style="text-align:right">Расход</span><span style="text-align:right">Прибыль</span><span></span>
+              <span>Дата</span><span>Машина</span><span>Водитель</span><span>Маршрут</span><span>Организация</span><span style="text-align:right">Доход</span><span style="text-align:right">Бензин</span><span style="text-align:right">Конторе</span><span></span>
             </div>
             <div id="tripRows"></div>
           </div>
@@ -1430,12 +1586,23 @@ body.auth-locked{overflow:hidden}
               <div class="segmented" id="viewSegSettings">
                 <button data-view-set="grid"><svg class="icon"><use href="#i-grid"/></svg> Сетка</button>
                 <button data-view-set="carousel"><svg class="icon"><use href="#i-carousel"/></svg> Карусель</button>
-                <button data-view-set="3d"><svg class="icon"><use href="#i-cube"/></svg> 3D</button>
+                <button data-view-set="compact"><svg class="icon"><use href="#i-compact"/></svg> Компакт</button>
               </div>
             </div>
             <div class="info-list" style="margin-top:14px">
-              <div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Карусель поддерживает свайп на телефоне, 3D-режим реагирует на курсор мыши.</span></div>
+              <div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Карусель поддерживает свайп на телефоне. Компакт — плитки: нажмите на машину, чтобы раскрыть подробности.</span></div>
             </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><div><h2>Уведомления</h2><p>Напоминания о ТО, страховке и датчиках</p></div><svg class="icon"><use href="#i-bell"/></svg></div>
+            <label class="check-row"><input type="checkbox" id="notifyEnabled"> Показывать всплывающие уведомления</label>
+            <div class="grid-2" style="margin-top:4px">
+              <div class="field"><label for="reminderKm">Напомнить заранее, км</label><input class="input" type="number" id="reminderKm" min="0" step="100" inputmode="numeric"><span class="hint-text">Например, 1000 — за 1000 км до замены</span></div>
+              <div class="field"><label for="reminderDays">Напоминать заранее, дней</label><input class="input" type="number" id="reminderDays" min="0" step="1" inputmode="numeric"><span class="hint-text">Например, 30 — за месяц до срока</span></div>
+            </div>
+            <div class="info-list" style="margin-top:10px"><div class="info-item"><svg class="icon"><use href="#i-info"/></svg><span>Порог применяется ко всем расходникам: маслу, фильтрам, колодкам и шинам.</span></div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn btn-sm btn-primary" id="notifyCheck">Проверить сейчас</button><button class="btn btn-sm btn-ghost" id="notifyTest">Показать пример</button></div>
           </section>
 
           <section class="card">
@@ -1472,7 +1639,7 @@ body.auth-locked{overflow:hidden}
           </section>
 
           <section class="card">
-            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.1 · 2026</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
+            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.5 · 2026 · расчёт рейсов</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
             <div class="info-list">
               <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>; резервные копии — <code>gazelle_app/main_data/backups</code>.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-wallet"/></svg><span><b>Бухгалтерия:</b> доходы, расходы на ГСМ, прибыль, оценка налогов, разбивка по организациям и водителям.</span></div>
@@ -1489,6 +1656,7 @@ body.auth-locked{overflow:hidden}
   <nav class="bottom-nav" aria-label="Мобильная навигация">
     <button class="active" data-tab="dashboard"><svg class="icon"><use href="#i-dashboard"/></svg>Дашборд</button>
     <button data-tab="cars"><svg class="icon"><use href="#i-truck"/></svg>Машины</button>
+    <button data-tab="warehouse"><svg class="icon"><use href="#i-box"/></svg>Склад</button>
     <button data-tab="service"><svg class="icon"><use href="#i-wrench"/></svg>Сервис</button>
     <button data-tab="drivers"><svg class="icon"><use href="#i-user"/></svg>Водители</button>
     <button data-tab="trips"><svg class="icon"><use href="#i-route"/></svg>Рейсы</button>
@@ -1528,6 +1696,7 @@ body.auth-locked{overflow:hidden}
       <div class="field"><label for="carTank">Объём бака, л</label><input class="input" type="number" id="carTank" min="1" step="1" value="60" inputmode="numeric"></div>
       <div class="field"><label for="carNorm">Норма расхода, л/100 км</label><input class="input" type="number" id="carNorm" min="0" step="0.1" value="15" inputmode="decimal"><span class="hint-text">Для прогноза запаса хода и анализа ГСМ.</span></div>
     </div>
+    <div class="odometer-diag" id="carOdoDiag"></div>
     <div class="form-section">
       <div class="section-title"><svg class="icon icon-sm"><use href="#i-shield"/></svg> Страховка</div>
       <div class="grid-2">
@@ -1564,6 +1733,53 @@ body.auth-locked{overflow:hidden}
     <div class="modal-foot">
       <button class="btn btn-ghost" data-close="carModal">Отмена</button>
       <button class="btn btn-primary" id="carSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛКА: СКЛАД ================= -->
+<div class="modal-backdrop" id="stockModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stockModalTitle">
+    <div class="modal-grab"></div>
+    <div class="modal-head">
+      <div><h3 id="stockModalTitle">Новая позиция</h3><p>Остаток масла или запчасти на складе</p></div>
+      <button class="icon-btn sm" data-close="stockModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <input type="hidden" id="stockEditId">
+    <div class="field"><label for="stockName">Название</label><input class="input" id="stockName" placeholder="Масло 5W-30, фильтр масляный..." autocomplete="off"></div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="stockCategory">Категория</label><select class="input" id="stockCategory"></select></div>
+      <div class="field"><label for="stockUnit">Ед. изм.</label><select class="input" id="stockUnit"></select></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="stockQty">Остаток</label><input class="input" type="number" id="stockQty" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="field"><label for="stockMin">Минимум</label><input class="input" type="number" id="stockMin" min="0" step="0.01" inputmode="decimal"><span class="hint-text">Когда остаток ниже — придёт уведомление</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="stockPrice">Цена за ед., ₽</label><input class="input" type="number" id="stockPrice" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="field"><label for="stockLocation">Место</label><input class="input" id="stockLocation" placeholder="Стеллаж 2, полка 3" autocomplete="off"></div>
+    </div>
+    <div class="field" style="margin-top:12px"><label for="stockNote">Комментарий</label><input class="input" id="stockNote" placeholder="Для какой машины, поставщик, артикул" autocomplete="off"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="stockModal">Отмена</button>
+      <button class="btn btn-primary" id="stockSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="stockMoveModal" aria-hidden="true">
+  <div class="modal" style="max-width:420px" role="dialog" aria-modal="true" aria-labelledby="stockMoveTitle">
+    <div class="modal-grab"></div>
+    <div class="modal-head">
+      <div><h3 id="stockMoveTitle">Приход на склад</h3><p id="stockMoveSub"></p></div>
+      <button class="icon-btn sm" data-close="stockMoveModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <input type="hidden" id="stockMoveId">
+    <input type="hidden" id="stockMoveType">
+    <div class="field"><label for="stockMoveQty">Количество</label><input class="input" type="number" id="stockMoveQty" min="0" step="0.01" inputmode="decimal" placeholder="Например, 10"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="stockMoveModal">Отмена</button>
+      <button class="btn btn-primary" id="stockMoveSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
     </div>
   </div>
 </div>
@@ -1692,11 +1908,61 @@ body.auth-locked{overflow:hidden}
       <div class="field"><label for="driverSince">Дата назначения</label><input class="input" type="date" id="driverSince"><span class="hint-text">С какой даты водитель на этой машине</span></div>
       <div class="field"><label for="driverNote">Комментарий</label><input class="input" id="driverNote" placeholder="Например, график 5/2" autocomplete="off"></div>
     </div>
+
+    <div class="form-section" id="driverLicenseSection">
+      <div class="section-title"><svg class="icon icon-sm"><use href="#i-file"/></svg> Права водителя</div>
+      <div class="hint-text" style="margin-bottom:8px">Сфотографируйте обе стороны. Номер, срок и категории можно распознать по штрихкоду или вставить текстом — данные скопируются в один клик.</div>
+      <div class="license-doc-grid">
+        <div class="license-doc" data-license-card="front">
+          <div class="license-doc-head"><b>Лицевая сторона</b><span class="license-doc-state" id="licenseFrontState">не загружена</span></div>
+          <div class="license-doc-preview">
+            <img id="licenseFrontImg" alt="Права, лицевая сторона" hidden>
+            <div class="license-doc-empty" id="licenseFrontEmpty"><svg class="icon"><use href="#i-camera"/></svg><span>Фото или скан</span></div>
+          </div>
+          <div class="license-doc-actions">
+            <button class="btn btn-sm" type="button" data-license-pick="front"><svg class="icon icon-sm"><use href="#i-camera"/></svg> Снять / загрузить</button>
+            <button class="btn btn-sm btn-ghost" type="button" data-license-remove="front" hidden>Убрать</button>
+          </div>
+        </div>
+        <div class="license-doc" data-license-card="back">
+          <div class="license-doc-head"><b>Обратная сторона</b><span class="license-doc-state" id="licenseBackState">не загружена</span></div>
+          <div class="license-doc-preview">
+            <img id="licenseBackImg" alt="Права, обратная сторона" hidden>
+            <div class="license-doc-empty" id="licenseBackEmpty"><svg class="icon"><use href="#i-camera"/></svg><span>Фото или скан</span></div>
+          </div>
+          <div class="license-doc-actions">
+            <button class="btn btn-sm" type="button" data-license-pick="back"><svg class="icon icon-sm"><use href="#i-camera"/></svg> Снять / загрузить</button>
+            <button class="btn btn-sm btn-ghost" type="button" data-license-remove="back" hidden>Убрать</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label for="driverLicenseNumber">Серия и номер</label><input class="input" id="driverLicenseNumber" placeholder="9900 123456" autocomplete="off"></div>
+        <div class="field"><label for="driverLicenseCategories">Категории</label><input class="input" id="driverLicenseCategories" placeholder="B, C, D" autocomplete="off"></div>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label for="driverLicenseIssuedAt">Дата выдачи</label><input class="input" type="date" id="driverLicenseIssuedAt"></div>
+        <div class="field"><label for="driverLicenseExpiresAt">Действительны до</label><input class="input" type="date" id="driverLicenseExpiresAt"><span class="hint-text" id="driverLicenseExpiryHint">Напомним за 30 дней до окончания</span></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label for="driverLicenseIssuedBy">Кем выданы</label><input class="input" id="driverLicenseIssuedBy" placeholder="ГИБДД 2401" autocomplete="off"></div>
+      <div class="license-tools">
+        <button class="btn btn-sm" type="button" id="driverLicenseScanBtn"><svg class="icon icon-sm"><use href="#i-scan"/></svg> Распознать по фото</button>
+        <button class="btn btn-sm" type="button" id="driverLicenseCopyBtn"><svg class="icon icon-sm"><use href="#i-file"/></svg> Скопировать данные</button>
+        <span class="hint-text" id="driverLicenseStatus">Фото не загружены</span>
+      </div>
+      <details class="license-paste">
+        <summary>Вставить текст с фото (если OCR уже сделан)</summary>
+        <textarea id="driverLicenseText" placeholder="ФИО, серия и номер, категории, дата выдачи, действительны до, кем выданы…"></textarea>
+        <button class="btn btn-sm" type="button" id="driverLicenseParseBtn">Разобрать текст</button>
+      </details>
+    </div>
+
     <div class="form-section" id="driverHistoryWrap" hidden>
       <div class="section-title"><svg class="icon icon-sm"><use href="#i-route"/></svg> История машин</div>
       <div id="driverHistory"></div>
     </div>
     <div class="hint info" style="margin-top:12px"><svg class="icon"><use href="#i-info"/></svg><span>Остаток топлива в баке принадлежит машине. При переводе водителя он не удерживается и не влияет на расчёт.</span></div>
+    <input type="file" id="driverLicenseFile" accept="image/*" capture="environment" hidden>
     <div class="modal-foot">
       <button class="btn btn-ghost" data-close="driverModal">Отмена</button>
       <button class="btn btn-primary" id="driverSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
@@ -1709,7 +1975,7 @@ body.auth-locked{overflow:hidden}
   <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="tripModalTitle">
     <div class="modal-grab"></div>
     <div class="modal-head">
-      <div><h3 id="tripModalTitle">Новый рейс</h3><p>Доход, топливо и организация</p></div>
+      <div><h3 id="tripModalTitle">Новый рейс</h3><p>Расчёт водителя, счёт клиенту и НДС</p></div>
       <button class="icon-btn sm" data-close="tripModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
     </div>
     <input type="hidden" id="tripEditId">
@@ -1723,10 +1989,38 @@ body.auth-locked{overflow:hidden}
     </div>
     <div class="field" style="margin-top:12px"><label for="tripRoute">Маршрут</label><input class="input" id="tripRoute" placeholder="Казань → Камск" autocomplete="off"></div>
     <div class="grid-2" style="margin-top:12px">
-      <div class="field"><label for="tripIncome">Доход, ₽</label><input class="input" type="number" id="tripIncome" min="0" step="0.01" placeholder="0" inputmode="decimal"></div>
-      <div class="field"><label for="tripExpense">Расход на бензин, ₽</label><input class="input" type="number" id="tripExpense" min="0" step="0.01" placeholder="0" inputmode="decimal"></div>
+      <div class="field"><label for="tripCalcAmount">Ставка рейса без НДС, ₽</label><input class="input" type="number" id="tripCalcAmount" min="0" step="0.01" placeholder="50 000" inputmode="decimal"><span class="hint-text">От неё считаем водителя и контору.</span></div>
+      <div class="field"><label for="tripExpense">Бензин, ₽</label><input class="input" type="number" id="tripExpense" min="0" step="0.01" placeholder="0" inputmode="decimal"></div>
     </div>
-    <div class="preview-box" style="margin-top:12px"><span>Прибыль рейса</span><b id="tripPreview">0 ₽</b></div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripDriverShare">Доля водителя, % (до налога)</label><input class="input" type="number" id="tripDriverShare" min="0" max="100" step="1" value="45" inputmode="decimal"><span class="hint-text">По умолчанию 45%, конторе — 55%.</span></div>
+      <div class="field"><label for="tripIncome">Фактически выставлено, ₽</label><input class="input" type="number" id="tripIncome" min="0" step="0.01" placeholder="0" inputmode="decimal"><span class="hint-text">Счёт клиенту. Может отличаться от ставки.</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripFines">Штрафы / претензии, ₽</label><input class="input" type="number" id="tripFines" min="0" step="0.01" placeholder="0" inputmode="decimal"><span class="hint-text">Вычитаются из доли водителя.</span></div>
+      <div class="field"><label for="tripPerDiem">Суточные, ₽</label><input class="input" type="number" id="tripPerDiem" min="0" step="0.01" placeholder="0" inputmode="decimal"><span class="hint-text">Добавляются водителю, уменьшают контору.</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripOwnExpenses">Расходы за свои, ₽</label><input class="input" type="number" id="tripOwnExpenses" min="0" step="0.01" placeholder="Ремонт / запчасти" inputmode="decimal"><span class="hint-text">Возврат водителю, уменьшает контору.</span></div>
+      <div class="field"><label for="tripKickback">Прочая разница / откат, ₽</label><input class="input" type="number" id="tripKickback" min="0" step="0.01" placeholder="Авто" inputmode="decimal"><span class="hint-text">Если пусто — разница между счётом и ставкой.</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripVatMode">НДС</label><select class="input" id="tripVatMode"><option value="none">Без НДС</option><option value="included">НДС включён в сумму</option><option value="on_top">НДС сверху</option></select></div>
+      <div class="field"><label for="tripVatRate">Ставка НДС</label><select class="input" id="tripVatRate"><option value="5">5%</option><option value="7">7%</option><option value="22">22%</option></select></div>
+    </div>
+    <div class="preview-box" style="margin-top:12px"><span>Маржа компании</span><b id="tripPreview">0 ₽</b></div>
+    <div class="trip-calc-grid">
+      <div><span>База</span><b id="tripBase">0 ₽</b></div>
+      <div><span>Водителю</span><b id="tripDriverAmount">0 ₽</b></div>
+      <div><span>Конторе</span><b id="tripCompanyAmount">0 ₽</b></div>
+      <div><span>Штрафы</span><b id="tripFinesAmount">0 ₽</b></div>
+      <div><span>Суточные</span><b id="tripPerDiemAmount">0 ₽</b></div>
+      <div><span>За свои</span><b id="tripOwnExpensesAmount">0 ₽</b></div>
+      <div><span>НДС</span><b id="tripVatAmount">0 ₽</b></div>
+      <div><span>Откат</span><b id="tripKickbackAmount">0 ₽</b></div>
+      <div><span>Маржа</span><b id="tripMargin">0 ₽</b></div>
+    </div>
+    <p class="hint-text" style="margin-top:8px">Формула: (ставка без НДС − бензин) × 45/55. Водителю: 45% − штрафы + суточные + расходы за свои. Конторе — остаток.</p>
     <div class="grid-2" style="margin-top:12px">
       <div class="field"><label for="tripLiters">Израсходовано топлива, л</label><input class="input" type="number" id="tripLiters" min="0" step="0.1" placeholder="Необязательно" inputmode="decimal"></div>
       <div class="field"><label for="tripNote">Комментарий</label><input class="input" id="tripNote" placeholder="Необязательно" autocomplete="off"></div>
@@ -1797,45 +2091,52 @@ body.auth-locked{overflow:hidden}
 
 <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
+<div class="notify-panel" id="notifyPanel" hidden role="dialog" aria-label="Уведомления">
+  <div class="notify-panel-head">
+    <div><strong>Уведомления</strong><span id="notifySubtitle">Проверяю…</span></div>
+    <button class="icon-btn sm" data-notify-close aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="notify-list" id="notifyList"></div>
+  <div class="notify-panel-foot">
+    <button class="btn btn-sm btn-ghost" data-tab="service" data-notify-close>Все напоминания</button>
+    <button class="btn btn-sm btn-ghost" data-tab="settings" data-notify-close>Настроить</button>
+  </div>
+</div>
+
 <script type="module">
 /* ============================================================
-   DEMO: Firebase отключён, данные хранятся локально
+   1. FIREBASE — конфигурация и ссылка на документ НЕ ИЗМЕНЕНЫ
    ============================================================ */
-const app = null;
-const db = null;
-const auth = null;
-const DOC_REF = null;
-const CLOUD_BACKUP_COLLECTION = null;
-const setDoc = async () => {};
-const onSnapshot = () => () => {};
-const getDoc = async () => null;
-const collection = () => null;
-const query = () => null;
-const orderBy = () => null;
-const limit = () => null;
-const getDocs = async () => ({ size: 0, docs: [] });
-const deleteDoc = async () => {};
-const serverTimestamp = () => null;
-const enableIndexedDbPersistence = async () => {};
-const signInWithEmailAndPassword = async () => {};
-const onAuthStateChanged = () => {};
-const signOut = async () => {};
-const setPersistence = async () => {};
-const browserLocalPersistence = null;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "DEMO_LOCAL_ONLY",
-  authDomain: "demo.local",
-  projectId: "gazelle-demo-local",
-  storageBucket: "demo.local",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:demo"
+  apiKey: "AIzaSyDYm9cYQxtOKHhm9pGLiW4kjJjGd8QPaC8",
+  authDomain: "gazzele-to.firebaseapp.com",
+  projectId: "gazzele-to",
+  storageBucket: "gazzele-to.firebasestorage.app",
+  messagingSenderId: "701758412537",
+  appId: "1:701758412537:web:142d3a27968e293b40b428"
 };
 
-const LOCAL_CACHE_KEY = 'autopark_cloud_cache_v1';
-const LOCAL_DAY_PREFIX = 'autopark_cloud_day_';
-const LAST_CLOUD_BACKUP_KEY = 'autopark_last_cloud_backup';
-const LAST_DEVICE_BACKUP_KEY = 'autopark_last_device_backup';
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const DOC_REF = doc(db, "gazelle_app", "main_data");
+
+// Офлайн-кэш Firestore: последние данные остаются доступны без сети.
+enableIndexedDbPersistence(db).catch((error) => {
+  console.warn("Offline Firestore cache is unavailable:", error?.code || error);
+});
+
+// Резервные копии: облачные (Firestore subcollection) и локальные (localStorage).
+const CLOUD_BACKUP_COLLECTION = collection(db, "gazelle_app", "main_data", "backups");
+const LOCAL_CACHE_KEY = "autopark_cloud_cache_v1";
+const LOCAL_DAY_PREFIX = "autopark_cloud_day_";
+const LAST_CLOUD_BACKUP_KEY = "autopark_last_cloud_backup";
+const LAST_DEVICE_BACKUP_KEY = "autopark_last_device_backup";
 const CLOUD_BACKUP_INTERVAL = 6 * 60 * 60 * 1000;
 const CLOUD_BACKUP_LIMIT = 28;
 let cloudReady = false;
@@ -1845,12 +2146,12 @@ let cloudStarted = false;
 let currentUser = null;
 
 const DEMO_KEY = 'autopark_demo_v2';
-const DEMO = true;
+const DEMO = new URLSearchParams(location.search).has('demo') || /\/demo[^/]*(\.html)?$/i.test(location.pathname);
 
 /* ============================================================
    2. КОНСТАНТЫ И УТИЛИТЫ
    ============================================================ */
-const TABS = ['dashboard', 'cars', 'drivers', 'service', 'trips', 'reports', 'taxes', 'settings'];
+const TABS = ['dashboard', 'cars', 'warehouse', 'drivers', 'service', 'trips', 'reports', 'taxes', 'settings'];
 const CAR_TYPES = {
   van: { label: 'Фургон / малотоннаж', short: 'Фургон' },
   truck: { label: 'Грузовик', short: 'Грузовик' },
@@ -1888,6 +2189,7 @@ function esc(v) {
 
 const fmtNum = (v) => num(v).toLocaleString('ru-RU', { maximumFractionDigits: 0 });
 const fmtLiters = (v) => num(v).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+const fmtQty = (v) => num(v).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
 const fmtPct = (v) => `${num(v).toLocaleString('ru-RU', { maximumFractionDigits: 1 })}%`;
 const fmtMoney = (v) => {
   const n = num(v);
@@ -1948,6 +2250,15 @@ const PART_CATEGORIES = {
   other: { label: 'Прочее', km: 0, months: 0 }
 };
 const MAINTENANCE_KEYS = ['oil', 'oil_filter', 'air_filter', 'fuel_filter', 'brakes', 'tires'];
+const STOCK_CATEGORIES = {
+  oil: 'Масло',
+  filter: 'Фильтры',
+  brake: 'Тормоза',
+  tire: 'Шины',
+  tool: 'Инструмент',
+  other: 'Прочее'
+};
+const STOCK_UNITS = ['л', 'шт', 'кг', 'компл', 'м'];
 
 const DRIVER_STATUSES = {
   staff: { label: 'В штате', tone: 'accent', note: 'Трудовой договор, НДФЛ 13%' },
@@ -2036,13 +2347,16 @@ function calculateWeeklyPay(driver, start, end) {
     if (trip.driverId) return trip.driverId === driver.id;
     return normKey(trip.driver) === normKey(driver.name);
   });
-  const income = sumField(trips, 'income');
+  const income = trips.reduce((sum, trip) => sum + tripCalc(trip).calcAmount, 0);
   const fuel = sumField(trips, 'expense');
   const net = income - fuel;
   const rate = num(driver.weeklyRate) || WEEKLY_DRIVER_SHARE;
-  const driverShare = net > 0 ? net * rate / 100 : 0;
+  const fines = trips.reduce((sum, trip) => sum + tripCalc(trip).fines, 0);
+  const perDiem = trips.reduce((sum, trip) => sum + tripCalc(trip).perDiem, 0);
+  const ownExpenses = trips.reduce((sum, trip) => sum + tripCalc(trip).ownExpenses, 0);
+  const driverShare = net * rate / 100 - fines + perDiem + ownExpenses;
   const managementShare = net - driverShare;
-  return { trips, count: trips.length, income, fuel, net, rate, driverShare, managementShare };
+  return { trips, count: trips.length, income, fuel, net, rate, fines, perDiem, ownExpenses, driverShare, managementShare };
 }
 
 function partCategoryLabel(key) {
@@ -2089,9 +2403,11 @@ function maintenanceStatus(car, category) {
   const nextDate = intervalMonths ? addMonths(part.date, intervalMonths) : '';
   const kmLeft = nextKm === null ? null : Math.round(nextKm - carOdometer(car));
   const daysLeft = nextDate ? daysBetween(todayISO(), nextDate) : null;
+  const warnKm = Math.max(0, num(state.reminderKm ?? 1000));
+  const warnDays = Math.max(0, num(state.reminderDays ?? 30));
   let status = 'ok';
   if ((kmLeft !== null && kmLeft <= 0) || (daysLeft !== null && daysLeft < 0)) status = 'danger';
-  else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 30)) status = 'warn';
+  else if ((kmLeft !== null && kmLeft <= warnKm) || (daysLeft !== null && daysLeft <= warnDays)) status = 'warn';
   return { category, label: defaults.label, status, part, nextKm, nextDate, kmLeft, daysLeft };
 }
 const monthKey = (iso) => normalizeDate(iso).slice(0, 7);
@@ -2166,6 +2482,7 @@ function showToast(message, type = 'ok') {
 let state = {
   cars: [],
   trips: [],
+  warehouse: [],
   drivers: [],
   organizations: ["ИП Иванов", "ООО Ромашка"],
   theme: 'light',
@@ -2173,7 +2490,10 @@ let state = {
   isNdsPayer: false,
   taxSystem: 'usn6',
   toRecords: [],
-  weeklyDriverRate: 45
+  weeklyDriverRate: 45,
+  reminderKm: 1000,
+  reminderDays: 30,
+  notificationsEnabled: true
 };
 let isLoaded = false;
 let glonassVehicles = {};
@@ -2181,6 +2501,7 @@ let glonassStatus = null;
 let saveTimer = null;
 let confirmResolver = null;
 const tripFilters = { q: '', month: '', carId: '', org: '' };
+const stockFilters = { q: '', category: '' };
 const reportFilters = { type: 'trips', carId: '', org: '', driver: '', category: '', vendor: '' };
 
 function normalizeNdsRate(v) {
@@ -2210,6 +2531,34 @@ function normalizeInsurance(value) {
         url: typeof insurance.pdf.url === 'string' ? insurance.pdf.url : ''
       }
       : null
+  };
+}
+
+function normalizeDriverDoc(value) {
+  if (!value || typeof value !== 'object') return null;
+  const data = typeof value.data === 'string' ? value.data : '';
+  const url = typeof value.url === 'string' ? value.url : '';
+  if (!data && !url) return null;
+  return {
+    name: String(value.name || 'Права.jpg').trim() || 'Права.jpg',
+    type: String(value.type || 'image/jpeg'),
+    size: Math.max(0, num(value.size)),
+    data,
+    url,
+    at: String(value.at || '').trim()
+  };
+}
+
+function normalizeDriverLicense(value) {
+  const license = value && typeof value === 'object' ? value : {};
+  return {
+    number: String(license.number || '').trim(),
+    categories: String(license.categories || '').trim(),
+    issuedAt: normalizeDate(license.issuedAt),
+    expiresAt: normalizeDate(license.expiresAt),
+    issuedBy: String(license.issuedBy || '').trim(),
+    front: normalizeDriverDoc(license.front),
+    back: normalizeDriverDoc(license.back)
   };
 }
 
@@ -2290,6 +2639,7 @@ function normalizeDriver(value, index = 0) {
     rate: Math.max(0, num(driver.rate)),
     carId,
     assignments,
+    license: normalizeDriverLicense(driver.license),
     active: driver.active !== false,
     note: String(driver.note || '').trim()
   };
@@ -2326,11 +2676,16 @@ function normalizeState() {
       type: CAR_TYPES[car.type] ? car.type : 'van',
       plate: String(car.plate || '').trim(),
       odometer: Math.max(0, num(car.odometer)),
-      odometerSync: car.odometerSync && hasNumber(car.odometerSync.telemetryOdometer) ? {
+      odometerSync: car.odometerSync && hasNumber(car.odometerSync.base) ? {
         base: Math.max(0, num(car.odometerSync.base)),
-        telemetryOdometer: Math.max(0, num(car.odometerSync.telemetryOdometer)),
+        telemetryOdometer: hasNumber(car.odometerSync.telemetryOdometer) ? Math.max(0, num(car.odometerSync.telemetryOdometer)) : null,
         setAt: String(car.odometerSync.setAt || '')
-      } : null,
+      } : (num(car.odometer) > 0 ? {
+        base: Math.max(0, num(car.odometer)),
+        telemetryOdometer: null,
+        setAt: String(car.odometerSync?.setAt || todayISO())
+      } : null),
+      odometerLog: Array.isArray(car.odometerLog) ? car.odometerLog.slice(-20) : [],
       fuelLevel: Math.max(0, num(car.fuelLevel)),
       tank: Math.max(1, num(car.tank) || 60),
       fuelNorm: (car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm)),
@@ -2385,17 +2740,52 @@ function normalizeState() {
     };
   });
 
+  state.warehouse = (Array.isArray(state.warehouse) ? state.warehouse : []).map(item => ({
+    ...item,
+    id: item.id || uid(),
+    name: String(item.name || '').trim(),
+    category: STOCK_CATEGORIES[item.category] ? item.category : 'other',
+    unit: String(item.unit || 'шт').trim() || 'шт',
+    qty: Math.max(0, num(item.qty)),
+    minQty: Math.max(0, num(item.minQty)),
+    price: Math.max(0, num(item.price)),
+    location: String(item.location || '').trim(),
+    note: String(item.note || '').trim(),
+    updatedAt: normalizeDate(item.updatedAt) || todayISO()
+  })).filter(item => item.name);
+
   state.toRecords = state.toRecords.map(record => normalizeToRecord(record));
 
   state.trips = state.trips.map(trip => {
     const car = state.cars.find(c => c.id === trip.carId) || state.cars.find(c => c.name === trip.carName);
     const driver = state.drivers.find(d => d.id === trip.driverId) || state.drivers.find(d => normKey(d.name) === normKey(trip.driver));
+    const vatMode = ['included', 'on_top'].includes(trip.vatMode) ? trip.vatMode : 'none';
+    const vatRate = Math.max(0, num(trip.vatRate));
+    const income = Math.max(0, num(trip.income));
+    const grossAmount = Math.max(0, num(trip.grossAmount ?? income));
+    const calcAmount = Math.max(0, num(trip.calcAmount ?? income));
+    const driverShare = hasNumber(trip.driverShare) ? clamp(num(trip.driverShare), 0, 100) : 45;
+    const netForKickback = vatMode === 'included' && vatRate > 0
+      ? grossAmount / (1 + vatRate / 100)
+      : income;
+    const kickback = hasNumber(trip.kickback)
+      ? Math.max(0, num(trip.kickback))
+      : Math.max(0, netForKickback - calcAmount);
     return {
       ...trip,
       id: trip.id || uid(),
       date: normalizeDate(trip.date),
       driverId: driver ? driver.id : (trip.driverId || ''),
-      income: Math.max(0, num(trip.income)),
+      income,
+      grossAmount,
+      calcAmount,
+      driverShare,
+      vatMode,
+      vatRate,
+      kickback,
+      fines: Math.max(0, num(trip.fines)),
+      perDiem: Math.max(0, num(trip.perDiem)),
+      ownExpenses: Math.max(0, num(trip.ownExpenses)),
       expense: Math.max(0, num(trip.expense)),
       liters: Math.max(0, num(trip.liters)),
       carId: car ? car.id : (trip.carId || ''),
@@ -2422,7 +2812,11 @@ function normalizeState() {
   });
 
   if (!['light', 'dark'].includes(state.theme)) state.theme = 'light';
-  if (!['grid', 'carousel', '3d'].includes(state.viewMode)) state.viewMode = 'grid';
+  if (state.viewMode === '3d') state.viewMode = 'compact';
+  if (!['grid', 'carousel', 'compact'].includes(state.viewMode)) state.viewMode = 'grid';
+  state.reminderKm = state.reminderKm === undefined || state.reminderKm === null || state.reminderKm === '' ? 1000 : Math.max(0, num(state.reminderKm));
+  state.reminderDays = state.reminderDays === undefined || state.reminderDays === null || state.reminderDays === '' ? 30 : Math.max(0, num(state.reminderDays));
+  state.notificationsEnabled = state.notificationsEnabled !== false && state.notificationsEnabled !== 'false';
   if (!['usn6', 'usn15'].includes(state.taxSystem)) state.taxSystem = 'usn6';
   state.isNdsPayer = state.isNdsPayer === true || state.isNdsPayer === 'true';
   state.ndsRate = normalizeNdsRate(state.ndsRate);
@@ -2502,13 +2896,70 @@ function carOdometer(car) {
   const telemetry = glonassForCar(car);
   if (telemetry && hasNumber(telemetry.odometer)) {
     const sync = car?.odometerSync;
-    if (sync && hasNumber(sync.telemetryOdometer) && hasNumber(sync.base)) {
-      const delta = Math.max(0, Number(telemetry.odometer) - Number(sync.telemetryOdometer));
-      return Number(sync.base) + delta;
+    if (sync && hasNumber(sync.base)) {
+      if (hasNumber(sync.telemetryOdometer)) {
+        const delta = Math.max(0, Number(telemetry.odometer) - Number(sync.telemetryOdometer));
+        return Number(sync.base) + delta;
+      }
+      return Number(sync.base);
     }
+    if (num(car?.odometer) > 0) return num(car.odometer);
     return Number(telemetry.odometer);
   }
   return num(car?.odometer);
+}
+
+function appendOdometerLog(car, entry) {
+  if (!car) return;
+  if (!Array.isArray(car.odometerLog)) car.odometerLog = [];
+  car.odometerLog.push({ at: new Date().toISOString(), ...entry });
+  car.odometerLog = car.odometerLog.slice(-20);
+}
+
+function mergeOdometerAnchors(cloudCars, localCars) {
+  if (!Array.isArray(cloudCars)) return cloudCars;
+  const localById = new Map((localCars || []).map(car => [car.id, car]));
+  return cloudCars.map(car => {
+    const local = localById.get(car.id);
+    if (!local) return car;
+    const cloudSync = car.odometerSync;
+    const localSync = local.odometerSync;
+    if (!localSync || !hasNumber(localSync.base)) return car;
+    if (!cloudSync || !hasNumber(cloudSync.base)) {
+      return { ...car, odometer: local.odometer ?? car.odometer, odometerSync: localSync, odometerLog: local.odometerLog || car.odometerLog };
+    }
+    const cloudAt = Date.parse(cloudSync.setAt || '') || 0;
+    const localAt = Date.parse(localSync.setAt || '') || 0;
+    if (localAt > cloudAt) {
+      return { ...car, odometer: local.odometer ?? car.odometer, odometerSync: localSync, odometerLog: local.odometerLog || car.odometerLog };
+    }
+    return car;
+  });
+}
+
+function ensureOdometerAnchors(cars) {
+  let changed = false;
+  (cars || []).forEach(car => {
+    const telemetry = glonassForCar(car);
+    if (!telemetry || !hasNumber(telemetry.odometer)) return;
+    if (!car.odometerSync || !hasNumber(car.odometerSync.base)) {
+      if (num(car.odometer) <= 0) return;
+      car.odometerSync = {
+        base: num(car.odometer),
+        telemetryOdometer: Number(telemetry.odometer),
+        setAt: new Date().toISOString()
+      };
+      appendOdometerLog(car, { action: 'anchor-created', base: num(car.odometer), telemetryOdometer: Number(telemetry.odometer) });
+      changed = true;
+      return;
+    }
+    if (hasNumber(car.odometerSync.telemetryOdometer)) return;
+    car.odometerSync.telemetryOdometer = Number(telemetry.odometer);
+    car.odometerSync.setAt = new Date().toISOString();
+    appendOdometerLog(car, { action: 'anchor-set', base: num(car.odometerSync.base), telemetryOdometer: Number(telemetry.odometer) });
+    changed = true;
+  });
+  if (changed) saveNow();
 }
 
 function carFuel(car) {
@@ -2543,6 +2994,7 @@ function buildDemoState() {
     {
       id: 'demo-driver-1', name: 'Иванов Пётр', phone: '+7 900 111-22-33', status: 'staff', payType: 'percent_income', rate: 30,
       carId: 'demo-car-1', note: 'График 5/2',
+      license: { number: '9900 123456', categories: 'B, C', issuedAt: '2019-04-12', expiresAt: '2029-04-12', issuedBy: 'ГИБДД 2401' },
       assignments: [
         { id: 'demo-assign-1', carId: 'demo-car-2', carName: 'Ford Transit', from: dateIn(-8, 1), to: dateIn(-3, 1) },
         { id: 'demo-assign-2', carId: 'demo-car-1', carName: 'Volvo FH 460', from: dateIn(-3, 1), to: '' }
@@ -2551,16 +3003,19 @@ function buildDemoState() {
     {
       id: 'demo-driver-2', name: 'Петров Сергей', phone: '+7 900 222-33-44', status: 'self', payType: 'per_trip', rate: 2500,
       carId: 'demo-car-2', note: 'Самозанятый, НПД',
+      license: { number: '9910 654321', categories: 'B', issuedAt: '2018-09-03', expiresAt: '2026-12-15', issuedBy: 'ГИБДД 2401' },
       assignments: [{ id: 'demo-assign-3', carId: 'demo-car-2', carName: 'Ford Transit', from: dateIn(-10, 1), to: '' }]
     },
     {
       id: 'demo-driver-3', name: 'Сидоров Алексей', phone: '+7 900 333-44-55', status: 'ip', payType: 'percent_profit', rate: 25,
       carId: 'demo-car-3', note: 'ИП, договор перевозки',
+      license: { number: '9920 112233', categories: 'B, C, E', issuedAt: '2017-02-18', expiresAt: '2026-10-01', issuedBy: 'ГИБДД 2401' },
       assignments: [{ id: 'demo-assign-4', carId: 'demo-car-3', carName: 'KAMAZ 5490', from: dateIn(-6, 1), to: '' }]
     },
     {
       id: 'demo-driver-4', name: 'Кузнецов Андрей', phone: '+7 900 444-55-66', status: 'contract', payType: 'fixed', rate: 60000,
       carId: 'demo-car-4', note: 'ГПХ, подменный водитель',
+      license: { number: '9930 445566', categories: 'B', issuedAt: '2020-06-20', expiresAt: '2028-06-20', issuedBy: 'ГИБДД 2401' },
       assignments: [{ id: 'demo-assign-5', carId: 'demo-car-4', carName: 'Hyundai Solaris', from: dateIn(-2, 1), to: '' }]
     }
   ];
@@ -2632,10 +3087,16 @@ function buildDemoState() {
   ];
   return {
     cars, trips, organizations, fuelLog, parts, toRecords,
+    warehouse: [
+      { id: 'demo-stock-1', name: 'Масло моторное 5W-30', category: 'oil', qty: 18, unit: 'л', minQty: 10, price: 850, location: 'Стеллаж 1', note: 'Для Volvo и KAMAZ', updatedAt: todayISO() },
+      { id: 'demo-stock-2', name: 'Фильтр масляный', category: 'filter', qty: 4, unit: 'шт', minQty: 5, price: 1200, location: 'Стеллаж 2', note: '', updatedAt: todayISO() },
+      { id: 'demo-stock-3', name: 'Колодки передние', category: 'brake', qty: 2, unit: 'компл', minQty: 1, price: 7400, location: 'Стеллаж 3', note: '', updatedAt: todayISO() }
+    ],
     drivers: driverProfiles, log: [], expenses: [],
-    theme: 'light', viewMode: 'grid',
+    theme: 'light', viewMode: 'compact',
     isNdsPayer: false, taxSystem: 'usn6', ndsRate: 22,
-    taxContrib: 57390, taxEmployees: false
+    taxContrib: 57390, taxEmployees: false,
+    reminderKm: 1000, reminderDays: 30, notificationsEnabled: true
   };
 }
 
@@ -2847,7 +3308,11 @@ function startCloud(user) {
     usingLocalCache = false;
     if (docSnap.exists()) {
       const data = docSnap.data();
-      state = { ...state, ...data };
+      state = {
+        ...state,
+        ...data,
+        cars: Array.isArray(data.cars) ? mergeOdometerAnchors(data.cars, state.cars) : state.cars
+      };
       cacheState("cloud");
     } else {
       const cached = readLocalCache();
@@ -2898,7 +3363,34 @@ function startCloud(user) {
    4. СЕЛЕКТОРЫ И РАСЧЁТЫ
    ============================================================ */
 const sumField = (list, field) => list.reduce((s, item) => s + num(item[field]), 0);
-const tripProfit = (trip) => num(trip.income) - num(trip.expense);
+
+function tripCalc(trip = {}) {
+  const mode = ['included', 'on_top'].includes(trip.vatMode) ? trip.vatMode : 'none';
+  const rate = Math.max(0, num(trip.vatRate));
+  let net = Math.max(0, num(trip.income));
+  let gross = Math.max(0, num(trip.grossAmount ?? trip.income));
+  if (mode === 'included' && rate > 0) net = gross / (1 + rate / 100);
+  else if (mode === 'on_top' && rate > 0) gross = net * (1 + rate / 100);
+  else if (mode === 'none') { gross = net; }
+  const vatAmount = Math.max(0, gross - net);
+  const calcAmount = Math.max(0, num(trip.calcAmount ?? net));
+  const fuel = Math.max(0, num(trip.expense));
+  const base = Math.max(0, calcAmount - fuel);
+  const driverPct = hasNumber(trip.driverShare) ? clamp(num(trip.driverShare), 0, 100) : 45;
+  const fines = Math.max(0, num(trip.fines));
+  const perDiem = Math.max(0, num(trip.perDiem));
+  const ownExpenses = Math.max(0, num(trip.ownExpenses));
+  const driverAmount = base * driverPct / 100 - fines + perDiem + ownExpenses;
+  const companyAmount = base - driverAmount;
+  const kickback = hasNumber(trip.kickback) ? Math.max(0, num(trip.kickback)) : Math.max(0, net - calcAmount);
+  const companyProfit = net - fuel - driverAmount - kickback;
+  return {
+    mode, rate, net, gross, vatAmount, calcAmount, fuel, base, driverPct,
+    fines, perDiem, ownExpenses, driverAmount, companyAmount, kickback, companyProfit
+  };
+}
+
+const tripProfit = (trip) => tripCalc(trip).net - num(trip.expense);
 const inRange = (item, from, to) => {
   const d = normalizeDate(item.date);
   return (!from || d >= from) && (!to || d <= to);
@@ -2996,8 +3488,11 @@ function renderAll() {
   applyViewMode();
   renderDashboard();
   renderCars();
+  renderWarehouse();
   renderGlonassStatus();
   renderService();
+  renderNotifications();
+  applyNotificationSettings();
   renderOrgs();
   renderDriverDatalist();
   renderDrivers();
@@ -3059,6 +3554,7 @@ function renderDashboard() {
     : 0;
   const range = state.cars.reduce((s, c) => s + (num(c.fuelNorm) > 0 ? (carFuel(c) / num(c.fuelNorm)) * 100 : 0), 0);
   const tax = estimateTax(income, expense);
+  const companyTotal = cur.reduce((sum, trip) => sum + tripCalc(trip).companyProfit, 0);
   const margin = income > 0 ? (profit / income) * 100 : 0;
 
   const kpis = [
@@ -3089,13 +3585,13 @@ function renderDashboard() {
 
   $('#profitBanner').innerHTML = `<div class="profit-banner">
     <div class="pb-main">
-      <div class="pb-label">Прибыль за ${esc(monthLabelFull(month))}</div>
+      <div class="pb-label">Прибыль до выплат за ${esc(monthLabelFull(month))}</div>
       <div class="pb-value">${fmtMoney(profit)}</div>
       <span class="pb-chip">${icon('chart', 'icon-sm')} Маржа ${fmtPct(margin)}</span>
     </div>
     <div class="pb-stats">
+      <div class="pb-stat"><span>Конторе</span><b>${fmtMoney(companyTotal)}</b></div>
       <div class="pb-stat"><span>Налог (оценка)</span><b>${fmtMoney(tax.total)}</b></div>
-      <div class="pb-stat"><span>Чистая прибыль</span><b>${fmtMoney(profit - tax.total)}</b></div>
       <div class="pb-stat"><span>Рейсов</span><b>${cur.length}</b></div>
     </div>
     <button class="pb-link" data-tab="reports">${icon('arrow-right', 'icon-sm')} Подробные отчёты</button>
@@ -3298,7 +3794,7 @@ function carCard(car, index) {
   const fuelClass = fuelPct <= 15 ? 'danger' : fuelPct <= 35 ? 'warn' : 'ok';
   const range = num(car.fuelNorm) > 0 ? (fuel / num(car.fuelNorm)) * 100 : 0;
 
-  return `<article class="car-card" style="--i:${index}">
+  return `<article class="car-card" data-car-card="${esc(car.id)}" style="--i:${index}">
     <div class="car-head">
       <div class="car-avatar">${icon('truck')}</div>
       <div class="car-title">
@@ -3310,6 +3806,11 @@ function carCard(car, index) {
         <button class="icon-btn sm" data-edit-car="${esc(car.id)}" title="Изменить" aria-label="Изменить машину">${icon('edit')}</button>
         <button class="icon-btn sm danger" data-del-car="${esc(car.id)}" title="Удалить" aria-label="Удалить машину">${icon('trash')}</button>
       </div>
+    </div>
+    <div class="compact-summary">
+      <span class="compact-pill ${fuelClass}">${icon('fuel')} ${fmtLiters(fuel)} л</span>
+      <span class="compact-pill">${icon('gauge')} ${odometerKnown ? `${fmtNum(odometer)} км` : '—'}</span>
+      ${['danger', 'warn'].includes(insurance.status) ? `<span class="compact-pill ${insurance.status}">${icon('shield')} ${insurance.status === 'danger' ? 'просрочена' : 'скоро'}</span>` : ''}
     </div>
     <div class="car-metrics">
       <div class="car-metric"><span>Пробег${telemetry ? (car.odometerSync ? ' · спидометр + ГЛОНАСС' : ' · ГЛОНАСС') : ''}</span><strong>${odometerKnown ? `${fmtNum(odometer)} <small>км</small>` : '—'}</strong></div>
@@ -3333,6 +3834,7 @@ function carCard(car, index) {
 function renderCars() {
   const grid = $('#carsGrid');
   if (!grid) return;
+  ensureOdometerAnchors(state.cars);
   const scrollLeft = grid.scrollLeft;
   grid.className = `cars-view ${state.viewMode}`;
   const fleetOdo = state.cars.reduce((s, c) => s + carOdometer(c), 0);
@@ -3354,7 +3856,181 @@ function renderCars() {
   grid.scrollLeft = scrollLeft;
   populateCarSelects();
   renderFuelLog();
-  if (state.viewMode === '3d') init3DTilt();
+}
+
+function isStockLow(item) {
+  const min = num(item.minQty);
+  return min > 0 && num(item.qty) <= min;
+}
+
+function stockQtyText(item) {
+  return `${fmtQty(item.qty)} ${item.unit || 'шт'}`;
+}
+
+function stockCard(item) {
+  const qty = num(item.qty);
+  const min = num(item.minQty);
+  const unit = item.unit || 'шт';
+  const empty = qty <= 0;
+  const low = isStockLow(item);
+  const pct = min > 0 ? clamp((qty / min) * 100, 0, 100) : 100;
+  const price = num(item.price);
+  const total = qty * price;
+  return `<article class="stock-card ${empty ? 'danger' : low ? 'low' : ''}">
+    <div class="stock-head">
+      <span class="stock-ico">${icon('box')}</span>
+      <div class="stock-title"><h3>${esc(item.name)}</h3><span>${esc(STOCK_CATEGORIES[item.category] || 'Прочее')}${item.location ? ` · ${esc(item.location)}` : ''}</span></div>
+      <span class="badge ${empty ? 'danger' : low ? 'warn' : 'ok'}">${empty ? 'нет' : low ? 'мало' : 'есть'}</span>
+    </div>
+    <div class="stock-qty">${fmtQty(qty)} <small>${esc(unit)}</small></div>
+    <div class="stock-min">Минимум: ${min > 0 ? `${fmtQty(min)} ${esc(unit)}` : 'не задан'}</div>
+    <div class="progress ${empty ? 'danger' : low ? 'warn' : 'ok'} thin"><i style="width:${pct}%"></i></div>
+    <div class="stock-meta"><span>${price > 0 ? `${fmtMoney(price)} / ${esc(unit)}` : 'цена не указана'}</span>${total > 0 ? `<b>${fmtMoney(total)}</b>` : ''}</div>
+    ${item.note ? `<div class="stock-note">${esc(item.note)}</div>` : ''}
+    <div class="stock-actions">
+      <button class="btn btn-sm btn-primary" data-stock-in="${esc(item.id)}">${icon('plus', 'icon-sm')} Приход</button>
+      <button class="btn btn-sm btn-ghost" data-stock-out="${esc(item.id)}">${icon('minus', 'icon-sm')} Расход</button>
+      <button class="icon-btn sm" data-edit-stock="${esc(item.id)}" title="Изменить">${icon('edit', 'icon-sm')}</button>
+      <button class="icon-btn sm danger" data-del-stock="${esc(item.id)}" title="Удалить">${icon('trash', 'icon-sm')}</button>
+    </div>
+  </article>`;
+}
+
+function renderWarehouse() {
+  const box = $('#stockList');
+  if (!box) return;
+  const all = state.warehouse || [];
+  const low = all.filter(item => num(item.qty) <= 0 || isStockLow(item));
+  const empty = all.filter(item => num(item.qty) <= 0);
+  const totalValue = all.reduce((sum, item) => sum + num(item.qty) * num(item.price), 0);
+  const subtitle = $('#warehouseSubtitle');
+  if (subtitle) {
+    subtitle.textContent = `${all.length} ${plural(all.length, ['позиция', 'позиции', 'позиций'])} · ${low.length ? `${low.length} заканчивается` : 'все в норме'}`;
+  }
+  const badge = $('#navWarehouseBadge');
+  if (badge) {
+    badge.textContent = low.length;
+    badge.hidden = !low.length;
+  }
+  const kpis = $('#stockKpis');
+  if (kpis) {
+    kpis.innerHTML = [
+      statItem('Позиций', String(all.length)),
+      statItem('Заканчивается', String(low.length), 'поз.'),
+      statItem('Нет в наличии', String(empty.length), 'поз.'),
+      statItem('Стоимость остатка', fmtMoney(totalValue))
+    ].join('');
+  }
+  const query = stockFilters.q.trim().toLowerCase();
+  const filtered = all.filter(item => (!stockFilters.category || item.category === stockFilters.category)
+    && (!query || `${item.name} ${item.location} ${item.note}`.toLowerCase().includes(query)));
+  if (!all.length) {
+    box.innerHTML = emptyState(
+      'box', 'Склад пока пуст',
+      'Добавьте масло, фильтры или другие запчасти — приложение покажет остаток и предупредит, когда заканчивается',
+      '<button class="btn btn-sm btn-primary" data-action="new-stock">Добавить позицию</button>'
+    );
+    return;
+  }
+  if (!filtered.length) {
+    box.innerHTML = emptyState('search', 'Ничего не найдено', 'Измените запрос или категорию', '');
+    return;
+  }
+  box.innerHTML = `<div class="stock-grid">${filtered.map(stockCard).join('')}</div>`;
+}
+
+function openStockModal(id = null) {
+  const item = id ? (state.warehouse || []).find(entry => entry.id === id) : null;
+  $('#stockModalTitle').textContent = item ? 'Изменить позицию' : 'Новая позиция';
+  $('#stockEditId').value = item?.id || '';
+  $('#stockName').value = item?.name || '';
+  $('#stockCategory').innerHTML = Object.entries(STOCK_CATEGORIES).map(([key, label]) => `<option value="${key}">${esc(label)}</option>`).join('');
+  $('#stockCategory').value = item?.category || 'oil';
+  $('#stockUnit').innerHTML = STOCK_UNITS.map(unit => `<option value="${unit}">${unit}</option>`).join('');
+  $('#stockUnit').value = item?.unit || 'л';
+  $('#stockQty').value = item ? num(item.qty) : 0;
+  $('#stockMin').value = item ? num(item.minQty) : 5;
+  $('#stockPrice').value = item ? num(item.price) : '';
+  $('#stockLocation').value = item?.location || '';
+  $('#stockNote').value = item?.note || '';
+  openModal('stockModal');
+}
+
+function saveStock() {
+  if (!ensureLoaded()) return;
+  const name = $('#stockName').value.trim();
+  if (!name) { showToast('Введите название позиции', 'error'); return; }
+  const payload = {
+    name,
+    category: $('#stockCategory').value,
+    unit: $('#stockUnit').value,
+    qty: Math.max(0, num($('#stockQty').value)),
+    minQty: Math.max(0, num($('#stockMin').value)),
+    price: Math.max(0, num($('#stockPrice').value)),
+    location: $('#stockLocation').value.trim(),
+    note: $('#stockNote').value.trim(),
+    updatedAt: todayISO()
+  };
+  const id = $('#stockEditId').value;
+  if (id) {
+    const item = (state.warehouse || []).find(entry => entry.id === id);
+    if (!item) { showToast('Позиция не найдена', 'error'); return; }
+    Object.assign(item, payload);
+    showToast('Позиция обновлена');
+  } else {
+    state.warehouse.push({ id: uid(), ...payload });
+    showToast('Позиция добавлена на склад');
+  }
+  saveNow();
+  closeModal('stockModal');
+  renderAll();
+}
+
+async function deleteStock(id) {
+  if (!ensureLoaded()) return;
+  const item = (state.warehouse || []).find(entry => entry.id === id);
+  if (!item) return;
+  const ok = await askConfirm({
+    title: 'Удалить позицию?',
+    text: `«${item.name}» исчезнет со склада.`,
+    ok: 'Удалить позицию'
+  });
+  if (!ok) return;
+  state.warehouse = (state.warehouse || []).filter(entry => entry.id !== id);
+  saveNow();
+  renderAll();
+  showToast('Позиция удалена');
+}
+
+function openStockMove(id, type = 'in') {
+  const item = (state.warehouse || []).find(entry => entry.id === id);
+  if (!item) return;
+  $('#stockMoveId').value = item.id;
+  $('#stockMoveType').value = type;
+  $('#stockMoveTitle').textContent = type === 'in' ? 'Приход на склад' : 'Списание со склада';
+  $('#stockMoveSub').textContent = `${item.name} · сейчас ${stockQtyText(item)}`;
+  $('#stockMoveQty').value = '';
+  openModal('stockMoveModal');
+}
+
+function saveStockMove() {
+  if (!ensureLoaded()) return;
+  const id = $('#stockMoveId').value;
+  const type = $('#stockMoveType').value;
+  const amount = Math.max(0, num($('#stockMoveQty').value));
+  const item = (state.warehouse || []).find(entry => entry.id === id);
+  if (!item) { showToast('Позиция не найдена', 'error'); return; }
+  if (!amount) { showToast('Укажите количество', 'error'); return; }
+  if (type === 'out' && amount > num(item.qty)) {
+    showToast(`На складе только ${stockQtyText(item)}`, 'error');
+    return;
+  }
+  item.qty = type === 'in' ? num(item.qty) + amount : Math.max(0, num(item.qty) - amount);
+  item.updatedAt = todayISO();
+  saveNow();
+  closeModal('stockMoveModal');
+  renderAll();
+  showToast(type === 'in' ? 'Приход сохранён' : 'Списание сохранено');
 }
 
 function renderFuelLog() {
@@ -3419,22 +4095,138 @@ function renderFuelLog() {
   <div class="info-item" style="margin-top:10px">${icon('info')}<span>Показаны последние 12 заправок. Стоимость заправок справочная и не дублируется в расходах рейсов.</span></div>`;
 }
 
-function init3DTilt() {
-  if (state.viewMode !== '3d') return;
-  $$('.cars-view[class~="3d"] .car-card').forEach(card => {
-    if (card.dataset.tilt) return;
-    card.dataset.tilt = '1';
-    card.addEventListener('pointermove', event => {
-      if (event.pointerType !== 'mouse') return;
-      const rect = card.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = `perspective(900px) rotateX(${(-y * 7).toFixed(2)}deg) rotateY(${(x * 9).toFixed(2)}deg) translateY(-2px)`;
+function toggleCompactCard(card) {
+  if (!card || state.viewMode !== 'compact') return;
+  const expanded = card.classList.contains('expanded');
+  $$('.cars-view.compact .car-card.expanded').forEach(el => el.classList.remove('expanded'));
+  if (!expanded) card.classList.add('expanded');
+}
+
+function collectNotifications() {
+  const items = [];
+  (state.cars || []).forEach(car => {
+    MAINTENANCE_KEYS.forEach(category => {
+      const maintenance = maintenanceStatus(car, category);
+      if (!['danger', 'warn'].includes(maintenance.status)) return;
+      const kmText = maintenance.kmLeft === null ? '' : maintenance.kmLeft <= 0
+        ? `просрочено на ${fmtNum(Math.abs(maintenance.kmLeft))} км`
+        : `осталось ${fmtNum(maintenance.kmLeft)} км`;
+      const dateText = maintenance.daysLeft === null ? '' : maintenance.daysLeft < 0
+        ? `просрочено на ${Math.abs(maintenance.daysLeft)} дн.`
+        : `через ${maintenance.daysLeft} дн.`;
+      items.push({
+        kind: 'maintenance', severity: maintenance.status, carId: car.id, carName: car.name,
+        category: maintenance.category, icon: 'wrench', title: maintenance.label,
+        detail: [kmText, dateText].filter(Boolean).join(' · ') || 'пора проверить',
+        action: 'part'
+      });
     });
-    card.addEventListener('pointerleave', () => {
-      card.style.transform = '';
+
+    const insurance = insuranceStatus(car);
+    if (['danger', 'warn'].includes(insurance.status)) {
+      items.push({
+        kind: 'insurance', severity: insurance.status, carId: car.id, carName: car.name,
+        icon: 'shield', title: insurance.label,
+        detail: insurance.status === 'danger' ? 'Полис просрочен — продлите' : 'Полис скоро заканчивается',
+        action: 'car'
+      });
+    }
+
+    const telemetry = glonassForCar(car);
+    if (telemetry && telemetry.fuelSensorStatus && !/^ok$/i.test(String(telemetry.fuelSensorStatus))) {
+      items.push({
+        kind: 'sensor', severity: 'warn', carId: car.id, carName: car.name,
+        icon: 'gauge', title: 'Датчик топлива', detail: 'Нет данных — показано последнее значение', action: 'car'
+      });
+    }
+
+    const fuel = carFuel(car);
+    const tank = num(car.tank) || 60;
+    if (telemetry && hasNumber(telemetry.fuelLevel) && tank > 0 && fuel / tank <= 0.15) {
+      items.push({
+        kind: 'fuel', severity: 'warn', carId: car.id, carName: car.name,
+        icon: 'fuel', title: 'Низкий уровень топлива',
+        detail: `${fmtLiters(fuel)} л · ${Math.round((fuel / tank) * 100)}% бака`, action: 'fuel'
+      });
+    }
+  });
+  (state.drivers || []).forEach(driver => {
+    const license = driverLicenseStatus(driver);
+    if (!['danger', 'warn'].includes(license.status)) return;
+    items.push({
+      kind: 'license', severity: license.status, carId: '', driverId: driver.id, carName: driver.name,
+      icon: 'file', title: 'Права водителя', detail: license.detail || license.label, action: 'driver'
     });
   });
+  (state.warehouse || []).forEach(item => {
+    const qty = num(item.qty);
+    if (qty > 0 && !isStockLow(item)) return;
+    items.push({
+      kind: 'stock', severity: qty <= 0 ? 'danger' : 'warn', carId: '', carName: 'Склад', stockId: item.id,
+      icon: 'box', title: item.name,
+      detail: `Осталось ${fmtQty(qty)} ${item.unit || 'шт'}${num(item.minQty) > 0 ? ` · минимум ${fmtQty(item.minQty)}` : ''}`,
+      action: 'stock'
+    });
+  });
+  const rank = { danger: 0, warn: 1 };
+  items.sort((a, b) => (rank[a.severity] ?? 2) - (rank[b.severity] ?? 2));
+  return items;
+}
+
+let notificationsShown = false;
+
+function maybeShowNotificationToast(items, force = false) {
+  if (!items.length) return;
+  if (!force && (!state.notificationsEnabled || notificationsShown)) return;
+  notificationsShown = true;
+  const first = items[0];
+  showToast(`${first.carName}: ${first.title} — ${first.detail}`, first.severity === 'danger' ? 'error' : 'info');
+}
+
+function renderNotifications(options = {}) {
+  const items = collectNotifications();
+  $$('[data-notify-badge]').forEach(badge => {
+    badge.textContent = items.length > 9 ? '9+' : String(items.length);
+    badge.hidden = !items.length;
+  });
+  const subtitle = $('#notifySubtitle');
+  if (subtitle) {
+    subtitle.textContent = items.length
+      ? `${items.length} ${plural(items.length, ['напоминание', 'напоминания', 'напоминаний'])}`
+      : 'Всё в норме';
+  }
+  const list = $('#notifyList');
+  if (list) {
+    list.innerHTML = items.length ? items.map(item => `
+      <button class="notify-item ${item.severity}" data-notify-car="${esc(item.carId || '')}" data-notify-stock="${esc(item.stockId || '')}" data-notify-driver="${esc(item.driverId || '')}" data-notify-action="${esc(item.action)}" data-notify-category="${esc(item.category || '')}">
+        <span class="notify-item-icon">${icon(item.icon)}</span>
+        <span class="notify-item-body"><b>${esc(item.carName)} · ${esc(item.title)}</b><span>${esc(item.detail)}</span></span>
+        <span class="notify-item-status ${item.severity}">${item.severity === 'danger' ? 'срочно' : 'скоро'}</span>
+      </button>`).join('') : `<div class="notify-empty">${icon('check')}<b>Всё в норме</b><span>Новых напоминаний нет. Порог можно изменить в настройках.</span></div>`;
+  }
+  maybeShowNotificationToast(items, options.forceToast === true);
+}
+
+function applyNotificationSettings() {
+  const km = $('#reminderKm');
+  const days = $('#reminderDays');
+  const enabled = $('#notifyEnabled');
+  if (km) km.value = num(state.reminderKm);
+  if (days) days.value = num(state.reminderDays);
+  if (enabled) enabled.checked = state.notificationsEnabled !== false;
+}
+
+function closeNotifyPanel() {
+  const panel = $('#notifyPanel');
+  if (panel) panel.hidden = true;
+}
+
+function toggleNotifyPanel(force) {
+  const panel = $('#notifyPanel');
+  if (!panel) return;
+  const open = force === undefined ? panel.hidden : force;
+  panel.hidden = !open;
+  if (open) renderNotifications();
 }
 
 function scrollCars(direction) {
@@ -3518,7 +4310,8 @@ function renderTripFilters() {
 function tripRow(t) {
   const car = state.cars.find(c => c.id === t.carId);
   const carName = t.carName || car?.name || '—';
-  const profit = tripProfit(t);
+  const calc = tripCalc(t);
+  const profit = calc.companyProfit;
   return `<div class="trip-row" data-edit-trip="${esc(t.id)}">
     <div class="tc">
       <span class="cell-label">Дата</span>
@@ -3545,15 +4338,17 @@ function tripRow(t) {
     </div>
     <div class="tc tc-money">
       <span class="cell-label">Доход</span>
-      <span class="money in">+${fmtMoney(t.income)}</span>
+      <span class="money in">+${fmtMoney(calc.gross)}</span>
+      <span class="sub">без НДС ${fmtMoney(calc.net)}${calc.vatAmount > 0 ? ` · НДС ${fmtMoney(calc.vatAmount)}` : ''}</span>
     </div>
     <div class="tc tc-money">
-      <span class="cell-label">Расход</span>
-      <span class="money out">−${fmtMoney(t.expense)}</span>
+      <span class="cell-label">Бензин</span>
+      <span class="money out">−${fmtMoney(calc.fuel)}</span>
     </div>
     <div class="tc tc-profit">
-      <span class="cell-label">Прибыль</span>
+      <span class="cell-label">Конторе</span>
       <span class="money ${profit >= 0 ? 'in' : 'out'}">${fmtMoney(profit)}</span>
+      <span class="sub">водителю ${fmtMoney(calc.driverAmount)}</span>
     </div>
     <div class="tc tc-actions">
       <button class="icon-btn sm" data-edit-trip="${esc(t.id)}" title="Изменить" aria-label="Изменить рейс">${icon('edit')}</button>
@@ -3576,16 +4371,21 @@ function renderTripRows() {
   } else {
     rows.innerHTML = list.map(tripRow).join('');
   }
-  const income = sumField(list, 'income');
-  const expense = sumField(list, 'expense');
-  const profit = income - expense;
+  const totalsCalc = list.map(tripCalc);
+  const gross = totalsCalc.reduce((sum, item) => sum + item.gross, 0);
+  const income = totalsCalc.reduce((sum, item) => sum + item.net, 0);
+  const vat = totalsCalc.reduce((sum, item) => sum + item.vatAmount, 0);
+  const driverTotal = totalsCalc.reduce((sum, item) => sum + item.driverAmount, 0);
+  const companyTotal = totalsCalc.reduce((sum, item) => sum + item.companyProfit, 0);
   const totals = $('#tripTotals');
   if (totals) {
     totals.innerHTML = `
       <div class="tt"><span>Рейсов</span><b>${list.length}</b></div>
-      <div class="tt"><span>Доход</span><b class="in">${fmtMoney(income)}</b></div>
-      <div class="tt"><span>Расход</span><b class="out">${fmtMoney(expense)}</b></div>
-      <div class="tt"><span>Прибыль</span><b class="${profit >= 0 ? 'in' : 'out'}">${fmtMoney(profit)}</b></div>`;
+      <div class="tt"><span>Счёт</span><b>${fmtMoney(gross)}</b></div>
+      <div class="tt"><span>Без НДС</span><b class="in">${fmtMoney(income)}</b></div>
+      <div class="tt"><span>НДС</span><b>${fmtMoney(vat)}</b></div>
+      <div class="tt"><span>Водителю</span><b>${fmtMoney(driverTotal)}</b></div>
+      <div class="tt"><span>Конторе</span><b class="${companyTotal >= 0 ? 'in' : 'out'}">${fmtMoney(companyTotal)}</b></div>`;
   }
 }
 
@@ -3732,8 +4532,11 @@ function reportDetailData(from, to) {
   const rows = reportTrips(from, to).sort((a, b) => String(b.date).localeCompare(String(a.date)));
   return {
     title: titles.trips,
-    headers: ['Дата', 'Машина', 'Водитель', 'Организация', 'Маршрут', 'Доход', 'Бензин', 'Прибыль'],
-    rows: rows.map(trip => [fmtDate(trip.date), trip.carName, trip.driver || '—', trip.org || '—', trip.route || '—', fmtMoney(trip.income), fmtMoney(trip.expense), fmtMoney(num(trip.income) - num(trip.expense))])
+    headers: ['Дата', 'Машина', 'Водитель', 'Организация', 'Маршрут', 'Ставка', 'Счёт', 'Без НДС', 'НДС', 'Бензин', 'Штрафы', 'Суточные', 'За свои', 'Водителю', 'Конторе', 'Откат', 'Маржа'],
+    rows: rows.map(trip => {
+      const calc = tripCalc(trip);
+      return [fmtDate(trip.date), trip.carName, trip.driver || '—', trip.org || '—', trip.route || '—', fmtMoney(calc.calcAmount), fmtMoney(calc.gross), fmtMoney(calc.net), fmtMoney(calc.vatAmount), fmtMoney(calc.fuel), fmtMoney(calc.fines), fmtMoney(calc.perDiem), fmtMoney(calc.ownExpenses), fmtMoney(calc.driverAmount), fmtMoney(calc.companyAmount), fmtMoney(calc.kickback), fmtMoney(calc.companyProfit)];
+    })
   };
 }
 
@@ -3779,6 +4582,11 @@ function renderReports() {
   }
   const list = reportTrips(from, to);
   const income = sumField(list, 'income');
+  const reportCalc = list.map(tripCalc);
+  const grossIncome = reportCalc.reduce((sum, item) => sum + item.gross, 0);
+  const vatTotal = reportCalc.reduce((sum, item) => sum + item.vatAmount, 0);
+  const driverTotal = reportCalc.reduce((sum, item) => sum + item.driverAmount, 0);
+  const companyTotal = reportCalc.reduce((sum, item) => sum + item.companyProfit, 0);
   const fuelExpense = sumField(list, 'expense');
   const partsList = partsInRange(from, to).filter(part =>
     (!reportFilters.carId || part.carId === reportFilters.carId)
@@ -3802,9 +4610,9 @@ function renderReports() {
 
   const kpis = [
     kpiCard({
-      i: 0, iconName: 'arrow-up-right', label: 'Доход',
+      i: 0, iconName: 'arrow-up-right', label: 'Доход без НДС',
       value: fmtMoney(income),
-      sub: `средний чек ${fmtMoney(list.length ? income / list.length : 0)}`
+      sub: `счёт ${fmtMoney(grossIncome)} · НДС ${fmtMoney(vatTotal)} · средний чек ${fmtMoney(list.length ? income / list.length : 0)}`
     }),
     kpiCard({
       i: 1, iconName: 'arrow-down-right', label: 'Расход (ГСМ + сервис)',
@@ -3812,9 +4620,9 @@ function renderReports() {
       sub: `ГСМ ${fmtMoney(fuelExpense)} · запчасти ${fmtMoney(partsExpense)} · страховка ${fmtMoney(insuranceExpense)}`
     }),
     kpiCard({
-      i: 2, iconName: 'wallet', label: 'Прибыль',
+      i: 2, iconName: 'wallet', label: 'Прибыль до выплат',
       value: fmtMoney(profit),
-      sub: `маржа ${fmtPct(margin)}`
+      sub: `маржа ${fmtPct(margin)} · водителю ${fmtMoney(driverTotal)} · конторе ${fmtMoney(companyTotal)}`
     }),
     kpiCard({
       i: 3, iconName: 'receipt', label: 'Налог (оценка)',
@@ -3907,7 +4715,7 @@ function renderWeeklySalary() {
       <tfoot><tr><td colspan="2">Итого за неделю</td><td class="num">${fmtMoney(totals.income)}</td><td class="num">${fmtMoney(totals.fuel)}</td><td class="num">${fmtMoney(totals.net)}</td><td class="num">${fmtMoney(totals.driver)}</td><td class="num">${fmtMoney(totals.management)}</td></tr></tfoot>
     </table>
   </div>
-  <div class="payroll-note">${icon('info')}<span>Доля водителя считается от чистого дохода: (сумма рейсов − бензин) × ${WEEKLY_DRIVER_SHARE}%. Неделя — с понедельника по воскресенье. Если у водителя в карточке указан свой недельный процент, он используется вместо 45%.</span></div>`;
+  <div class="payroll-note">${icon('info')}<span>Доля водителя: (сумма рейсов − бензин) × ${WEEKLY_DRIVER_SHARE}% − штрафы + суточные + расходы за свои. Неделя — с понедельника по воскресенье. Если у водителя в карточке указан свой недельный процент, он используется вместо 45%.</span></div>`;
 }
 
 function renderProfitTable(list, months, extras = {}) {
@@ -4360,8 +5168,9 @@ function openCarModal(id = null) {
   $('#carPlate').value = car ? (car.plate || carPlate(car)) : '';
   const telemetry = car ? glonassForCar(car) : null;
   const insurance = car?.insurance || {};
-  $('#carOdo').value = car ? Math.round(carOdometer(car)) : '';
-  $('#carFuel').value = car ? num(car.fuelLevel) : '';
+  const baseOdo = car ? (hasNumber(car.odometerSync?.base) ? num(car.odometerSync.base) : num(car.odometer)) : 0;
+  $('#carOdo').value = car ? Math.round(baseOdo) : '';
+  $('#carFuel').value = car ? carFuel(car) : '';
   $('#carTank').value = car ? num(car.tank) : 60;
   $('#carNorm').value = car ? num(car.fuelNorm) : 15;
   $('#carOdo').disabled = false;
@@ -4370,7 +5179,18 @@ function openCarModal(id = null) {
   $('#carOdoHint').textContent = telemetry
     ? 'Введите реальный пробег по спидометру — ГЛОНАСС будет прибавлять километры сверх него.'
     : 'Введите реальный пробег по спидометру.';
+  const diag = $('#carOdoDiag');
+  if (diag) {
+    const sync = car?.odometerSync;
+    const log = (car?.odometerLog || []).slice(-4).reverse();
+    diag.innerHTML = car ? `<div class="diag-row"><span>База спидометра</span><b>${sync && hasNumber(sync.base) ? `${fmtNum(sync.base)} км` : 'не задана'}</b></div>
+      <div class="diag-row"><span>Якорь ГЛОНАСС</span><b>${sync && hasNumber(sync.telemetryOdometer) ? `${fmtNum(sync.telemetryOdometer)} км` : '—'}</b></div>
+      <div class="diag-row"><span>Последнее сохранение</span><b>${sync?.setAt ? esc(fmtSyncTime(sync.setAt)) : '—'}</b></div>
+      ${log.length ? `<div class="diag-log">${log.map(entry => `<div>${esc(fmtSyncTime(entry.at))} · ${esc(entry.action || 'set')}: ${fmtNum(entry.base)} км${hasNumber(entry.telemetryOdometer) ? ` / ГЛОНАСС ${fmtNum(entry.telemetryOdometer)} км` : ''}</div>`).join('')}</div>` : ''}`
+      : 'Диагностика появится после сохранения машины.';
+  }
   $('#carFuelHint').hidden = !telemetry;
+  $('#carFuelHint').textContent = telemetry ? 'Текущее значение из ГЛОНАСС. Ручное редактирование отключено.' : '';
   $('#insType').value = insurance.type || 'ОСАГО';
   $('#insCompany').value = insurance.company || car?.insuranceCompany || '';
   $('#insPolicy').value = insurance.policy || car?.insuranceNumber || '';
@@ -4386,6 +5206,23 @@ function openCarModal(id = null) {
   $('#insPdfFile').value = '';
   $('#insScanStatus').textContent = 'Наведите камеру на QR/штрихкод полиса';
   openModal('carModal');
+}
+
+function applyManualOdometer(car, value, action = 'manual-edit') {
+  if (!car) return;
+  const base = Math.max(0, num(value));
+  car.odometer = base;
+  car.odometerSync = car.odometerSync || {};
+  car.odometerSync.base = base;
+  car.odometerSync.setAt = new Date().toISOString();
+  const telemetry = glonassForCar(car);
+  car.odometerSync.telemetryOdometer = telemetry && hasNumber(telemetry.odometer) ? num(telemetry.odometer) : null;
+  const log = [...(car.odometerLog || [])];
+  const last = log[log.length - 1];
+  if (!last || last.action !== action || last.base !== base || last.telemetryOdometer !== car.odometerSync.telemetryOdometer) {
+    log.push({ at: car.odometerSync.setAt, action, base, telemetryOdometer: car.odometerSync.telemetryOdometer });
+  }
+  car.odometerLog = log.slice(-20);
 }
 
 function saveCar() {
@@ -4410,12 +5247,20 @@ function saveCar() {
     type: CAR_TYPES[$('#carType').value] ? $('#carType').value : 'van',
     plate: $('#carPlate').value.trim(),
     odometer: odometerValue,
-    odometerSync: telemetry && hasNumber(telemetry.odometer) ? {
+    odometerSync: {
       base: odometerValue,
-      telemetryOdometer: Number(telemetry.odometer),
+      telemetryOdometer: telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : null,
       setAt: new Date().toISOString()
-    } : null,
-    fuelLevel: Math.max(0, num($('#carFuel').value)),
+    },
+    odometerLog: [...(currentCar?.odometerLog || []), {
+      at: new Date().toISOString(),
+      action: currentCar ? 'manual-edit' : 'created',
+      base: odometerValue,
+      telemetryOdometer: telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : null
+    }].slice(-20),
+    fuelLevel: telemetry && hasNumber(telemetry.fuelLevel)
+      ? Math.max(0, Number(telemetry.fuelLevel))
+      : Math.max(0, num($('#carFuel').value)),
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
     insuranceNumber: $('#insPolicy').value.trim(),
@@ -4440,9 +5285,10 @@ function saveCar() {
       return;
     }
     Object.assign(car, payload);
+    applyManualOdometer(car, odometerValue, 'manual-edit');
     state.trips.forEach(t => { if (t.carId === id) t.carName = name; });
     state.fuelLog.forEach(f => { if (f.carId === id) f.carName = name; });
-    showToast('Машина обновлена');
+    showToast(telemetry ? `Пробег ${fmtNum(odometerValue)} км сохранён — ГЛОНАСС прибавится сверху` : 'Машина обновлена');
   } else {
     state.cars.push({ id: uid(), ...payload });
     showToast('Машина добавлена');
@@ -4474,7 +5320,9 @@ function updateCarQuick(input) {
   if (!car) return;
   const field = input.dataset.carQuick;
   if (field !== 'odometer' && field !== 'fuelLevel') return;
-  car[field] = Math.max(0, num(input.value));
+  const value = Math.max(0, num(input.value));
+  if (field === 'odometer') applyManualOdometer(car, value, 'quick-set');
+  else car.fuelLevel = value;
   saveNow();
   renderCars();
   renderDashboard();
@@ -4487,6 +5335,9 @@ function updateCarQuick(input) {
 let insurancePhotoDraft = '';
 let insurancePdfDraft = null;
 let toReceiptDraft = null;
+let driverLicenseDraft = null;
+let driverLicenseFiles = { front: null, back: null };
+let driverLicenseSide = 'front';
 let toHistoryCarId = '';
 let serviceFilters = { carId: '', category: '', vendor: '' };
 
@@ -4590,62 +5441,6 @@ function parseInsuranceText(raw) {
   return filled;
 }
 
-function loadScriptOnce(src) {
-  if (!window.__loadedScripts) window.__loadedScripts = new Map();
-  if (window.__loadedScripts.has(src)) return window.__loadedScripts.get(src);
-  const promise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Не удалось загрузить ${src}`));
-    document.head.appendChild(script);
-  });
-  window.__loadedScripts.set(src, promise);
-  return promise;
-}
-
-async function ocrImage(source, statusEl) {
-  await loadScriptOnce('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-  if (!window.Tesseract) throw new Error('OCR-библиотека не загрузилась');
-  const result = await window.Tesseract.recognize(source, 'rus+eng', {
-    logger: message => {
-      if (statusEl && message.status === 'recognizing text') {
-        statusEl.textContent = `Распознаю текст… ${Math.round((message.progress || 0) * 100)}%`;
-      }
-    }
-  });
-  return result?.data?.text || '';
-}
-
-async function extractPdfText(file, statusEl) {
-  await loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js');
-  const pdfjs = window.pdfjsLib;
-  if (!pdfjs) throw new Error('PDF-библиотека не загрузилась');
-  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-  const data = new Uint8Array(await file.arrayBuffer());
-  const pdf = await pdfjs.getDocument({ data }).promise;
-  let text = '';
-  const pages = Math.min(pdf.numPages || 1, 5);
-  for (let i = 1; i <= pages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map(item => item.str || '').join(' ') + '\n';
-    if (statusEl) statusEl.textContent = `Читаю PDF… ${i}/${pages}`;
-  }
-  let image = '';
-  if (!text.trim()) {
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: 2 });
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.ceil(viewport.width);
-    canvas.height = Math.ceil(viewport.height);
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-    image = canvas.toDataURL('image/jpeg', 0.82);
-  }
-  return { text, image };
-}
-
 async function handleInsurancePdf(file) {
   const status = $('#insScanStatus');
   if (!file) return;
@@ -4690,23 +5485,9 @@ async function handleInsurancePdf(file) {
   if (status) status.textContent = attached
     ? 'PDF прикреплён. Читаю реквизиты…'
     : 'PDF больше 600 КБ — прикрепите файл меньше или введите данные вручную.';
-  try {
-    const { text, image } = await extractPdfText(file, status);
-    let recognized = text;
-    if (!recognized.trim() && image) {
-      if (status) status.textContent = 'PDF без текста, распознаю как фото…';
-      recognized = await ocrImage(image, status);
-    }
-    const filled = parseInsuranceText(recognized);
-    if (status) status.textContent = filled
-      ? 'PDF прикреплён, данные подставлены. Проверьте поля и сохраните.'
-      : (attached ? 'PDF прикреплён. Реквизиты не найдены — проверьте поля.' : 'В PDF не найдены реквизиты.');
-  } catch (error) {
-    console.error('PDF insurance error:', error);
-    if (status) status.textContent = attached
-      ? 'PDF прикреплён. Автоматически прочитать не удалось — данные можно ввести вручную.'
-      : 'Не удалось прочитать PDF. Попробуйте фото или введите вручную.';
-  }
+  if (status) status.textContent = attached
+    ? 'PDF прикреплён. Реквизиты можно ввести вручную.'
+    : 'Не удалось прикрепить PDF. Введите данные вручную.';
 }
 
 function compressImage(file, maxSide = 420, quality = 0.45) {
@@ -4752,16 +5533,15 @@ async function handleInsuranceScan(file) {
     insurancePhotoDraft = await compressImage(file);
     insurancePreviewMarkup();
     const raw = await detectInsuranceBarcode(file);
-    let text = raw;
-    if (!text) {
-      if (status) status.textContent = 'QR не найден, распознаю текст с фото…';
-      text = await ocrImage(file, status);
+    if (!raw) {
+      if (status) status.textContent = 'QR или штрихкод не найден. Введите данные вручную.';
+      return;
     }
-    const filled = parseInsuranceText(text);
+    const filled = parseInsuranceText(raw);
     if (status) {
       status.textContent = filled
         ? 'Данные с полиса подставлены. Проверьте и сохраните.'
-        : 'Текст распознан, но реквизиты не найдены. Введите вручную.';
+        : 'Штрихкод прочитан, но реквизиты не найдены. Введите вручную.';
     }
   } catch (error) {
     console.error('Insurance OCR error:', error);
@@ -5460,6 +6240,248 @@ function driverCarName(driver) {
   return state.cars.find(car => car.id === driver.carId)?.name || 'Не назначена';
 }
 
+function driverLicenseStatus(driver) {
+  const license = normalizeDriverLicense(driver?.license);
+  const hasDoc = Boolean(license.number || license.issuedAt || license.expiresAt || license.front || license.back);
+  if (!hasDoc) return { status: 'empty', tone: 'plain', label: 'Права не загружены', days: null };
+  if (!license.expiresAt) return { status: 'warn', tone: 'warn', label: 'Права: не указан срок', days: null };
+  const days = daysBetween(todayISO(), license.expiresAt);
+  if (days < 0) return { status: 'danger', tone: 'danger', label: 'Права просрочены', detail: `Просрочены на ${Math.abs(days)} дн.`, days };
+  if (days <= 30) return { status: 'warn', tone: 'warn', label: `Права: ${days} дн.`, detail: `Истекают через ${days} дн.`, days };
+  return { status: 'ok', tone: 'ok', label: `Права до ${fmtDate(license.expiresAt)}`, detail: `Действительны до ${fmtDate(license.expiresAt)}`, days };
+}
+
+function driverDataText(data) {
+  const license = normalizeDriverLicense(data?.license);
+  const status = data?.status ? driverStatusInfo(data.status).label : '';
+  return [
+    ['ФИО', data?.name],
+    ['Телефон', data?.phone],
+    ['Статус', status],
+    ['Права', license.number],
+    ['Категории', license.categories],
+    ['Дата выдачи', license.issuedAt ? fmtDate(license.issuedAt) : ''],
+    ['Действительны до', license.expiresAt ? fmtDate(license.expiresAt) : ''],
+    ['Кем выданы', license.issuedBy]
+  ].filter(([, value]) => String(value || '').trim()).map(([label, value]) => `${label}: ${value}`).join('\n');
+}
+
+function driverFormData() {
+  return {
+    name: $('#driverName')?.value.trim() || '',
+    phone: $('#driverPhone')?.value.trim() || '',
+    status: $('#driverStatus')?.value || 'staff',
+    license: {
+      number: $('#driverLicenseNumber')?.value.trim() || '',
+      categories: $('#driverLicenseCategories')?.value.trim() || '',
+      issuedAt: $('#driverLicenseIssuedAt')?.value || '',
+      expiresAt: $('#driverLicenseExpiresAt')?.value || '',
+      issuedBy: $('#driverLicenseIssuedBy')?.value.trim() || '',
+      front: driverLicenseDraft?.front || null,
+      back: driverLicenseDraft?.back || null
+    }
+  };
+}
+
+async function copyDriverText(text, message = 'Данные скопированы') {
+  if (!String(text || '').trim()) {
+    showToast('Нет данных для копирования', 'error');
+    return;
+  }
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+    showToast(message, 'success');
+  } catch (error) {
+    showToast('Браузер не дал скопировать. Выделите текст вручную.', 'error');
+  }
+}
+
+function driverLicensePreviewMarkup() {
+  const license = normalizeDriverLicense(driverLicenseDraft || {});
+  [['front', 'Front'], ['back', 'Back']].forEach(([side, suffix]) => {
+    const doc = license[side];
+    const image = $(`#license${suffix}Img`);
+    const empty = $(`#license${suffix}Empty`);
+    const stateLabel = $(`#license${suffix}State`);
+    const remove = $(`[data-license-remove="${side}"]`);
+    const src = doc?.url || doc?.data || '';
+    if (image) {
+      if (src) {
+        image.src = src;
+        image.hidden = false;
+      } else {
+        image.removeAttribute('src');
+        image.hidden = true;
+      }
+    }
+    if (empty) empty.hidden = Boolean(src);
+    if (stateLabel) {
+      stateLabel.textContent = src ? 'загружена' : 'не загружена';
+      stateLabel.classList.toggle('ok', Boolean(src));
+    }
+    if (remove) remove.hidden = !src;
+  });
+  const status = $('#driverLicenseStatus');
+  if (status) {
+    const count = [license.front, license.back].filter(Boolean).length;
+    status.textContent = count ? `Загружено сторон: ${count} из 2` : 'Фото не загружены';
+  }
+}
+
+function updateDriverLicenseExpiryHint() {
+  const hint = $('#driverLicenseExpiryHint');
+  if (!hint) return;
+  const value = $('#driverLicenseExpiresAt')?.value;
+  if (!value) {
+    hint.textContent = 'Напомним за 30 дней до окончания';
+    return;
+  }
+  const days = daysBetween(todayISO(), value);
+  hint.textContent = days < 0
+    ? `Просрочены на ${Math.abs(days)} дн.`
+    : days <= 30
+      ? `Осталось ${days} дн. — пора обновить`
+      : `Осталось ${days} дн.`;
+}
+
+function parseDriverLicenseText(raw, options = {}) {
+  const text = String(raw || '').replace(/ё/gi, 'е').replace(/\u00a0/g, ' ');
+  const compact = text.replace(/\s+/g, ' ').trim();
+  let filled = false;
+  const set = (selector, value) => {
+    const input = $(selector);
+    if (!input || !value || input.value.trim()) return;
+    input.value = value;
+    filled = true;
+  };
+  const toISO = (value) => {
+    const match = String(value || '').match(/^(\d{2})[.\-/](\d{2})[.\-/](\d{4})$/);
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+  };
+
+  const number = compact.match(/(?:серия\s*)?(\d{2}\s?\d{2})\s*(?:номер|№|N|N[оo]?\.?)?\s*(\d{6})/i)
+    || compact.match(/\b(\d{4})\s+(\d{6})\b/);
+  if (number) set('#driverLicenseNumber', `${number[1].replace(/\s/g, '')} ${number[2]}`);
+
+  const categoriesRaw = compact.match(/(?:категори[ия]|кат\.?)\s*[:\-]?\s*([A-ZА-Я0-9,./\s-]{1,48})/i)?.[1] || '';
+  const cyrToLat = { 'А': 'A', 'В': 'B', 'С': 'C', 'Е': 'E', 'М': 'M', 'Т': 'T' };
+  const categories = categoriesRaw.toUpperCase().replace(/[^A-ZА-Я0-9,\s]/g, ' ')
+    .split(/[\s,]+/)
+    .map(token => token.split('').map(char => cyrToLat[char] || char).join(''))
+    .filter(token => /^(A|B|C|D|E|BE|CE|DE|TM|TB|M|A1|B1|C1|D1|E1|T)$/.test(token));
+  if (categories.length) set('#driverLicenseCategories', [...new Set(categories)].join(', '));
+
+  const allDates = Array.from(compact.matchAll(/(\d{2})[.\-/](\d{2})[.\-/](\d{4})/g)).map(match => `${match[3]}-${match[2]}-${match[1]}`);
+  const issued = compact.match(/(?:дата\s+выдачи|выдан[ао]?)[^\d]{0,35}(\d{2}[.\-/]\d{2}[.\-/]\d{4})/i);
+  const expires = compact.match(/(?:действительн[а-я]*\s+до|окончани[ея]\s+срока|срок\s+действия|права\s+до)[^\d]{0,35}(\d{2}[.\-/]\d{2}[.\-/]\d{4})/i);
+  const issuedAt = issued ? toISO(issued[1]) : allDates[0] || '';
+  const expiresAt = expires ? toISO(expires[1]) : allDates[1] || '';
+  if (issuedAt) set('#driverLicenseIssuedAt', issuedAt);
+  if (expiresAt) set('#driverLicenseExpiresAt', expiresAt);
+
+  const issuerLine = text.split(/\n+/).map(line => line.trim()).find(line => /(гибдд|мрэо|умвд|овд|подразделен)/i.test(line));
+  if (issuerLine) {
+    set('#driverLicenseIssuedBy', issuerLine.replace(/^(кем\s+выдан[ао]?|подразделение)\s*[:\-]?\s*/i, '').trim());
+  }
+
+  if (!options.silent) {
+    showToast(filled ? 'Данные разобраны — проверьте поля' : 'Не удалось разобрать текст — заполните вручную', filled ? 'success' : 'info');
+  }
+  updateDriverLicenseExpiryHint();
+  return filled;
+}
+
+async function detectDriverLicenseText(file) {
+  const barcode = await detectInsuranceBarcode(file);
+  if (barcode) return barcode;
+  if (!('TextDetector' in window)) return '';
+  try {
+    const detector = new window.TextDetector();
+    const bitmap = await createImageBitmap(file);
+    const blocks = await detector.detect(bitmap);
+    bitmap.close?.();
+    return blocks.map(block => block.rawValue).filter(Boolean).join('\n');
+  } catch (error) {
+    console.warn('TextDetector unavailable:', error);
+    return '';
+  }
+}
+
+async function handleDriverLicensePhoto(file, side = 'front') {
+  if (!file) return;
+  const status = $('#driverLicenseStatus');
+  if (status) status.textContent = 'Обрабатываю фото…';
+  try {
+    const preview = await compressImage(file, 1400, 0.7);
+    driverLicenseDraft = normalizeDriverLicense(driverLicenseDraft || {});
+    driverLicenseDraft[side] = {
+      name: file.name || 'Права.jpg',
+      type: 'image/jpeg',
+      size: file.size || 0,
+      data: preview,
+      url: '',
+      at: new Date().toISOString()
+    };
+    driverLicenseFiles[side] = file;
+    driverLicensePreviewMarkup();
+    if (status) status.textContent = 'Распознаю данные…';
+    const raw = await detectDriverLicenseText(file);
+    if (raw) {
+      const filled = parseDriverLicenseText(raw, { silent: true });
+      if (status) status.textContent = filled ? 'Данные распознаны — проверьте поля' : 'Текст найден, но поля не распознаны';
+      if (filled) showToast('Данные с прав подставлены', 'success');
+    } else if (status) {
+      status.textContent = 'Фото загружено. Текст не распознан — вставьте его вручную.';
+    }
+  } catch (error) {
+    console.error('Driver license photo error:', error);
+    if (status) status.textContent = 'Не удалось прочитать фото';
+    showToast('Не удалось обработать фото', 'error');
+  }
+}
+
+async function uploadDriverLicensePhoto(file, side) {
+  const compressed = await compressImage(file, 1600, 0.72);
+  const blob = await (await fetch(compressed)).blob();
+  const name = `prava-${side}.jpg`;
+  if (!DEMO && currentUser) {
+    try {
+      const storage = getStorage(app);
+      const objectRef = storageRef(storage, `drivers/${currentUser.uid}/${Date.now()}-${side}.jpg`);
+      const snapshot = await uploadBytes(objectRef, blob, { contentType: 'image/jpeg' });
+      return {
+        name,
+        type: 'image/jpeg',
+        size: blob.size,
+        data: '',
+        url: await getDownloadURL(snapshot.ref),
+        at: new Date().toISOString()
+      };
+    } catch (error) {
+      console.warn('Driver license upload error, using local copy:', error);
+    }
+  }
+  return {
+    name,
+    type: 'image/jpeg',
+    size: blob.size,
+    data: compressed,
+    url: '',
+    at: new Date().toISOString()
+  };
+}
+
 function renderDriverKpis() {
   const box = $('#driverKpis');
   if (!box) return;
@@ -5496,6 +6518,9 @@ function renderDriversList() {
     const status = driverStatusInfo(driver.status);
     const pay = calculateDriverPay(driver, month);
     const car = state.cars.find(item => item.id === driver.carId);
+    const license = normalizeDriverLicense(driver.license);
+    const licenseStatus = driverLicenseStatus(driver);
+    const docs = [license.front, license.back].filter(Boolean);
     return `<div class="driver-card">
       <div class="driver-head">
         <div class="driver-avatar">${esc(driverInitials(driver.name))}</div>
@@ -5511,6 +6536,12 @@ function renderDriversList() {
         <div><span>Рейсов за месяц</span><b>${pay.count}</b></div>
         <div><span>Начислено</span><b class="money">${fmtMoney(pay.gross)}</b></div>
       </div>
+      <div class="driver-license-row">
+        <span class="badge ${licenseStatus.tone}" title="${esc(licenseStatus.detail || licenseStatus.label)}">${icon('file', 'icon-sm')}${esc(licenseStatus.label)}</span>
+        <button class="btn btn-sm btn-ghost" data-license-driver="${esc(driver.id)}">Права</button>
+        <button class="btn btn-sm btn-ghost" data-copy-driver="${esc(driver.id)}">Копировать</button>
+      </div>
+      ${docs.length ? `<div class="driver-doc-thumbs">${docs.map(doc => `<img src="${esc(doc.url || doc.data)}" alt="Документ водителя ${esc(driver.name)}" loading="lazy">`).join('')}</div>` : ''}
       <div class="driver-actions">
         <select class="input" data-driver-assign="${esc(driver.id)}" aria-label="Перевести на машину">${carsOptions}</select>
         <button class="btn btn-sm btn-ghost" data-edit-driver="${esc(driver.id)}">Настроить</button>
@@ -5616,7 +6647,7 @@ function updateDriverPayFields() {
   if (statusHint) statusHint.textContent = driverStatusInfo(status).note;
 }
 
-function openDriverModal(id = null) {
+function openDriverModal(id = null, options = {}) {
   const driver = id ? (state.drivers || []).find(item => item.id === id) : null;
   $('#driverModalTitle').textContent = driver ? 'Настроить водителя' : 'Новый водитель';
   $('#driverEditId').value = driver?.id || '';
@@ -5630,12 +6661,27 @@ function openDriverModal(id = null) {
   $('#driverCar').value = driver?.carId || '';
   const currentAssignment = (driver?.assignments || []).find(item => !item.to);
   $('#driverSince').value = currentAssignment?.from || todayISO();
+  const license = normalizeDriverLicense(driver?.license);
+  driverLicenseDraft = license;
+  driverLicenseFiles = { front: null, back: null };
+  driverLicenseSide = 'front';
+  $('#driverLicenseNumber').value = license.number;
+  $('#driverLicenseCategories').value = license.categories;
+  $('#driverLicenseIssuedAt').value = license.issuedAt;
+  $('#driverLicenseExpiresAt').value = license.expiresAt;
+  $('#driverLicenseIssuedBy').value = license.issuedBy;
+  $('#driverLicenseText').value = '';
+  driverLicensePreviewMarkup();
+  updateDriverLicenseExpiryHint();
   renderDriverHistory(driver);
   updateDriverPayFields();
   openModal('driverModal');
+  if (options.focusLicense) {
+    setTimeout(() => $('#driverLicenseSection')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 180);
+  }
 }
 
-function saveDriver() {
+async function saveDriver() {
   if (!ensureLoaded()) return;
   const id = $('#driverEditId').value;
   const existing = id ? (state.drivers || []).find(item => item.id === id) : null;
@@ -5656,6 +6702,22 @@ function saveDriver() {
       assignments.push({ id: uid(), carId: newCarId, carName: car?.name || '', from: since, to: '' });
     }
   }
+  const license = normalizeDriverLicense(driverLicenseDraft || {});
+  license.number = $('#driverLicenseNumber').value.trim();
+  license.categories = $('#driverLicenseCategories').value.trim();
+  license.issuedAt = $('#driverLicenseIssuedAt').value;
+  license.expiresAt = $('#driverLicenseExpiresAt').value;
+  license.issuedBy = $('#driverLicenseIssuedBy').value.trim();
+  for (const side of ['front', 'back']) {
+    const file = driverLicenseFiles[side];
+    if (!file) continue;
+    try {
+      license[side] = await uploadDriverLicensePhoto(file, side);
+    } catch (error) {
+      console.warn(`Driver license ${side} upload error:`, error);
+      if (!license[side]?.data) showToast('Фото не загрузилось — попробуйте ещё раз', 'error');
+    }
+  }
   const payload = {
     name,
     phone: $('#driverPhone').value.trim(),
@@ -5664,6 +6726,7 @@ function saveDriver() {
     rate: Math.max(0, num($('#driverRate').value)),
     carId: newCarId,
     assignments,
+    license,
     note: $('#driverNote').value.trim(),
     active: true
   };
@@ -5682,7 +6745,9 @@ function saveDriver() {
       trip.driver = name;
     }
   });
-  saveNow();
+  driverLicenseDraft = null;
+  driverLicenseFiles = { front: null, back: null };
+  await saveNow();
   closeModal('driverModal');
   renderAll();
 }
@@ -5726,10 +6791,12 @@ function exportDriversCSV() {
   const drivers = state.drivers || [];
   if (!drivers.length) { showToast('Водителей пока нет', 'error'); return; }
   const rows = [
-    ['Водитель', 'Телефон', 'Статус', 'Модель оплаты', 'Ставка', 'Текущая машина', 'Рейсов за месяц', 'Доход, ₽', 'Начислено, ₽', 'НДФЛ, ₽', 'НПД (справочно), ₽', 'К выплате, ₽']
+    ['Водитель', 'Телефон', 'Статус', 'Модель оплаты', 'Ставка', 'Текущая машина', 'Права', 'Категории', 'Права до', 'Статус прав', 'Рейсов за месяц', 'Доход, ₽', 'Начислено, ₽', 'НДФЛ, ₽', 'НПД (справочно), ₽', 'К выплате, ₽']
   ];
   drivers.forEach(driver => {
     const pay = calculateDriverPay(driver, month);
+    const license = normalizeDriverLicense(driver.license);
+    const licenseStatus = driverLicenseStatus(driver);
     rows.push([
       driver.name,
       driver.phone,
@@ -5737,6 +6804,10 @@ function exportDriversCSV() {
       driverPayLabel(driver),
       csvNum(driver.rate),
       driverCarName(driver),
+      license.number,
+      license.categories,
+      license.expiresAt ? fmtDate(license.expiresAt) : '',
+      licenseStatus.label,
       pay.count,
       csvNum(pay.income),
       csvNum(pay.gross),
@@ -5788,20 +6859,68 @@ function openTripModal(id = null) {
   $('#tripDate').value = trip?.date || todayISO();
   $('#tripDriver').value = trip?.driver || '';
   $('#tripRoute').value = trip?.route || '';
-  $('#tripIncome').value = trip ? num(trip.income) : '';
+  $('#tripCalcAmount').value = trip ? num(trip.calcAmount ?? trip.income) : '';
+  $('#tripDriverShare').value = trip && hasNumber(trip.driverShare) ? num(trip.driverShare) : 45;
+  $('#tripIncome').value = trip ? num(trip.grossAmount ?? trip.income) : '';
   $('#tripExpense').value = trip ? num(trip.expense) : '';
+  $('#tripVatMode').value = trip?.vatMode || 'none';
+  $('#tripVatRate').value = String(trip?.vatRate || 5);
+  $('#tripKickback').value = trip && hasNumber(trip.kickback) ? num(trip.kickback) : '';
+  $('#tripFines').value = trip && num(trip.fines) > 0 ? num(trip.fines) : '';
+  $('#tripPerDiem').value = trip && num(trip.perDiem) > 0 ? num(trip.perDiem) : '';
+  $('#tripOwnExpenses').value = trip && num(trip.ownExpenses) > 0 ? num(trip.ownExpenses) : '';
   $('#tripLiters').value = trip && num(trip.liters) > 0 ? num(trip.liters) : '';
   $('#tripNote').value = trip?.note || '';
   updateTripPreview();
   openModal('tripModal');
 }
 
+function tripFormDraft() {
+  const actual = Math.max(0, num($('#tripIncome').value));
+  const mode = $('#tripVatMode').value;
+  const rate = Math.max(0, num($('#tripVatRate').value));
+  let income = actual;
+  let gross = actual;
+  if (mode === 'included' && rate > 0) income = actual / (1 + rate / 100);
+  else if (mode === 'on_top' && rate > 0) gross = actual * (1 + rate / 100);
+  const kickbackValue = $('#tripKickback').value;
+  return {
+    income,
+    grossAmount: gross,
+    calcAmount: Math.max(0, num($('#tripCalcAmount').value)) || income,
+    expense: Math.max(0, num($('#tripExpense').value)),
+    driverShare: $('#tripDriverShare').value === '' ? 45 : num($('#tripDriverShare').value),
+    vatMode: mode,
+    vatRate: rate,
+    kickback: kickbackValue === '' ? null : Math.max(0, num(kickbackValue)),
+    fines: Math.max(0, num($('#tripFines').value)),
+    perDiem: Math.max(0, num($('#tripPerDiem').value)),
+    ownExpenses: Math.max(0, num($('#tripOwnExpenses').value))
+  };
+}
+
 function updateTripPreview() {
   const preview = $('#tripPreview');
   if (!preview) return;
-  const profit = num($('#tripIncome').value) - num($('#tripExpense').value);
-  preview.textContent = fmtMoney(profit);
-  preview.className = profit < 0 ? 'neg' : profit > 0 ? 'pos' : '';
+  const calc = tripCalc(tripFormDraft());
+  preview.textContent = fmtMoney(calc.companyProfit);
+  preview.className = calc.companyProfit < 0 ? 'neg' : calc.companyProfit > 0 ? 'pos' : '';
+  const setAmount = (id, value) => {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = fmtMoney(value);
+    el.className = value < 0 ? 'neg' : value > 0 ? 'pos' : '';
+  };
+  setAmount('#tripBase', calc.base);
+  setAmount('#tripDriverAmount', calc.driverAmount);
+  setAmount('#tripCompanyAmount', calc.companyAmount);
+  setAmount('#tripFinesAmount', calc.fines);
+  setAmount('#tripPerDiemAmount', calc.perDiem);
+  setAmount('#tripOwnExpensesAmount', calc.ownExpenses);
+  setAmount('#tripVatAmount', calc.vatAmount);
+  setAmount('#tripKickbackAmount', calc.kickback);
+  setAmount('#tripMargin', calc.companyProfit);
+  $('#tripVatRate').disabled = calc.mode === 'none';
 }
 
 function saveTrip() {
@@ -5821,6 +6940,7 @@ function saveTrip() {
   const car = state.cars.find(c => c.id === carId);
   const driverName = $('#tripDriver').value.trim();
   const driver = findDriverByName(driverName);
+  const calc = tripCalc(tripFormDraft());
   const payload = {
     date,
     carId,
@@ -5829,8 +6949,17 @@ function saveTrip() {
     driver: driverName,
     route: $('#tripRoute').value.trim(),
     org: $('#tripOrg').value,
-    income: Math.max(0, num($('#tripIncome').value)),
-    expense: Math.max(0, num($('#tripExpense').value)),
+    income: calc.net,
+    grossAmount: calc.gross,
+    calcAmount: calc.calcAmount,
+    driverShare: calc.driverPct,
+    vatMode: calc.mode,
+    vatRate: calc.rate,
+    kickback: calc.kickback,
+    fines: calc.fines,
+    perDiem: calc.perDiem,
+    ownExpenses: calc.ownExpenses,
+    expense: calc.fuel,
     liters: Math.max(0, num($('#tripLiters').value)),
     note: $('#tripNote').value.trim()
   };
@@ -5921,7 +7050,7 @@ function saveFuel() {
     odometer
   });
   car.fuelLevel = Math.min(num(car.tank) || Infinity, num(car.fuelLevel) + liters);
-  car.odometer = Math.max(num(car.odometer), odometer);
+  if (odometer > 0) applyManualOdometer(car, Math.max(num(car.odometer), odometer), 'fuel');
   saveNow();
   closeModal('fuelModal');
   renderAll();
@@ -6016,9 +7145,9 @@ function setTab(name, { push = true, scroll = true } = {}) {
   }
   if (name === 'reports') renderReports();
   if (name === 'drivers') renderDrivers();
+  if (name === 'warehouse') renderWarehouse();
   if (name === 'service') renderService();
   if (name === 'taxes') renderTaxControls();
-  if (name === 'cars' && state.viewMode === '3d') init3DTilt();
   if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -6105,17 +7234,27 @@ function exportTripsCSV(all = false) {
     showToast('Нет рейсов для экспорта', 'error');
     return;
   }
-  const rows = [['Дата', 'Машина', 'Водитель', 'Маршрут', 'Организация', 'Доход, ₽', 'Расход, ₽', 'Прибыль, ₽', 'Топливо, л', 'Комментарий']];
+  const rows = [['Дата', 'Машина', 'Водитель', 'Маршрут', 'Организация', 'Ставка без НДС, ₽', 'Счёт клиенту, ₽', 'Доход без НДС, ₽', 'НДС, ₽', 'Бензин, ₽', 'Штрафы, ₽', 'Суточные, ₽', 'За свои, ₽', 'Водителю, ₽', 'Конторе, ₽', 'Откат, ₽', 'Маржа компании, ₽', 'Топливо, л', 'Комментарий']];
   list.forEach(t => {
+    const calc = tripCalc(t);
     rows.push([
       fmtDate(t.date),
       t.carName || state.cars.find(c => c.id === t.carId)?.name || '',
       t.driver,
       t.route,
       t.org,
-      csvNum(t.income),
-      csvNum(t.expense),
-      csvNum(tripProfit(t)),
+      csvNum(calc.calcAmount),
+      csvNum(calc.gross),
+      csvNum(calc.net),
+      csvNum(calc.vatAmount),
+      csvNum(calc.fuel),
+      csvNum(calc.fines),
+      csvNum(calc.perDiem),
+      csvNum(calc.ownExpenses),
+      csvNum(calc.driverAmount),
+      csvNum(calc.companyAmount),
+      csvNum(calc.kickback),
+      csvNum(calc.companyProfit),
       csvNum(t.liters),
       t.note
     ]);
@@ -6130,9 +7269,10 @@ function export1C() {
     showToast('Нет рейсов для экспорта', 'error');
     return;
   }
-  const rows = [['Номер', 'Дата', 'Машина', 'Госномер', 'Водитель', 'Маршрут', 'Организация', 'Доход, ₽', 'Расход, ₽', 'Прибыль, ₽', 'Комментарий']];
+  const rows = [['Номер', 'Дата', 'Машина', 'Госномер', 'Водитель', 'Маршрут', 'Организация', 'Ставка без НДС, ₽', 'Счёт клиенту, ₽', 'Доход без НДС, ₽', 'НДС, ₽', 'Бензин, ₽', 'Штрафы, ₽', 'Суточные, ₽', 'За свои, ₽', 'Водителю, ₽', 'Конторе, ₽', 'Откат, ₽', 'Маржа компании, ₽', 'Комментарий']];
   list.forEach((t, index) => {
     const car = (state.cars || []).find(c => c.id === t.carId);
+    const calc = tripCalc(t);
     rows.push([
       t.id || String(index + 1),
       fmtDate(t.date),
@@ -6141,9 +7281,18 @@ function export1C() {
       t.driver || '',
       t.route || '',
       t.org || '',
-      csvNum(t.income),
-      csvNum(t.expense),
-      csvNum(tripProfit(t)),
+      csvNum(calc.calcAmount),
+      csvNum(calc.gross),
+      csvNum(calc.net),
+      csvNum(calc.vatAmount),
+      csvNum(calc.fuel),
+      csvNum(calc.fines),
+      csvNum(calc.perDiem),
+      csvNum(calc.ownExpenses),
+      csvNum(calc.driverAmount),
+      csvNum(calc.companyAmount),
+      csvNum(calc.kickback),
+      csvNum(calc.companyProfit),
       t.note || ''
     ]);
   });
@@ -6174,6 +7323,31 @@ function exportCarsCSV() {
   showToast(`Экспортировано машин: ${list.length}`);
 }
 
+
+function exportStockCSV() {
+  const list = [...(state.warehouse || [])].sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ru'));
+  if (!list.length) {
+    showToast('Склад пуст — нечего экспортировать', 'error');
+    return;
+  }
+  const rows = [['Название', 'Категория', 'Остаток', 'Ед.', 'Минимум', 'Цена за ед., ₽', 'Стоимость остатка, ₽', 'Место', 'Комментарий', 'Обновлено']];
+  list.forEach(item => {
+    rows.push([
+      item.name || '',
+      STOCK_CATEGORIES[item.category] || 'Прочее',
+      csvNum(item.qty),
+      item.unit || 'шт',
+      csvNum(item.minQty),
+      csvNum(item.price),
+      csvNum(num(item.qty) * num(item.price)),
+      item.location || '',
+      item.note || '',
+      fmtDate(item.updatedAt)
+    ]);
+  });
+  downloadFile(`sklad-${todayISO()}.csv`, toCSV(rows), 'text/csv;charset=utf-8;');
+  showToast(`Экспортировано позиций: ${list.length}`);
+}
 
 function exportPartsCSV() {
   const list = [...(state.parts || [])].sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -6208,10 +7382,10 @@ function exportWeeklySalaryCSV() {
   const end = endOfWeekISO(date);
   const drivers = state.drivers || [];
   if (!drivers.length) { showToast('Нет водителей для экспорта', 'error'); return; }
-  const rows = [['Водитель', 'Неделя', 'Сумма рейсов, ₽', 'Бензин, ₽', 'Чистыми, ₽', 'Доля водителя, ₽', 'Доля начальства, ₽']];
+  const rows = [['Водитель', 'Неделя', 'Сумма рейсов, ₽', 'Бензин, ₽', 'Чистыми, ₽', 'Штрафы, ₽', 'Суточные, ₽', 'За свои, ₽', 'Доля водителя, ₽', 'Доля начальства, ₽']];
   drivers.forEach(driver => {
     const pay = calculateWeeklyPay(driver, start, end);
-    rows.push([driver.name, weekRangeLabel(start, end), csvNum(pay.income), csvNum(pay.fuel), csvNum(pay.net), csvNum(pay.driverShare), csvNum(pay.managementShare)]);
+    rows.push([driver.name, weekRangeLabel(start, end), csvNum(pay.income), csvNum(pay.fuel), csvNum(pay.net), csvNum(pay.fines), csvNum(pay.perDiem), csvNum(pay.ownExpenses), csvNum(pay.driverShare), csvNum(pay.managementShare)]);
   });
   downloadFile(`zarplata-${start}-${end}.csv`, toCSV(rows), 'text/csv;charset=utf-8;');
   showToast('Зарплата за неделю экспортирована');
@@ -6327,6 +7501,7 @@ async function handleImport(file) {
       log: Array.isArray(payload.log) ? payload.log : (state.log || []),
       expenses: Array.isArray(payload.expenses) ? payload.expenses : (state.expenses || []),
       parts: Array.isArray(payload.parts) ? payload.parts : [],
+      warehouse: Array.isArray(payload.warehouse) ? payload.warehouse : (state.warehouse || []),
       toRecords: Array.isArray(payload.toRecords) ? payload.toRecords : []
     };
     normalizeState();
@@ -6372,6 +7547,7 @@ function bindEvents() {
       else if (action === 'new-part') openPartModal();
       else if (action === 'new-to') openToModal();
       else if (action === 'new-driver') openDriverModal();
+      else if (action === 'new-stock') openStockModal();
       return;
     }
 
@@ -6385,6 +7561,7 @@ function bindEvents() {
       else if (kind === 'cars') exportCarsCSV();
       else if (kind === 'summary') exportSummaryCSV();
       else if (kind === 'parts') exportPartsCSV();
+      else if (kind === 'stock') exportStockCSV();
       else if (kind === 'drivers') exportDriversCSV();
       else if (kind === 'to') exportTOCSV();
       else if (kind === 'weekly-salary') exportWeeklySalaryCSV();
@@ -6418,6 +7595,12 @@ function bindEvents() {
       queueSave();
       applyViewMode();
       renderCars();
+      return;
+    }
+
+    const compactCard = event.target.closest('.cars-view.compact .car-card[data-car-card]');
+    if (compactCard && !event.target.closest('button,input,select,a')) {
+      toggleCompactCard(compactCard);
       return;
     }
 
@@ -6455,6 +7638,29 @@ function bindEvents() {
     if (delDriver) { await deleteDriver(delDriver.dataset.delDriver); return; }
     const editDriver = event.target.closest('[data-edit-driver]');
     if (editDriver) { openDriverModal(editDriver.dataset.editDriver); return; }
+    const licenseDriver = event.target.closest('[data-license-driver]');
+    if (licenseDriver) { openDriverModal(licenseDriver.dataset.licenseDriver, { focusLicense: true }); return; }
+    const copyDriver = event.target.closest('[data-copy-driver]');
+    if (copyDriver) {
+      const driver = (state.drivers || []).find(item => item.id === copyDriver.dataset.copyDriver);
+      if (driver) copyDriverText(driverDataText(driver), 'Данные водителя скопированы');
+      return;
+    }
+    const licensePick = event.target.closest('[data-license-pick]');
+    if (licensePick) {
+      driverLicenseSide = licensePick.dataset.licensePick;
+      $('#driverLicenseFile').click();
+      return;
+    }
+    const licenseRemove = event.target.closest('[data-license-remove]');
+    if (licenseRemove) {
+      const side = licenseRemove.dataset.licenseRemove;
+      driverLicenseDraft = normalizeDriverLicense(driverLicenseDraft || {});
+      driverLicenseDraft[side] = null;
+      driverLicenseFiles[side] = null;
+      driverLicensePreviewMarkup();
+      return;
+    }
 
     const editPart = event.target.closest('[data-edit-part]');
     if (editPart) { openPartModal(editPart.dataset.editPart); return; }
@@ -6463,6 +7669,15 @@ function bindEvents() {
       openPartModal(null, { carId: replacePart.dataset.carId, category: replacePart.dataset.category });
       return;
     }
+
+    const editStock = event.target.closest('[data-edit-stock]');
+    if (editStock) { openStockModal(editStock.dataset.editStock); return; }
+    const stockIn = event.target.closest('[data-stock-in]');
+    if (stockIn) { openStockMove(stockIn.dataset.stockIn, 'in'); return; }
+    const stockOut = event.target.closest('[data-stock-out]');
+    if (stockOut) { openStockMove(stockOut.dataset.stockOut, 'out'); return; }
+    const delStock = event.target.closest('[data-del-stock]');
+    if (delStock) { await deleteStock(delStock.dataset.delStock); return; }
 
     const editCar = event.target.closest('[data-edit-car]');
     if (editCar) { openCarModal(editCar.dataset.editCar); return; }
@@ -6482,6 +7697,7 @@ function bindEvents() {
 
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
+    if ($('#notifyPanel') && !$('#notifyPanel').hidden) { closeNotifyPanel(); return; }
     if ($('#confirmModal')?.classList.contains('open')) {
       resolveConfirm(false);
       return;
@@ -6490,11 +7706,85 @@ function bindEvents() {
     if (open.length) closeModal(open[open.length - 1].id);
   });
 
+  $('#notifyCheck')?.addEventListener('click', () => { renderNotifications({ forceToast: true }); toggleNotifyPanel(true); });
+  $('#notifyTest')?.addEventListener('click', () => showToast('Пример: Газель т445ук124 · Масло двигателя — осталось 800 км', 'info'));
+  $('#notifyEnabled')?.addEventListener('change', event => {
+    state.notificationsEnabled = event.target.checked;
+    queueSave();
+    renderNotifications();
+  });
+  ['reminderKm', 'reminderDays'].forEach(id => {
+    const input = $('#' + id);
+    input?.addEventListener('change', () => {
+      state[id] = Math.max(0, num(input.value));
+      queueSave();
+      renderAll();
+      showToast('Порог напоминаний сохранён');
+    });
+  });
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-notify-toggle]')) {
+      event.preventDefault();
+      toggleNotifyPanel();
+      return;
+    }
+    if (event.target.closest('[data-notify-close]')) {
+      closeNotifyPanel();
+      return;
+    }
+    const item = event.target.closest('[data-notify-car]');
+    if (item) {
+      closeNotifyPanel();
+      const carId = item.dataset.notifyCar;
+      if (item.dataset.notifyAction === 'part') openPartModal(null, { carId, category: item.dataset.notifyCategory });
+      else if (item.dataset.notifyAction === 'fuel') openFuelModal(carId);
+      else if (item.dataset.notifyAction === 'stock') openStockModal(item.dataset.notifyStock);
+      else if (item.dataset.notifyAction === 'driver') openDriverModal(item.dataset.notifyDriver, { focusLicense: true });
+      else openCarModal(carId);
+      return;
+    }
+    if (!event.target.closest('#notifyPanel') && !event.target.closest('#notifyCheck')) closeNotifyPanel();
+  });
   $('#carSave')?.addEventListener('click', saveCar);
   $('#driverSave')?.addEventListener('click', saveDriver);
   $('#driverPayType')?.addEventListener('change', updateDriverPayFields);
   $('#driverStatus')?.addEventListener('change', updateDriverPayFields);
   $('#driverMonth')?.addEventListener('change', renderDrivers);
+  $('#driverLicenseFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleDriverLicensePhoto(file, driverLicenseSide);
+  });
+  $('#driverLicenseScanBtn')?.addEventListener('click', async () => {
+    const file = driverLicenseFiles[driverLicenseSide] || driverLicenseFiles.front || driverLicenseFiles.back;
+    const status = $('#driverLicenseStatus');
+    if (!file) {
+      if (status) status.textContent = 'Сначала загрузите фото прав';
+      showToast('Сначала загрузите фото прав', 'info');
+      return;
+    }
+    if (status) status.textContent = 'Распознаю данные…';
+    const raw = await detectDriverLicenseText(file);
+    if (!raw) {
+      if (status) status.textContent = 'Текст не распознан — вставьте его вручную';
+      showToast('Не удалось распознать текст. Вставьте его вручную или заполните поля.', 'info');
+      return;
+    }
+    const filled = parseDriverLicenseText(raw);
+    if (status) status.textContent = filled ? 'Данные распознаны — проверьте поля' : 'Текст найден, но поля не распознаны';
+  });
+  $('#driverLicenseCopyBtn')?.addEventListener('click', () => {
+    copyDriverText(driverDataText(driverFormData()), 'Данные водителя скопированы');
+  });
+  $('#driverLicenseParseBtn')?.addEventListener('click', () => {
+    parseDriverLicenseText($('#driverLicenseText')?.value || '');
+  });
+  $('#driverLicenseExpiresAt')?.addEventListener('change', updateDriverLicenseExpiryHint);
+  $('#driverLicenseExpiresAt')?.addEventListener('input', updateDriverLicenseExpiryHint);
+  $('#stockSave')?.addEventListener('click', saveStock);
+  $('#stockMoveSave')?.addEventListener('click', saveStockMove);
+  $('#stockSearch')?.addEventListener('input', event => { stockFilters.q = event.target.value; renderWarehouse(); });
+  $('#stockFilter')?.addEventListener('change', event => { stockFilters.category = event.target.value; renderWarehouse(); });
   $('#partSave')?.addEventListener('click', savePart);
   $('#partCategory')?.addEventListener('change', onPartCategoryChange);
   $('#serviceCarFilter')?.addEventListener('change', event => { serviceFilters.carId = event.target.value; renderPartsList(); renderPartsAnalytics(); });
@@ -6660,8 +7950,11 @@ function bindEvents() {
     renderTrips();
   });
 
-  ['tripIncome', 'tripExpense'].forEach(id => {
+  ['tripIncome', 'tripExpense', 'tripCalcAmount', 'tripDriverShare', 'tripKickback', 'tripFines', 'tripPerDiem', 'tripOwnExpenses'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateTripPreview);
+  });
+  ['tripVatMode', 'tripVatRate'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', updateTripPreview);
   });
   ['fuelLiters', 'fuelCost'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateFuelPreview);

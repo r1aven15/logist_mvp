@@ -624,6 +624,13 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .preview-box b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .preview-box b.neg{color:var(--danger)}
 .preview-box b.pos{color:var(--ok)}
+.trip-calc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.trip-calc-grid>div{min-width:0;padding:9px 10px;border:1px solid var(--border);border-radius:11px;background:var(--surface-2)}
+.trip-calc-grid span{display:block;font-size:9.5px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.trip-calc-grid b{display:block;margin-top:2px;font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip-calc-grid b.neg{color:var(--danger)}
+.trip-calc-grid b.pos{color:var(--ok)}
+@media(max-width:640px){.trip-calc-grid{grid-template-columns:1fr 1fr}}
 .confirm-text{font-size:13px;color:var(--muted);line-height:1.5;margin:0}
 
 .toast-stack{position:fixed;right:20px;bottom:20px;z-index:220;display:flex;flex-direction:column;gap:9px;max-width:calc(100vw - 40px)}
@@ -1332,7 +1339,7 @@ body.auth-locked{overflow:hidden}
         <div class="page-head">
           <div>
             <h1>Рейсы</h1>
-            <p>Доходы, расходы на топливо и организации</p>
+            <p>Расчёт водителя, счёт клиенту и маржа компании</p>
           </div>
           <div class="page-actions">
             <button class="btn" data-export="trips"><svg class="icon icon-sm"><use href="#i-download"/></svg> CSV</button>
@@ -1352,7 +1359,7 @@ body.auth-locked{overflow:hidden}
           </div>
           <div class="trip-table">
             <div class="trip-head">
-              <span>Дата</span><span>Машина</span><span>Водитель</span><span>Маршрут</span><span>Организация</span><span style="text-align:right">Доход</span><span style="text-align:right">Расход</span><span style="text-align:right">Прибыль</span><span></span>
+              <span>Дата</span><span>Машина</span><span>Водитель</span><span>Маршрут</span><span>Организация</span><span style="text-align:right">Доход</span><span style="text-align:right">Бензин</span><span style="text-align:right">Конторе</span><span></span>
             </div>
             <div id="tripRows"></div>
           </div>
@@ -1632,7 +1639,7 @@ body.auth-locked{overflow:hidden}
           </section>
 
           <section class="card">
-            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.3 · 2026 · склад</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
+            <div class="card-head"><div><h2>О приложении</h2><p>Версия 3.5 · 2026 · расчёт рейсов</p></div><svg class="icon"><use href="#i-truck"/></svg></div>
             <div class="info-list">
               <div class="info-item"><svg class="icon"><use href="#i-database"/></svg><span id="storagePathInfo"><b>Хранилище:</b> Firebase Firestore, документ <code>gazelle_app/main_data</code>; резервные копии — <code>gazelle_app/main_data/backups</code>.</span></div>
               <div class="info-item"><svg class="icon"><use href="#i-wallet"/></svg><span><b>Бухгалтерия:</b> доходы, расходы на ГСМ, прибыль, оценка налогов, разбивка по организациям и водителям.</span></div>
@@ -1968,7 +1975,7 @@ body.auth-locked{overflow:hidden}
   <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="tripModalTitle">
     <div class="modal-grab"></div>
     <div class="modal-head">
-      <div><h3 id="tripModalTitle">Новый рейс</h3><p>Доход, топливо и организация</p></div>
+      <div><h3 id="tripModalTitle">Новый рейс</h3><p>Расчёт водителя, счёт клиенту и НДС</p></div>
       <button class="icon-btn sm" data-close="tripModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
     </div>
     <input type="hidden" id="tripEditId">
@@ -1982,10 +1989,38 @@ body.auth-locked{overflow:hidden}
     </div>
     <div class="field" style="margin-top:12px"><label for="tripRoute">Маршрут</label><input class="input" id="tripRoute" placeholder="Казань → Камск" autocomplete="off"></div>
     <div class="grid-2" style="margin-top:12px">
-      <div class="field"><label for="tripIncome">Доход, ₽</label><input class="input" type="number" id="tripIncome" min="0" step="0.01" placeholder="0" inputmode="decimal"></div>
-      <div class="field"><label for="tripExpense">Расход на бензин, ₽</label><input class="input" type="number" id="tripExpense" min="0" step="0.01" placeholder="0" inputmode="decimal"></div>
+      <div class="field"><label for="tripCalcAmount">Ставка рейса без НДС, ₽</label><input class="input" type="number" id="tripCalcAmount" min="0" step="0.01" placeholder="50 000" inputmode="decimal"><span class="hint-text">От неё считаем водителя и контору.</span></div>
+      <div class="field"><label for="tripExpense">Бензин, ₽</label><input class="input" type="number" id="tripExpense" min="0" step="0.01" placeholder="0" inputmode="decimal"></div>
     </div>
-    <div class="preview-box" style="margin-top:12px"><span>Прибыль рейса</span><b id="tripPreview">0 ₽</b></div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripDriverShare">Доля водителя, % (до налога)</label><input class="input" type="number" id="tripDriverShare" min="0" max="100" step="1" value="45" inputmode="decimal"><span class="hint-text">По умолчанию 45%, конторе — 55%.</span></div>
+      <div class="field"><label for="tripIncome">Фактически выставлено, ₽</label><input class="input" type="number" id="tripIncome" min="0" step="0.01" placeholder="0" inputmode="decimal"><span class="hint-text">Счёт клиенту. Может отличаться от ставки.</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripFines">Штрафы / претензии, ₽</label><input class="input" type="number" id="tripFines" min="0" step="0.01" placeholder="0" inputmode="decimal"><span class="hint-text">Вычитаются из доли водителя.</span></div>
+      <div class="field"><label for="tripPerDiem">Суточные, ₽</label><input class="input" type="number" id="tripPerDiem" min="0" step="0.01" placeholder="0" inputmode="decimal"><span class="hint-text">Добавляются водителю, уменьшают контору.</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripOwnExpenses">Расходы за свои, ₽</label><input class="input" type="number" id="tripOwnExpenses" min="0" step="0.01" placeholder="Ремонт / запчасти" inputmode="decimal"><span class="hint-text">Возврат водителю, уменьшает контору.</span></div>
+      <div class="field"><label for="tripKickback">Прочая разница / откат, ₽</label><input class="input" type="number" id="tripKickback" min="0" step="0.01" placeholder="Авто" inputmode="decimal"><span class="hint-text">Если пусто — разница между счётом и ставкой.</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="field"><label for="tripVatMode">НДС</label><select class="input" id="tripVatMode"><option value="none">Без НДС</option><option value="included">НДС включён в сумму</option><option value="on_top">НДС сверху</option></select></div>
+      <div class="field"><label for="tripVatRate">Ставка НДС</label><select class="input" id="tripVatRate"><option value="5">5%</option><option value="7">7%</option><option value="22">22%</option></select></div>
+    </div>
+    <div class="preview-box" style="margin-top:12px"><span>Маржа компании</span><b id="tripPreview">0 ₽</b></div>
+    <div class="trip-calc-grid">
+      <div><span>База</span><b id="tripBase">0 ₽</b></div>
+      <div><span>Водителю</span><b id="tripDriverAmount">0 ₽</b></div>
+      <div><span>Конторе</span><b id="tripCompanyAmount">0 ₽</b></div>
+      <div><span>Штрафы</span><b id="tripFinesAmount">0 ₽</b></div>
+      <div><span>Суточные</span><b id="tripPerDiemAmount">0 ₽</b></div>
+      <div><span>За свои</span><b id="tripOwnExpensesAmount">0 ₽</b></div>
+      <div><span>НДС</span><b id="tripVatAmount">0 ₽</b></div>
+      <div><span>Откат</span><b id="tripKickbackAmount">0 ₽</b></div>
+      <div><span>Маржа</span><b id="tripMargin">0 ₽</b></div>
+    </div>
+    <p class="hint-text" style="margin-top:8px">Формула: (ставка без НДС − бензин) × 45/55. Водителю: 45% − штрафы + суточные + расходы за свои. Конторе — остаток.</p>
     <div class="grid-2" style="margin-top:12px">
       <div class="field"><label for="tripLiters">Израсходовано топлива, л</label><input class="input" type="number" id="tripLiters" min="0" step="0.1" placeholder="Необязательно" inputmode="decimal"></div>
       <div class="field"><label for="tripNote">Комментарий</label><input class="input" id="tripNote" placeholder="Необязательно" autocomplete="off"></div>
@@ -2312,13 +2347,16 @@ function calculateWeeklyPay(driver, start, end) {
     if (trip.driverId) return trip.driverId === driver.id;
     return normKey(trip.driver) === normKey(driver.name);
   });
-  const income = sumField(trips, 'income');
+  const income = trips.reduce((sum, trip) => sum + tripCalc(trip).calcAmount, 0);
   const fuel = sumField(trips, 'expense');
   const net = income - fuel;
   const rate = num(driver.weeklyRate) || WEEKLY_DRIVER_SHARE;
-  const driverShare = net > 0 ? net * rate / 100 : 0;
+  const fines = trips.reduce((sum, trip) => sum + tripCalc(trip).fines, 0);
+  const perDiem = trips.reduce((sum, trip) => sum + tripCalc(trip).perDiem, 0);
+  const ownExpenses = trips.reduce((sum, trip) => sum + tripCalc(trip).ownExpenses, 0);
+  const driverShare = net * rate / 100 - fines + perDiem + ownExpenses;
   const managementShare = net - driverShare;
-  return { trips, count: trips.length, income, fuel, net, rate, driverShare, managementShare };
+  return { trips, count: trips.length, income, fuel, net, rate, fines, perDiem, ownExpenses, driverShare, managementShare };
 }
 
 function partCategoryLabel(key) {
@@ -2721,12 +2759,33 @@ function normalizeState() {
   state.trips = state.trips.map(trip => {
     const car = state.cars.find(c => c.id === trip.carId) || state.cars.find(c => c.name === trip.carName);
     const driver = state.drivers.find(d => d.id === trip.driverId) || state.drivers.find(d => normKey(d.name) === normKey(trip.driver));
+    const vatMode = ['included', 'on_top'].includes(trip.vatMode) ? trip.vatMode : 'none';
+    const vatRate = Math.max(0, num(trip.vatRate));
+    const income = Math.max(0, num(trip.income));
+    const grossAmount = Math.max(0, num(trip.grossAmount ?? income));
+    const calcAmount = Math.max(0, num(trip.calcAmount ?? income));
+    const driverShare = hasNumber(trip.driverShare) ? clamp(num(trip.driverShare), 0, 100) : 45;
+    const netForKickback = vatMode === 'included' && vatRate > 0
+      ? grossAmount / (1 + vatRate / 100)
+      : income;
+    const kickback = hasNumber(trip.kickback)
+      ? Math.max(0, num(trip.kickback))
+      : Math.max(0, netForKickback - calcAmount);
     return {
       ...trip,
       id: trip.id || uid(),
       date: normalizeDate(trip.date),
       driverId: driver ? driver.id : (trip.driverId || ''),
-      income: Math.max(0, num(trip.income)),
+      income,
+      grossAmount,
+      calcAmount,
+      driverShare,
+      vatMode,
+      vatRate,
+      kickback,
+      fines: Math.max(0, num(trip.fines)),
+      perDiem: Math.max(0, num(trip.perDiem)),
+      ownExpenses: Math.max(0, num(trip.ownExpenses)),
       expense: Math.max(0, num(trip.expense)),
       liters: Math.max(0, num(trip.liters)),
       carId: car ? car.id : (trip.carId || ''),
@@ -3304,7 +3363,34 @@ function startCloud(user) {
    4. СЕЛЕКТОРЫ И РАСЧЁТЫ
    ============================================================ */
 const sumField = (list, field) => list.reduce((s, item) => s + num(item[field]), 0);
-const tripProfit = (trip) => num(trip.income) - num(trip.expense);
+
+function tripCalc(trip = {}) {
+  const mode = ['included', 'on_top'].includes(trip.vatMode) ? trip.vatMode : 'none';
+  const rate = Math.max(0, num(trip.vatRate));
+  let net = Math.max(0, num(trip.income));
+  let gross = Math.max(0, num(trip.grossAmount ?? trip.income));
+  if (mode === 'included' && rate > 0) net = gross / (1 + rate / 100);
+  else if (mode === 'on_top' && rate > 0) gross = net * (1 + rate / 100);
+  else if (mode === 'none') { gross = net; }
+  const vatAmount = Math.max(0, gross - net);
+  const calcAmount = Math.max(0, num(trip.calcAmount ?? net));
+  const fuel = Math.max(0, num(trip.expense));
+  const base = Math.max(0, calcAmount - fuel);
+  const driverPct = hasNumber(trip.driverShare) ? clamp(num(trip.driverShare), 0, 100) : 45;
+  const fines = Math.max(0, num(trip.fines));
+  const perDiem = Math.max(0, num(trip.perDiem));
+  const ownExpenses = Math.max(0, num(trip.ownExpenses));
+  const driverAmount = base * driverPct / 100 - fines + perDiem + ownExpenses;
+  const companyAmount = base - driverAmount;
+  const kickback = hasNumber(trip.kickback) ? Math.max(0, num(trip.kickback)) : Math.max(0, net - calcAmount);
+  const companyProfit = net - fuel - driverAmount - kickback;
+  return {
+    mode, rate, net, gross, vatAmount, calcAmount, fuel, base, driverPct,
+    fines, perDiem, ownExpenses, driverAmount, companyAmount, kickback, companyProfit
+  };
+}
+
+const tripProfit = (trip) => tripCalc(trip).net - num(trip.expense);
 const inRange = (item, from, to) => {
   const d = normalizeDate(item.date);
   return (!from || d >= from) && (!to || d <= to);
@@ -3468,6 +3554,7 @@ function renderDashboard() {
     : 0;
   const range = state.cars.reduce((s, c) => s + (num(c.fuelNorm) > 0 ? (carFuel(c) / num(c.fuelNorm)) * 100 : 0), 0);
   const tax = estimateTax(income, expense);
+  const companyTotal = cur.reduce((sum, trip) => sum + tripCalc(trip).companyProfit, 0);
   const margin = income > 0 ? (profit / income) * 100 : 0;
 
   const kpis = [
@@ -3498,13 +3585,13 @@ function renderDashboard() {
 
   $('#profitBanner').innerHTML = `<div class="profit-banner">
     <div class="pb-main">
-      <div class="pb-label">Прибыль за ${esc(monthLabelFull(month))}</div>
+      <div class="pb-label">Прибыль до выплат за ${esc(monthLabelFull(month))}</div>
       <div class="pb-value">${fmtMoney(profit)}</div>
       <span class="pb-chip">${icon('chart', 'icon-sm')} Маржа ${fmtPct(margin)}</span>
     </div>
     <div class="pb-stats">
+      <div class="pb-stat"><span>Конторе</span><b>${fmtMoney(companyTotal)}</b></div>
       <div class="pb-stat"><span>Налог (оценка)</span><b>${fmtMoney(tax.total)}</b></div>
-      <div class="pb-stat"><span>Чистая прибыль</span><b>${fmtMoney(profit - tax.total)}</b></div>
       <div class="pb-stat"><span>Рейсов</span><b>${cur.length}</b></div>
     </div>
     <button class="pb-link" data-tab="reports">${icon('arrow-right', 'icon-sm')} Подробные отчёты</button>
@@ -4223,7 +4310,8 @@ function renderTripFilters() {
 function tripRow(t) {
   const car = state.cars.find(c => c.id === t.carId);
   const carName = t.carName || car?.name || '—';
-  const profit = tripProfit(t);
+  const calc = tripCalc(t);
+  const profit = calc.companyProfit;
   return `<div class="trip-row" data-edit-trip="${esc(t.id)}">
     <div class="tc">
       <span class="cell-label">Дата</span>
@@ -4250,15 +4338,17 @@ function tripRow(t) {
     </div>
     <div class="tc tc-money">
       <span class="cell-label">Доход</span>
-      <span class="money in">+${fmtMoney(t.income)}</span>
+      <span class="money in">+${fmtMoney(calc.gross)}</span>
+      <span class="sub">без НДС ${fmtMoney(calc.net)}${calc.vatAmount > 0 ? ` · НДС ${fmtMoney(calc.vatAmount)}` : ''}</span>
     </div>
     <div class="tc tc-money">
-      <span class="cell-label">Расход</span>
-      <span class="money out">−${fmtMoney(t.expense)}</span>
+      <span class="cell-label">Бензин</span>
+      <span class="money out">−${fmtMoney(calc.fuel)}</span>
     </div>
     <div class="tc tc-profit">
-      <span class="cell-label">Прибыль</span>
+      <span class="cell-label">Конторе</span>
       <span class="money ${profit >= 0 ? 'in' : 'out'}">${fmtMoney(profit)}</span>
+      <span class="sub">водителю ${fmtMoney(calc.driverAmount)}</span>
     </div>
     <div class="tc tc-actions">
       <button class="icon-btn sm" data-edit-trip="${esc(t.id)}" title="Изменить" aria-label="Изменить рейс">${icon('edit')}</button>
@@ -4281,16 +4371,21 @@ function renderTripRows() {
   } else {
     rows.innerHTML = list.map(tripRow).join('');
   }
-  const income = sumField(list, 'income');
-  const expense = sumField(list, 'expense');
-  const profit = income - expense;
+  const totalsCalc = list.map(tripCalc);
+  const gross = totalsCalc.reduce((sum, item) => sum + item.gross, 0);
+  const income = totalsCalc.reduce((sum, item) => sum + item.net, 0);
+  const vat = totalsCalc.reduce((sum, item) => sum + item.vatAmount, 0);
+  const driverTotal = totalsCalc.reduce((sum, item) => sum + item.driverAmount, 0);
+  const companyTotal = totalsCalc.reduce((sum, item) => sum + item.companyProfit, 0);
   const totals = $('#tripTotals');
   if (totals) {
     totals.innerHTML = `
       <div class="tt"><span>Рейсов</span><b>${list.length}</b></div>
-      <div class="tt"><span>Доход</span><b class="in">${fmtMoney(income)}</b></div>
-      <div class="tt"><span>Расход</span><b class="out">${fmtMoney(expense)}</b></div>
-      <div class="tt"><span>Прибыль</span><b class="${profit >= 0 ? 'in' : 'out'}">${fmtMoney(profit)}</b></div>`;
+      <div class="tt"><span>Счёт</span><b>${fmtMoney(gross)}</b></div>
+      <div class="tt"><span>Без НДС</span><b class="in">${fmtMoney(income)}</b></div>
+      <div class="tt"><span>НДС</span><b>${fmtMoney(vat)}</b></div>
+      <div class="tt"><span>Водителю</span><b>${fmtMoney(driverTotal)}</b></div>
+      <div class="tt"><span>Конторе</span><b class="${companyTotal >= 0 ? 'in' : 'out'}">${fmtMoney(companyTotal)}</b></div>`;
   }
 }
 
@@ -4437,8 +4532,11 @@ function reportDetailData(from, to) {
   const rows = reportTrips(from, to).sort((a, b) => String(b.date).localeCompare(String(a.date)));
   return {
     title: titles.trips,
-    headers: ['Дата', 'Машина', 'Водитель', 'Организация', 'Маршрут', 'Доход', 'Бензин', 'Прибыль'],
-    rows: rows.map(trip => [fmtDate(trip.date), trip.carName, trip.driver || '—', trip.org || '—', trip.route || '—', fmtMoney(trip.income), fmtMoney(trip.expense), fmtMoney(num(trip.income) - num(trip.expense))])
+    headers: ['Дата', 'Машина', 'Водитель', 'Организация', 'Маршрут', 'Ставка', 'Счёт', 'Без НДС', 'НДС', 'Бензин', 'Штрафы', 'Суточные', 'За свои', 'Водителю', 'Конторе', 'Откат', 'Маржа'],
+    rows: rows.map(trip => {
+      const calc = tripCalc(trip);
+      return [fmtDate(trip.date), trip.carName, trip.driver || '—', trip.org || '—', trip.route || '—', fmtMoney(calc.calcAmount), fmtMoney(calc.gross), fmtMoney(calc.net), fmtMoney(calc.vatAmount), fmtMoney(calc.fuel), fmtMoney(calc.fines), fmtMoney(calc.perDiem), fmtMoney(calc.ownExpenses), fmtMoney(calc.driverAmount), fmtMoney(calc.companyAmount), fmtMoney(calc.kickback), fmtMoney(calc.companyProfit)];
+    })
   };
 }
 
@@ -4484,6 +4582,11 @@ function renderReports() {
   }
   const list = reportTrips(from, to);
   const income = sumField(list, 'income');
+  const reportCalc = list.map(tripCalc);
+  const grossIncome = reportCalc.reduce((sum, item) => sum + item.gross, 0);
+  const vatTotal = reportCalc.reduce((sum, item) => sum + item.vatAmount, 0);
+  const driverTotal = reportCalc.reduce((sum, item) => sum + item.driverAmount, 0);
+  const companyTotal = reportCalc.reduce((sum, item) => sum + item.companyProfit, 0);
   const fuelExpense = sumField(list, 'expense');
   const partsList = partsInRange(from, to).filter(part =>
     (!reportFilters.carId || part.carId === reportFilters.carId)
@@ -4507,9 +4610,9 @@ function renderReports() {
 
   const kpis = [
     kpiCard({
-      i: 0, iconName: 'arrow-up-right', label: 'Доход',
+      i: 0, iconName: 'arrow-up-right', label: 'Доход без НДС',
       value: fmtMoney(income),
-      sub: `средний чек ${fmtMoney(list.length ? income / list.length : 0)}`
+      sub: `счёт ${fmtMoney(grossIncome)} · НДС ${fmtMoney(vatTotal)} · средний чек ${fmtMoney(list.length ? income / list.length : 0)}`
     }),
     kpiCard({
       i: 1, iconName: 'arrow-down-right', label: 'Расход (ГСМ + сервис)',
@@ -4517,9 +4620,9 @@ function renderReports() {
       sub: `ГСМ ${fmtMoney(fuelExpense)} · запчасти ${fmtMoney(partsExpense)} · страховка ${fmtMoney(insuranceExpense)}`
     }),
     kpiCard({
-      i: 2, iconName: 'wallet', label: 'Прибыль',
+      i: 2, iconName: 'wallet', label: 'Прибыль до выплат',
       value: fmtMoney(profit),
-      sub: `маржа ${fmtPct(margin)}`
+      sub: `маржа ${fmtPct(margin)} · водителю ${fmtMoney(driverTotal)} · конторе ${fmtMoney(companyTotal)}`
     }),
     kpiCard({
       i: 3, iconName: 'receipt', label: 'Налог (оценка)',
@@ -4612,7 +4715,7 @@ function renderWeeklySalary() {
       <tfoot><tr><td colspan="2">Итого за неделю</td><td class="num">${fmtMoney(totals.income)}</td><td class="num">${fmtMoney(totals.fuel)}</td><td class="num">${fmtMoney(totals.net)}</td><td class="num">${fmtMoney(totals.driver)}</td><td class="num">${fmtMoney(totals.management)}</td></tr></tfoot>
     </table>
   </div>
-  <div class="payroll-note">${icon('info')}<span>Доля водителя считается от чистого дохода: (сумма рейсов − бензин) × ${WEEKLY_DRIVER_SHARE}%. Неделя — с понедельника по воскресенье. Если у водителя в карточке указан свой недельный процент, он используется вместо 45%.</span></div>`;
+  <div class="payroll-note">${icon('info')}<span>Доля водителя: (сумма рейсов − бензин) × ${WEEKLY_DRIVER_SHARE}% − штрафы + суточные + расходы за свои. Неделя — с понедельника по воскресенье. Если у водителя в карточке указан свой недельный процент, он используется вместо 45%.</span></div>`;
 }
 
 function renderProfitTable(list, months, extras = {}) {
@@ -5067,7 +5170,7 @@ function openCarModal(id = null) {
   const insurance = car?.insurance || {};
   const baseOdo = car ? (hasNumber(car.odometerSync?.base) ? num(car.odometerSync.base) : num(car.odometer)) : 0;
   $('#carOdo').value = car ? Math.round(baseOdo) : '';
-  $('#carFuel').value = car ? num(car.fuelLevel) : '';
+  $('#carFuel').value = car ? carFuel(car) : '';
   $('#carTank').value = car ? num(car.tank) : 60;
   $('#carNorm').value = car ? num(car.fuelNorm) : 15;
   $('#carOdo').disabled = false;
@@ -5087,6 +5190,7 @@ function openCarModal(id = null) {
       : 'Диагностика появится после сохранения машины.';
   }
   $('#carFuelHint').hidden = !telemetry;
+  $('#carFuelHint').textContent = telemetry ? 'Текущее значение из ГЛОНАСС. Ручное редактирование отключено.' : '';
   $('#insType').value = insurance.type || 'ОСАГО';
   $('#insCompany').value = insurance.company || car?.insuranceCompany || '';
   $('#insPolicy').value = insurance.policy || car?.insuranceNumber || '';
@@ -5154,7 +5258,9 @@ function saveCar() {
       base: odometerValue,
       telemetryOdometer: telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : null
     }].slice(-20),
-    fuelLevel: Math.max(0, num($('#carFuel').value)),
+    fuelLevel: telemetry && hasNumber(telemetry.fuelLevel)
+      ? Math.max(0, Number(telemetry.fuelLevel))
+      : Math.max(0, num($('#carFuel').value)),
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
     insuranceNumber: $('#insPolicy').value.trim(),
@@ -6753,20 +6859,68 @@ function openTripModal(id = null) {
   $('#tripDate').value = trip?.date || todayISO();
   $('#tripDriver').value = trip?.driver || '';
   $('#tripRoute').value = trip?.route || '';
-  $('#tripIncome').value = trip ? num(trip.income) : '';
+  $('#tripCalcAmount').value = trip ? num(trip.calcAmount ?? trip.income) : '';
+  $('#tripDriverShare').value = trip && hasNumber(trip.driverShare) ? num(trip.driverShare) : 45;
+  $('#tripIncome').value = trip ? num(trip.grossAmount ?? trip.income) : '';
   $('#tripExpense').value = trip ? num(trip.expense) : '';
+  $('#tripVatMode').value = trip?.vatMode || 'none';
+  $('#tripVatRate').value = String(trip?.vatRate || 5);
+  $('#tripKickback').value = trip && hasNumber(trip.kickback) ? num(trip.kickback) : '';
+  $('#tripFines').value = trip && num(trip.fines) > 0 ? num(trip.fines) : '';
+  $('#tripPerDiem').value = trip && num(trip.perDiem) > 0 ? num(trip.perDiem) : '';
+  $('#tripOwnExpenses').value = trip && num(trip.ownExpenses) > 0 ? num(trip.ownExpenses) : '';
   $('#tripLiters').value = trip && num(trip.liters) > 0 ? num(trip.liters) : '';
   $('#tripNote').value = trip?.note || '';
   updateTripPreview();
   openModal('tripModal');
 }
 
+function tripFormDraft() {
+  const actual = Math.max(0, num($('#tripIncome').value));
+  const mode = $('#tripVatMode').value;
+  const rate = Math.max(0, num($('#tripVatRate').value));
+  let income = actual;
+  let gross = actual;
+  if (mode === 'included' && rate > 0) income = actual / (1 + rate / 100);
+  else if (mode === 'on_top' && rate > 0) gross = actual * (1 + rate / 100);
+  const kickbackValue = $('#tripKickback').value;
+  return {
+    income,
+    grossAmount: gross,
+    calcAmount: Math.max(0, num($('#tripCalcAmount').value)) || income,
+    expense: Math.max(0, num($('#tripExpense').value)),
+    driverShare: $('#tripDriverShare').value === '' ? 45 : num($('#tripDriverShare').value),
+    vatMode: mode,
+    vatRate: rate,
+    kickback: kickbackValue === '' ? null : Math.max(0, num(kickbackValue)),
+    fines: Math.max(0, num($('#tripFines').value)),
+    perDiem: Math.max(0, num($('#tripPerDiem').value)),
+    ownExpenses: Math.max(0, num($('#tripOwnExpenses').value))
+  };
+}
+
 function updateTripPreview() {
   const preview = $('#tripPreview');
   if (!preview) return;
-  const profit = num($('#tripIncome').value) - num($('#tripExpense').value);
-  preview.textContent = fmtMoney(profit);
-  preview.className = profit < 0 ? 'neg' : profit > 0 ? 'pos' : '';
+  const calc = tripCalc(tripFormDraft());
+  preview.textContent = fmtMoney(calc.companyProfit);
+  preview.className = calc.companyProfit < 0 ? 'neg' : calc.companyProfit > 0 ? 'pos' : '';
+  const setAmount = (id, value) => {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = fmtMoney(value);
+    el.className = value < 0 ? 'neg' : value > 0 ? 'pos' : '';
+  };
+  setAmount('#tripBase', calc.base);
+  setAmount('#tripDriverAmount', calc.driverAmount);
+  setAmount('#tripCompanyAmount', calc.companyAmount);
+  setAmount('#tripFinesAmount', calc.fines);
+  setAmount('#tripPerDiemAmount', calc.perDiem);
+  setAmount('#tripOwnExpensesAmount', calc.ownExpenses);
+  setAmount('#tripVatAmount', calc.vatAmount);
+  setAmount('#tripKickbackAmount', calc.kickback);
+  setAmount('#tripMargin', calc.companyProfit);
+  $('#tripVatRate').disabled = calc.mode === 'none';
 }
 
 function saveTrip() {
@@ -6786,6 +6940,7 @@ function saveTrip() {
   const car = state.cars.find(c => c.id === carId);
   const driverName = $('#tripDriver').value.trim();
   const driver = findDriverByName(driverName);
+  const calc = tripCalc(tripFormDraft());
   const payload = {
     date,
     carId,
@@ -6794,8 +6949,17 @@ function saveTrip() {
     driver: driverName,
     route: $('#tripRoute').value.trim(),
     org: $('#tripOrg').value,
-    income: Math.max(0, num($('#tripIncome').value)),
-    expense: Math.max(0, num($('#tripExpense').value)),
+    income: calc.net,
+    grossAmount: calc.gross,
+    calcAmount: calc.calcAmount,
+    driverShare: calc.driverPct,
+    vatMode: calc.mode,
+    vatRate: calc.rate,
+    kickback: calc.kickback,
+    fines: calc.fines,
+    perDiem: calc.perDiem,
+    ownExpenses: calc.ownExpenses,
+    expense: calc.fuel,
     liters: Math.max(0, num($('#tripLiters').value)),
     note: $('#tripNote').value.trim()
   };
@@ -7070,17 +7234,27 @@ function exportTripsCSV(all = false) {
     showToast('Нет рейсов для экспорта', 'error');
     return;
   }
-  const rows = [['Дата', 'Машина', 'Водитель', 'Маршрут', 'Организация', 'Доход, ₽', 'Расход, ₽', 'Прибыль, ₽', 'Топливо, л', 'Комментарий']];
+  const rows = [['Дата', 'Машина', 'Водитель', 'Маршрут', 'Организация', 'Ставка без НДС, ₽', 'Счёт клиенту, ₽', 'Доход без НДС, ₽', 'НДС, ₽', 'Бензин, ₽', 'Штрафы, ₽', 'Суточные, ₽', 'За свои, ₽', 'Водителю, ₽', 'Конторе, ₽', 'Откат, ₽', 'Маржа компании, ₽', 'Топливо, л', 'Комментарий']];
   list.forEach(t => {
+    const calc = tripCalc(t);
     rows.push([
       fmtDate(t.date),
       t.carName || state.cars.find(c => c.id === t.carId)?.name || '',
       t.driver,
       t.route,
       t.org,
-      csvNum(t.income),
-      csvNum(t.expense),
-      csvNum(tripProfit(t)),
+      csvNum(calc.calcAmount),
+      csvNum(calc.gross),
+      csvNum(calc.net),
+      csvNum(calc.vatAmount),
+      csvNum(calc.fuel),
+      csvNum(calc.fines),
+      csvNum(calc.perDiem),
+      csvNum(calc.ownExpenses),
+      csvNum(calc.driverAmount),
+      csvNum(calc.companyAmount),
+      csvNum(calc.kickback),
+      csvNum(calc.companyProfit),
       csvNum(t.liters),
       t.note
     ]);
@@ -7095,9 +7269,10 @@ function export1C() {
     showToast('Нет рейсов для экспорта', 'error');
     return;
   }
-  const rows = [['Номер', 'Дата', 'Машина', 'Госномер', 'Водитель', 'Маршрут', 'Организация', 'Доход, ₽', 'Расход, ₽', 'Прибыль, ₽', 'Комментарий']];
+  const rows = [['Номер', 'Дата', 'Машина', 'Госномер', 'Водитель', 'Маршрут', 'Организация', 'Ставка без НДС, ₽', 'Счёт клиенту, ₽', 'Доход без НДС, ₽', 'НДС, ₽', 'Бензин, ₽', 'Штрафы, ₽', 'Суточные, ₽', 'За свои, ₽', 'Водителю, ₽', 'Конторе, ₽', 'Откат, ₽', 'Маржа компании, ₽', 'Комментарий']];
   list.forEach((t, index) => {
     const car = (state.cars || []).find(c => c.id === t.carId);
+    const calc = tripCalc(t);
     rows.push([
       t.id || String(index + 1),
       fmtDate(t.date),
@@ -7106,9 +7281,18 @@ function export1C() {
       t.driver || '',
       t.route || '',
       t.org || '',
-      csvNum(t.income),
-      csvNum(t.expense),
-      csvNum(tripProfit(t)),
+      csvNum(calc.calcAmount),
+      csvNum(calc.gross),
+      csvNum(calc.net),
+      csvNum(calc.vatAmount),
+      csvNum(calc.fuel),
+      csvNum(calc.fines),
+      csvNum(calc.perDiem),
+      csvNum(calc.ownExpenses),
+      csvNum(calc.driverAmount),
+      csvNum(calc.companyAmount),
+      csvNum(calc.kickback),
+      csvNum(calc.companyProfit),
       t.note || ''
     ]);
   });
@@ -7198,10 +7382,10 @@ function exportWeeklySalaryCSV() {
   const end = endOfWeekISO(date);
   const drivers = state.drivers || [];
   if (!drivers.length) { showToast('Нет водителей для экспорта', 'error'); return; }
-  const rows = [['Водитель', 'Неделя', 'Сумма рейсов, ₽', 'Бензин, ₽', 'Чистыми, ₽', 'Доля водителя, ₽', 'Доля начальства, ₽']];
+  const rows = [['Водитель', 'Неделя', 'Сумма рейсов, ₽', 'Бензин, ₽', 'Чистыми, ₽', 'Штрафы, ₽', 'Суточные, ₽', 'За свои, ₽', 'Доля водителя, ₽', 'Доля начальства, ₽']];
   drivers.forEach(driver => {
     const pay = calculateWeeklyPay(driver, start, end);
-    rows.push([driver.name, weekRangeLabel(start, end), csvNum(pay.income), csvNum(pay.fuel), csvNum(pay.net), csvNum(pay.driverShare), csvNum(pay.managementShare)]);
+    rows.push([driver.name, weekRangeLabel(start, end), csvNum(pay.income), csvNum(pay.fuel), csvNum(pay.net), csvNum(pay.fines), csvNum(pay.perDiem), csvNum(pay.ownExpenses), csvNum(pay.driverShare), csvNum(pay.managementShare)]);
   });
   downloadFile(`zarplata-${start}-${end}.csv`, toCSV(rows), 'text/csv;charset=utf-8;');
   showToast('Зарплата за неделю экспортирована');
@@ -7766,8 +7950,11 @@ function bindEvents() {
     renderTrips();
   });
 
-  ['tripIncome', 'tripExpense'].forEach(id => {
+  ['tripIncome', 'tripExpense', 'tripCalcAmount', 'tripDriverShare', 'tripKickback', 'tripFines', 'tripPerDiem', 'tripOwnExpenses'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateTripPreview);
+  });
+  ['tripVatMode', 'tripVatRate'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', updateTripPreview);
   });
   ['fuelLiters', 'fuelCost'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateFuelPreview);
