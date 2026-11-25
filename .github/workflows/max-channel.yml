@@ -1,0 +1,33 @@
+name: MAX channel posts
+
+on:
+  schedule:
+    # Every 30 minutes: the publisher skips posts already present in the channel,
+    # so a delayed or missed run safely catches up instead of duplicating.
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "morning, day or evening"
+        required: false
+        default: "auto"
+
+concurrency:
+  group: max-channel-posts
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publish to MAX
+        env:
+          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+          SLOT: ${{ github.event.inputs.slot }}
+          START_DATE: "2026-11-24"
+        run: python3 crm/max_channel_publish.py --slot "${SLOT:-auto}"

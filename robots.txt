@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /app.html
+Disallow: /download.html
+Disallow: /autopark-control-v1.4.apk
+Disallow: /autopark-control-v1.5.apk
+Disallow: /dist/

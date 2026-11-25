@@ -1,0 +1,660 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRM — Автопарк Контроль</title><style>
+:root{--bg:#f4f5fa;--text:#171a2b;--muted:#667085;--brand:#6d28d9;--line:#e7e9f2}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 18px 60px}h1{font-size:30px;margin:0 0 4px;letter-spacing:-.7px}.lead{color:var(--muted);margin:0 0 22px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 8px 22px rgba(15,23,42,.05)}
+.card small{color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}.card b{display:block;font-size:28px;margin-top:4px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.btn{display:inline-flex;padding:10px 14px;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--text);text-decoration:none;font-weight:700;font-size:13px}.btn.primary{background:linear-gradient(135deg,var(--brand),#4f46e5);color:#fff;border:0}
+.table{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:auto;box-shadow:0 8px 22px rgba(15,23,42,.05)}table{width:100%;border-collapse:collapse;font-size:13px;min-width:860px}th{text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);padding:12px;border-bottom:1px solid var(--line)}td{padding:12px;border-bottom:1px solid #f1f3f8;vertical-align:top}tr:last-child td{border:0}.muted{color:var(--muted);font-size:11px;margin-top:2px}.notes{max-width:260px;color:var(--muted);font-size:12px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:800}.badge.contacted{background:#fef3c7;color:#92400e}.badge.new{background:#dbeafe;color:#1d4ed8}.badge.replied{background:#dcfce7;color:#166534}.badge.won{background:#bbf7d0;color:#166534}.badge.lost{background:#fee2e2;color:#991b1b}
+.note{margin-top:16px;padding:12px 14px;border-radius:12px;background:#f5f3ff;color:#4c1d95;font-size:13px}@media(max-width:760px){.cards{grid-template-columns:1fr 1fr}}
+</style></head><body><div class="wrap">
+<h1>CRM — Автопарк Контроль</h1><p class="lead">MVP-воронка: лиды, черновики, follow-up и статусы. Дата: 2026-11-23</p>
+<div class="cards">
+<div class="card"><small>Всего лидов</small><b>91</b></div>
+<div class="card"><small>Написано</small><b>14</b></div>
+<div class="card"><small>Ждут follow-up</small><b>0</b></div>
+<div class="card"><small>Черновиков</small><b>3</b></div>
+</div>
+<div class="tools"><a class="btn primary" href="../max.html">Презентация</a><a class="btn" href="chat.html">FAQ-бот</a><a class="btn" href="leads.csv">leads.csv</a><a class="btn" href="queue.csv">queue.csv</a></div>
+<div class="table"><table><thead><tr><th>Компания</th><th>Контакт</th><th>Статус</th><th>Скор</th><th>Следующий шаг</th><th>Заметки</th></tr></thead><tbody><tr>
+<td><b>ТрансАвто</b><div class="muted">рефрижераторные перевозки</div></td>
+<td>Юрий<div class="muted">yuriy.kurbatov@24ta.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>85</td>
+<td>2026-11-27<div class="muted">follow-up</div></td>
+<td class="notes">Письмо отправлено 22.11.2026, персонально директору</td>
+</tr><tr>
+<td><b>Continental truck, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted">continentaltruck@bk.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-25<div class="muted">follow-up</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Кубековская промышленная зона, 4а/1; контакт с официального сайта continentaltruck.ru; письмо отправлено</td>
+</tr><tr>
+<td><b>Виртэг, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Авиагрузоперевозки</div></td>
+<td>—<div class="muted">office@virteg.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-25<div class="muted">follow-up</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Алексеева, 46; контакт с официального сайта virteg.ru; письмо отправлено</td>
+</tr><tr>
+<td><b>КРК, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Экспедирование грузов</div></td>
+<td>—<div class="muted">krk.logistika@yandex.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-26<div class="muted">follow-up</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 17в; контакт с официального сайта krk-logistic.ru; сегмент: транспорт и логистика; письмо отправлено</td>
+</tr><tr>
+<td><b>Мэйджор Экспресс, центр курьерской службы</b><div class="muted">Междугородные автогрузоперевозки, Экспресс-почта, Международные грузоперевозки</div></td>
+<td>—<div class="muted">regional_cooperation@me-region.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-26<div class="muted">follow-up</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Молокова, 68; региональный контакт с сайта major-express.ru; письмо отправлено</td>
+</tr><tr>
+<td><b>ПЭК, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки, Авиагрузоперевозки, Международные грузоперевозки</div></td>
+<td>—<div class="muted">pecom@pecom.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-25<div class="muted">follow-up</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проспект Котельникова, 9Б/1; контакт с официального сайта pecom.ru; письмо отправлено</td>
+</tr><tr>
+<td><b>Р-Транс Логистика, транспортная компания</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted">contact@r-trans.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-25<div class="muted">follow-up</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 15г ст6; контакт с официального сайта r-trans.ru; письмо отправлено</td>
+</tr><tr>
+<td><b>Транзит-СВ</b><div class="muted">грузоперевозки</div></td>
+<td>—<div class="muted">office@transitsv.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-27<div class="muted">follow-up</div></td>
+<td class="notes">Письмо отправлено 22.11.2026, тема «Автопарк Контроль — презентация для Транзит-СВ»</td>
+</tr><tr>
+<td><b>ТрансАвто</b><div class="muted">рефрижераторные перевозки</div></td>
+<td>коллеги<div class="muted">inbox@24ta.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-27<div class="muted">follow-up</div></td>
+<td class="notes">Письмо отправлено 22.11.2026 на общий адрес</td>
+</tr><tr>
+<td><b>Траско, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки, Международные грузоперевозки, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted">info@trasko.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>75</td>
+<td>2026-11-25<div class="muted">follow-up</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Взлётная улица, 5 ст1; контакт с официального сайта trasko.ru; письмо отправлено</td>
+</tr><tr>
+<td><b>Big Ben</b><div class="muted">Розничная торговля</div></td>
+<td>—<div class="muted">admin@bigben.ru</div></td>
+<td><span class="badge new">new</span></td>
+<td>65</td>
+<td>2026-11-24<div class="muted">first_email</div></td>
+<td class="notes">контакт с официального сайта bigben.ru; сегмент: розничная торговля</td>
+</tr><tr>
+<td><b>ITSumma</b><div class="muted">IT / разработка</div></td>
+<td>—<div class="muted">sales@itsumma.ru</div></td>
+<td><span class="badge new">new</span></td>
+<td>65</td>
+<td>2026-11-24<div class="muted">first_email</div></td>
+<td class="notes">контакт с официального сайта itsumma.ru; сегмент: IT</td>
+</tr><tr>
+<td><b>АО «Красноярскнефтепродукт»</b><div class="muted">Топливо / АЗС</div></td>
+<td>—<div class="muted">krasnp@knp24.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>65</td>
+<td>2026-11-26<div class="muted">follow-up</div></td>
+<td class="notes">контакт с официального сайта knp24.ru; сегмент: топливо и АЗС; письмо отправлено</td>
+</tr><tr>
+<td><b>АО «Красфарма»</b><div class="muted">Фармацевтическое производство</div></td>
+<td>—<div class="muted">gvp@kraspharma.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>65</td>
+<td>2026-11-26<div class="muted">follow-up</div></td>
+<td class="notes">контакт с официального сайта kraspharma.ru; сегмент: производство; письмо отправлено</td>
+</tr><tr>
+<td><b>ГК «Красный Яр»</b><div class="muted">Розничная торговля / продукты</div></td>
+<td>—<div class="muted">vopros@krasyar.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>65</td>
+<td>2026-11-26<div class="muted">follow-up</div></td>
+<td class="notes">контакт с официального сайта krasyar.ru; сегмент: розничная торговля; письмо отправлено</td>
+</tr><tr>
+<td><b>ФБУ «Красноярский ЦСМ»</b><div class="muted">Метрология / сертификация</div></td>
+<td>—<div class="muted">csm@krascsm.ru</div></td>
+<td><span class="badge new">new</span></td>
+<td>65</td>
+<td>2026-11-23<div class="muted">first_email</div></td>
+<td class="notes">контакт с официального сайта krascsm.ru; сегмент: услуги, метрология</td>
+</tr><tr>
+<td><b>Автовозы ВК</b><div class="muted">автовозы</div></td>
+<td>—<div class="muted">chernykh_k1985@mail.ru</div></td>
+<td><span class="badge contacted">contacted</span></td>
+<td>55</td>
+<td>2026-11-27<div class="muted">follow-up</div></td>
+<td class="notes">Письмо отправлено 22.11.2026; второй телефон +7-913-837-38-95</td>
+</tr><tr>
+<td><b>AsLogistics, компания</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Эвакуатор</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>45</td>
+<td>2026-11-23<div class="muted">call</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Беляева, 11; контакт с официального сайта aslogistics24.ru; email slogistics.krsk@mail.ru не принят (user not found); звонить</td>
+</tr><tr>
+<td><b>Vozovoz, транспортная компания</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Городские автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>45</td>
+<td>2026-11-23<div class="muted">call</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 25в; email на сайте не опубликован; контакт по телефону</td>
+</tr><tr>
+<td><b>Байкал Сервис, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Складское хранение, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>45</td>
+<td>2026-11-23<div class="muted">call</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 5г ст26/1; email на сайте не опубликован; контакт по телефону</td>
+</tr><tr>
+<td><b>Транзит ТЛК</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>45</td>
+<td>2026-11-23<div class="muted">call</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; 2-я Брянская улица, 44а; email на сайте не опубликован; контакт по телефону</td>
+</tr><tr>
+<td><b>АО «Бирюса»</b><div class="muted">Производство бытовой техники</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>35</td>
+<td>2026-11-24<div class="muted">call</div></td>
+<td class="notes">контакт с официального сайта biryusa.ru; email не опубликован; звонить</td>
+</tr><tr>
+<td><b>Гофралогистик</b><div class="muted">Telegram-заявка</div></td>
+<td>Raven<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>30</td>
+<td>2026-11-22<div class="muted">call</div></td>
+<td class="notes">Telegram @Донт; парк: 10</td>
+</tr><tr>
+<td><b>Auto Travel, компания по перевозке автомобилей автовозами</b><div class="muted">Междугородные автогрузоперевозки, Эвакуатор</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проспект Котельникова, 11</td>
+</tr><tr>
+<td><b>Kit, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 31в</td>
+</tr><tr>
+<td><b>Kit, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Экспедирование грузов</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; квартал №1, 6 лит В2</td>
+</tr><tr>
+<td><b>NightCar, компания по продаже автомобилей из Японии, Китая и Кореи</b><div class="muted">Междугородные автогрузоперевозки, Продажа легковых автомобилей</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Тамбовская улица, 2е</td>
+</tr><tr>
+<td><b>Автовоз 24, компания</b><div class="muted">Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; СНТ Сапфир-2, ст20</td>
+</tr><tr>
+<td><b>Автовозоф24, компания по перевозке автомобилей автовозами</b><div class="muted">Междугородные автогрузоперевозки, Эвакуатор</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; </td>
+</tr><tr>
+<td><b>Автоподбор24, компания по подбору автомобилей</b><div class="muted">Междугородные автогрузоперевозки, Подбор автомобиля перед покупкой, Оформление купли-продажи автомобилей</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Лесопильщиков улица, 165г</td>
+</tr><tr>
+<td><b>АкТрансСервис, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Брянская улица, 144</td>
+</tr><tr>
+<td><b>Аккорд, транспортная компания</b><div class="muted">Экспедирование грузов, Железнодорожные грузоперевозки, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 11</td>
+</tr><tr>
+<td><b>Ахв-транс, компания</b><div class="muted">Междугородные автогрузоперевозки, Международные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 31в</td>
+</tr><tr>
+<td><b>Байкал, транспортно-экспедиционная компания</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Городские автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 11</td>
+</tr><tr>
+<td><b>Байт Транзит, транспортно-логистическая компания</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Грунтовая улица, 17</td>
+</tr><tr>
+<td><b>Витэка, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Международные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 25е</td>
+</tr><tr>
+<td><b>Восточная Сибирь, дивизион</b><div class="muted">Международные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Маерчака, 9</td>
+</tr><tr>
+<td><b>Деловые Линии, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Авиагрузоперевозки, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 17</td>
+</tr><tr>
+<td><b>Деловые Линии, транспортная компания</b><div class="muted">Экспедирование грузов, Городские автогрузоперевозки, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Льва Толстого, 49</td>
+</tr><tr>
+<td><b>Евразия, транспортно-экспедиционная компания</b><div class="muted">Экспедирование грузов, Авиагрузоперевозки, Городские автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Шахтёров, 4 ст2</td>
+</tr><tr>
+<td><b>Енисейское речное пароходство</b><div class="muted">Морские и речные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Бограда, 15</td>
+</tr><tr>
+<td><b>Империя Авто, транспортная компания</b><div class="muted">Экспедирование грузов, Городские автогрузоперевозки, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 31/5</td>
+</tr><tr>
+<td><b>Лайнер, транспортная компания</b><div class="muted">Экспедирование грузов, Авиагрузоперевозки, Междугородные / Международные пассажирские перевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Светлогорская улица, 47</td>
+</tr><tr>
+<td><b>М.И.Р. Авто, служба заказа автомобилей из Японии, Кореи, Китая</b><div class="muted">Междугородные автогрузоперевозки, Продажа легковых автомобилей, Подбор автомобиля перед покупкой</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица 60 лет Октября, 90 ст2</td>
+</tr><tr>
+<td><b>МАКСИМ, склад</b><div class="muted">Экспедирование грузов, Складское хранение, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Торговый квартал, 5 ст1</td>
+</tr><tr>
+<td><b>Максим, сервис заказа легкового и грузового транспорта</b><div class="muted">Городские автогрузоперевозки, Доставка продуктов, Такси</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; 52-й квартал, 8Б</td>
+</tr><tr>
+<td><b>Мегаполис, транспортная компания</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Складское хранение</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 7п/1</td>
+</tr><tr>
+<td><b>Мейджик Транс, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Складское хранение</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 25в/2</td>
+</tr><tr>
+<td><b>Ночной экспресс, компания по срочным грузоперевозкам по Сибири и Уралу</b><div class="muted">Междугородные автогрузоперевозки, Экспресс-почта, Экспедирование грузов</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проезд Связистов, 21</td>
+</tr><tr>
+<td><b>Ночной экспресс, компания по срочным грузоперевозкам по Сибири и Уралу</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Экспресс-почта</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Куйбышева, 1а ст2а</td>
+</tr><tr>
+<td><b>ПЭК, пункт выдачи заказов</b><div class="muted">Экспедирование грузов, Авиагрузоперевозки, Международные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; квартал №1, к2 ст1г/1</td>
+</tr><tr>
+<td><b>ПЭК:3PL, пункт выдачи заказов</b><div class="muted">Междугородные автогрузоперевозки, Складское хранение</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проспект Котельникова, 9г/3</td>
+</tr><tr>
+<td><b>Паллада, компания по транспортировке балковозом</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Экспедирование грузов</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Ладо Кецховели, 22а</td>
+</tr><tr>
+<td><b>Перевозчикофф, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 5г ст18</td>
+</tr><tr>
+<td><b>Регионавтодоставка, офис</b><div class="muted">Городские автогрузоперевозки, Междугородные автогрузоперевозки, Экспедирование грузов</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 31г/2</td>
+</tr><tr>
+<td><b>Русдилертранс, транспортно-экспедиционная компания</b><div class="muted">Междугородные автогрузоперевозки, Железнодорожные грузоперевозки, Международные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Весны, 36</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Академика Киренского, 89</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Алексеева, 93</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проспект 60 лет образования СССР, 40а</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Дмитрия Мартынова, 35</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Лесопарковая улица, 21</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; 78 Добровольческой Бригады улица, 4</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проспект им. газеты Красноярский Рабочий, 168</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Петра Подзолкова, 4</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Сурикова, 12/6</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Авиаторов, 68</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Ладо Кецховели, 58а</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Ленинского Комсомола, 5</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Красной Армии, 10</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Молокова, 33</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Маерчака, 8</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Копылова, 76</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Мате Залки, 7</td>
+</tr><tr>
+<td><b>СДЭК, служба экспресс-доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Высотная улица, 4</td>
+</tr><tr>
+<td><b>Сибирский Транзит, компания</b><div class="muted">Экспедирование грузов, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Ломоносова, 70</td>
+</tr><tr>
+<td><b>Сигма, компания</b><div class="muted">Городские автогрузоперевозки, Международные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Молокова, 37а</td>
+</tr><tr>
+<td><b>Спектр Логистики, транспортная компания</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Калинина, 73а</td>
+</tr><tr>
+<td><b>СпецТрансСтрой, компания</b><div class="muted">Междугородные автогрузоперевозки, Спецтехника</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Ленина, 221</td>
+</tr><tr>
+<td><b>ТРАНСЛОГИСТИК, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Экспедирование грузов, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Авиаторов, 33</td>
+</tr><tr>
+<td><b>ТРАНСЛОГИСТИК, транспортная компания</b><div class="muted">Городские автогрузоперевозки, Экспедирование грузов, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Ленина, 221а</td>
+</tr><tr>
+<td><b>Тамерлан, охранная фирма</b><div class="muted">Экспедирование грузов, Обучение охранников, Услуги охраны</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Спандаряна, 12а</td>
+</tr><tr>
+<td><b>Терминал, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки, Экспедирование грузов</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Пограничников, 42е</td>
+</tr><tr>
+<td><b>Тетра-Логистик, логистическая компания</b><div class="muted">Экспедирование грузов, Складское хранение, Городские автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Норильская улица, 7 ст7</td>
+</tr><tr>
+<td><b>Транзит-ТК, компания</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Красной Звезды, 1д</td>
+</tr><tr>
+<td><b>Фастранс, группа компаний</b><div class="muted">Экспедирование грузов, Междугородные автогрузоперевозки, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; Северное шоссе, 7п/7</td>
+</tr><tr>
+<td><b>Экспресс кинетика Красноярск, курьерская служба</b><div class="muted">Экспедирование грузов, Экспресс-почта, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; 2-я Брянская улица, 50</td>
+</tr><tr>
+<td><b>Энергия, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки, Авиагрузоперевозки, Железнодорожные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проспект Котельникова, 11а/8</td>
+</tr><tr>
+<td><b>Энергия, транспортная компания</b><div class="muted">Междугородные автогрузоперевозки, Международные грузоперевозки, Авиагрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Академика Вавилова, 1 ст64</td>
+</tr><tr>
+<td><b>ЯР-Групп</b><div class="muted">Междугородные автогрузоперевозки, Аренда спецтехники, Морские и речные грузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; проспект Котельникова, 15/2</td>
+</tr><tr>
+<td><b>Яндекс Доставка, сервис быстрой доставки</b><div class="muted">Городские автогрузоперевозки, Экспресс-почта, Междугородные автогрузоперевозки</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>20</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; </td>
+</tr><tr>
+<td><b>Спецрубеж24, компания по аренде спецтехники</b><div class="muted">Аренда спецтехники</div></td>
+<td>—<div class="muted"></div></td>
+<td><span class="badge new">new</span></td>
+<td>10</td>
+<td>2026-11-22<div class="muted">enrich</div></td>
+<td class="notes">2GIS; проверить перед контактом; нужен email/сайт; улица Петра Подзолкова, 15Б к3а</td>
+</tr></tbody></table></div>
+<div class="note">Правило MVP: не больше 5 писем в день, только публичные деловые адреса, обязательный opt-out, отправка после <b>approved=yes</b>.</div>
+</div></body></html>
