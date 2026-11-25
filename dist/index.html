@@ -6876,7 +6876,9 @@ function openTripModal(id = null) {
 }
 
 function tripFormDraft() {
-  const actual = Math.max(0, num($('#tripIncome').value));
+  const calcValue = Math.max(0, num($('#tripCalcAmount').value));
+  const actualValue = Math.max(0, num($('#tripIncome').value));
+  const actual = actualValue || calcValue;
   const mode = $('#tripVatMode').value;
   const rate = Math.max(0, num($('#tripVatRate').value));
   let income = actual;
