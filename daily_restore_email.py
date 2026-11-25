@@ -186,7 +186,7 @@ def build_manifest(zip_name: str | None, files: list[Path]) -> dict:
         "index.html", "app.html", "download.html", "offer-krsk.html", "max.html",
         "RESTORE_CONTEXT.md", "README_RESTORE.md", "restore.py",
         "server/requirements.txt", "crm/max_bot.py", "crm/run_max_bot.sh",
-        "crm/context_usage.py", "crm/vk_channel_publish.py",
+        "crm/context_usage.py", "crm/vk_channel_publish.py", "crm/build_vk_queue.py",
         "crm/vk_content_plan.md", "crm/VK_CHANNEL.md",
     ]
     key_info = {}
