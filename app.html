@@ -3111,19 +3111,27 @@ function carFuelMode(car) {
 }
 
 function carFuel(car) {
+  const tank = Math.max(1, num(car?.tank) || 60);
+  if (carFuelMode(car) === 'percent') return Math.max(0, (carFuelPercent(car) / 100) * tank);
   const telemetry = glonassForCar(car);
   const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
-  const value = raw !== null ? raw : num(car?.fuelLevel);
-  const tank = Math.max(1, num(car?.tank) || 60);
-  return carFuelMode(car) === 'percent' ? Math.max(0, (value / 100) * tank) : Math.max(0, value);
+  if (raw !== null) return Math.max(0, raw);
+  const percent = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelPercent) ? Number(telemetry.fuelPercent) : null;
+  return Math.max(0, percent !== null ? (percent / 100) * tank : num(car?.fuelLevel));
 }
 
 function carFuelPercent(car) {
   const telemetry = glonassForCar(car);
-  const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
-  const value = raw !== null ? raw : num(car?.fuelLevel);
   const tank = Math.max(1, num(car?.tank) || 60);
-  return carFuelMode(car) === 'percent' ? clamp(value, 0, 100) : clamp((value / tank) * 100, 0, 100);
+  const telemetryPercent = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelPercent) ? Number(telemetry.fuelPercent) : null;
+  if (carFuelMode(car) === 'percent') {
+    if (telemetryPercent !== null) return clamp(telemetryPercent, 0, 100);
+    const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : num(car?.fuelLevel);
+    return clamp(raw, 0, 100);
+  }
+  const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
+  if (raw !== null) return clamp((raw / tank) * 100, 0, 100);
+  return clamp(telemetryPercent !== null ? telemetryPercent : num(car?.fuelLevel), 0, 100);
 }
 
 function syncFuelModeInputs(car = null) {
