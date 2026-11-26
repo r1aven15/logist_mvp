@@ -21,7 +21,7 @@
 
 - Проект: `/workspace/project`
 - GitHub: `https://github.com/r1aven15/logist_mvp`
-- Публичный сайт: `https://r1aven15.github.io/logist_mvp/` (обновлён 26.11.2026, `gh-pages` commit `f1e26ea`, service worker `v12`).
+- Публичный сайт: `https://r1aven15.github.io/logist_mvp/` (обновлён 26.11.2026, `gh-pages` commit `9cc43ca`, service worker `v12`).
 - Превью для теста: `https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/demo-krsk.html`
 - Рабочее приложение: `index.html` (корень сайта), `app.html` (PWA, `noindex`).
 - Демо: `demo.html`, `demo-krsk.html`, `demo-standalone.html`, `demo-krsk-standalone.html`. Это офлайн-сборка: `DEMO = true`, Firebase SDK не загружается.
@@ -100,7 +100,7 @@
 - GitHub Actions `glonass-sync.yml`: добавлен в `main` (PR #2, merge `f42c6fb`), cron `*/5 * * * *`; пока падает без секретов `GLONASS_LOGIN` / `GLONASS_PASSWORD` / `FIREBASE_CREDENTIALS`.
 - Демо переведено в офлайн-режим, данные вымышленные (Volvo, Ford, KAMAZ, Hyundai; 37 рейсов). Реальные названия организаций и номера машин убраны.
 - Со страницы входа убран предзаполненный email.
-- APK v1.9 восстановлен, ссылка в `download.html` исправлена.
+- APK v1.9 сохранён; APK v2.0 пересобран и опубликован, ссылка в `download.html` обновлена.
 - `.gitignore` защищает `secrets/`, `.secrets/`, `backup/`, `data/`, лиды, логи и `.env`.
 - Публичный бэкап `backup/ap-2026-11-23-7f3c9a2e.zip` оставлен по просьбе Владимира. Внутри есть `secrets/`, архив зашифрован. Риск: пароль ходит в переписке. Не удалять без отдельной команды.
 
