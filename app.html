@@ -1706,6 +1706,7 @@ body.auth-locked{overflow:hidden}
       <div class="field"><label for="carNorm">Норма расхода, л/100 км</label><input class="input" type="number" id="carNorm" min="0" step="0.1" value="15" inputmode="decimal"><span class="hint-text">Для прогноза запаса хода и анализа ГСМ.</span></div>
     </div>
     <div class="field" style="margin-top:12px"><label for="carFuelMode">Датчик топлива</label><select class="input" id="carFuelMode"><option value="liters">Литры</option><option value="percent">Проценты</option></select><span class="hint-text">Как ГЛОНАСС отдаёт уровень: литры или проценты. Для процентов нужен объём бака.</span></div>
+    <label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:13px;color:var(--muted);cursor:pointer"><input type="checkbox" id="carFuelManual" style="margin-top:2px"><span><b style="color:var(--text)">Ручной ввод топлива</b><br>Не использовать ГЛОНАСС для топлива этой машины — например, когда датчик врёт или синка нет.</span></label>
     <div class="odometer-diag" id="carOdoDiag"></div>
     <div class="form-section">
       <div class="section-title"><svg class="icon icon-sm"><use href="#i-shield"/></svg> ОСАГО</div>
@@ -2824,6 +2825,7 @@ function normalizeState() {
       } : null),
       odometerLog: Array.isArray(car.odometerLog) ? car.odometerLog.slice(-20) : [],
       fuelLevel: Math.max(0, num(car.fuelLevel)),
+      fuelManual: Boolean(car.fuelManual),
       fuelSensorMode: car.fuelSensorMode === 'percent' ? 'percent' : 'liters',
       tank: Math.max(1, num(car.tank) || 60),
       fuelNorm: (car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm)),
@@ -3108,7 +3110,7 @@ function carFuelMode(car) {
 
 function carFuel(car) {
   const telemetry = glonassForCar(car);
-  const raw = telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
+  const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
   const value = raw !== null ? raw : num(car?.fuelLevel);
   const tank = Math.max(1, num(car?.tank) || 60);
   return carFuelMode(car) === 'percent' ? Math.max(0, (value / 100) * tank) : Math.max(0, value);
@@ -3116,7 +3118,7 @@ function carFuel(car) {
 
 function carFuelPercent(car) {
   const telemetry = glonassForCar(car);
-  const raw = telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
+  const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
   const value = raw !== null ? raw : num(car?.fuelLevel);
   const tank = Math.max(1, num(car?.tank) || 60);
   return carFuelMode(car) === 'percent' ? clamp(value, 0, 100) : clamp((value / tank) * 100, 0, 100);
@@ -3951,6 +3953,7 @@ function carCard(car, index) {
   const fuelLiters = carFuel(car);
   const fuelPercent = carFuelPercent(car);
   const fuelMode = carFuelMode(car);
+  const fuelFromTelemetry = Boolean(telemetry) && !car.fuelManual;
   const dailyMileage = telemetry && hasNumber(telemetry.dailyMileage) ? Number(telemetry.dailyMileage) : null;
   const odometerKnown = carOdometer(car) > 0 || num(car.odometer) > 0 || (telemetry && hasNumber(telemetry.odometer));
   const insurance = insuranceStatus(car);
@@ -3981,7 +3984,7 @@ function carCard(car, index) {
     </div>
     <div class="car-metrics">
       <div class="car-metric"><span>Пробег${telemetry ? (car.odometerSync ? ' · спидометр + ГЛОНАСС' : ' · ГЛОНАСС') : ''}</span><strong>${odometerKnown ? `${fmtNum(odometer)} <small>км</small>` : '—'}</strong></div>
-      <div class="car-metric"><span>Топливо${telemetry ? ' · ГЛОНАСС' : ''}</span><strong>${fuelMode === 'percent' ? `${fmtNum(fuelPercent)} <small>%</small>` : `${fmtLiters(fuelLiters)} <small>л</small>`}</strong></div>
+      <div class="car-metric"><span>Топливо${fuelFromTelemetry ? ' · ГЛОНАСС' : car.fuelManual ? ' · вручную' : ''}</span><strong>${fuelMode === 'percent' ? `${fmtNum(fuelPercent)} <small>%</small>` : `${fmtLiters(fuelLiters)} <small>л</small>`}</strong></div>
     </div>
     ${dailyMileage !== null ? `<div class="telemetry-line">${icon('route', 'icon-sm')} За 24 ч по ГЛОНАСС: <b>${fmtNum(dailyMileage)} км</b></div>` : ''}
     <div class="fuel-top"><span>Бак ${Math.round(fuelPct)}%${fuelMode === 'percent' ? ` · ~${fmtLiters(fuelLiters)} л` : ''}</span><b>~${fmtNum(range)} км запаса</b></div>
@@ -3991,7 +3994,7 @@ function carCard(car, index) {
       <button type="button" class="doc-chip ${sts.status}" data-car-doc="sts" data-car-id="${esc(car.id)}" title="${esc(sts.label)}">${icon('file', 'icon-sm')} ${sts.hasData ? 'СТС' : 'СТС нет'}</button>
       <button type="button" class="doc-chip ${kasko.status}" data-car-doc="kasko" data-car-id="${esc(car.id)}" title="${esc(kasko.label)}">${icon('shield', 'icon-sm')} ${kasko.status === 'none' ? 'КАСКО нет' : (car.kasko?.to ? `КАСКО до ${esc(fmtDate(car.kasko.to))}` : 'КАСКО')}</button>
     </div>
-    ${telemetry ? `<div class="telemetry-note">${icon('gauge', 'icon-sm')} ${car.odometerSync ? 'Пробег: ваш спидометр + км из ГЛОНАСС' : 'Пробег и топливо обновляются из ГЛОНАСС'}${telemetry.updatedAt ? ` · ${esc(fmtSyncTime(telemetry.updatedAt))}` : ''}</div>` : `<div class="car-quick">
+    ${fuelFromTelemetry ? `<div class="telemetry-note">${icon('gauge', 'icon-sm')} ${car.odometerSync ? 'Пробег: ваш спидометр + км из ГЛОНАСС' : 'Пробег и топливо обновляются из ГЛОНАСС'}${telemetry.updatedAt ? ` · ${esc(fmtSyncTime(telemetry.updatedAt))}` : ''}</div>` : `<div class="car-quick">
       <label>Пробег, км<input type="number" min="0" step="1" data-car-quick="odometer" data-car-id="${esc(car.id)}" value="${num(car.odometer)}"></label>
       <label>Топливо, ${fuelMode === 'percent' ? '%' : 'л'}<input type="number" min="0" step="0.1" data-car-quick="fuelLevel" data-car-id="${esc(car.id)}" value="${fuelMode === 'percent' ? num(fuelPercent) : num(car.fuelLevel)}"></label>
     </div>`}
@@ -5356,11 +5359,12 @@ function openCarModal(id = null) {
   const baseOdo = car ? (hasNumber(car.odometerSync?.base) ? num(car.odometerSync.base) : num(car.odometer)) : 0;
   $('#carOdo').value = car ? Math.round(baseOdo) : '';
   $('#carFuelMode').value = car ? carFuelMode(car) : 'liters';
+  $('#carFuelManual').checked = Boolean(car?.fuelManual);
   syncFuelModeInputs(car || null);
   $('#carTank').value = car ? num(car.tank) : 60;
   $('#carNorm').value = car ? num(car.fuelNorm) : 15;
   $('#carOdo').disabled = false;
-  $('#carFuel').disabled = !!telemetry;
+  $('#carFuel').disabled = !!telemetry && !car?.fuelManual;
   $('#carOdoHint').hidden = false;
   $('#carOdoHint').textContent = telemetry
     ? 'Введите реальный пробег по спидометру — ГЛОНАСС будет прибавлять километры сверх него.'
@@ -5376,7 +5380,7 @@ function openCarModal(id = null) {
       : 'Диагностика появится после сохранения машины.';
   }
   $('#carFuelHint').hidden = !telemetry;
-  $('#carFuelHint').textContent = telemetry ? 'Текущее значение из ГЛОНАСС. Ручное редактирование отключено.' : '';
+  $('#carFuelHint').textContent = !telemetry ? '' : (car?.fuelManual ? 'Ручной ввод включён: данные ГЛОНАСС по топливу игнорируются.' : 'Текущее значение из ГЛОНАСС. Ручное редактирование отключено.');
   $('#insType').value = ['ОСАГО', 'Другое'].includes(insurance.type) ? insurance.type : 'ОСАГО';
   $('#insCompany').value = insurance.company || car?.insuranceCompany || '';
   $('#insPolicy').value = insurance.policy || car?.insuranceNumber || '';
@@ -5476,9 +5480,12 @@ function saveCar() {
       base: odometerValue,
       telemetryOdometer: telemetry && hasNumber(telemetry.odometer) ? Number(telemetry.odometer) : null
     }].slice(-20),
-    fuelLevel: telemetry && hasNumber(telemetry.fuelLevel)
-      ? Math.max(0, Number(telemetry.fuelLevel))
-      : Math.max(0, num($('#carFuel').value)),
+    fuelLevel: $('#carFuelManual').checked
+      ? Math.max(0, num($('#carFuel').value))
+      : telemetry && hasNumber(telemetry.fuelLevel)
+        ? Math.max(0, Number(telemetry.fuelLevel))
+        : Math.max(0, num($('#carFuel').value)),
+    fuelManual: $('#carFuelManual').checked,
     fuelSensorMode: $('#carFuelMode').value === 'percent' ? 'percent' : 'liters',
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
@@ -7435,7 +7442,12 @@ function saveFuel() {
     cost,
     odometer
   });
-  car.fuelLevel = Math.min(num(car.tank) || Infinity, num(car.fuelLevel) + liters);
+  if (carFuelMode(car) === 'percent') {
+    const tank = Math.max(1, num(car.tank) || 60);
+    car.fuelLevel = Math.min(100, num(car.fuelLevel) + (liters / tank) * 100);
+  } else {
+    car.fuelLevel = Math.min(num(car.tank) || Infinity, num(car.fuelLevel) + liters);
+  }
   if (odometer > 0) applyManualOdometer(car, Math.max(num(car.odometer), odometer), 'fuel');
   saveNow();
   closeModal('fuelModal');
@@ -8460,6 +8472,20 @@ function bindEvents() {
   $('#carFuelMode')?.addEventListener('change', () => {
     const car = state.cars.find(c => c.id === $('#carEditId').value);
     syncFuelModeInputs(car || null);
+  });
+  $('#carFuelManual')?.addEventListener('change', () => {
+    const car = state.cars.find(c => c.id === $('#carEditId').value);
+    const telemetry = car ? glonassForCar(car) : null;
+    const manual = $('#carFuelManual').checked;
+    if ($('#carFuel')) $('#carFuel').disabled = !!telemetry && !manual;
+    if ($('#carFuelHint')) {
+      $('#carFuelHint').hidden = !telemetry;
+      $('#carFuelHint').textContent = !telemetry ? '' : (manual ? 'Ручной ввод включён: данные ГЛОНАСС по топливу игнорируются.' : 'Текущее значение из ГЛОНАСС. Ручное редактирование отключено.');
+    }
+    if (telemetry && !manual && car && $('#carFuel')) {
+      const source = { ...car, fuelManual: false };
+      $('#carFuel').value = carFuelMode(car) === 'percent' ? carFuelPercent(source) : carFuel(source);
+    }
   });
 
   window.addEventListener('hashchange', () => {

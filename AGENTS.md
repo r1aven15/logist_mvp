@@ -10,7 +10,7 @@
 - Рабочее приложение: `index.html`, `app.html` (Firebase). Демо: `demo*.html` — офлайн-сборка без Firebase SDK.
 - ВКонтакте: `crm/vk_content_plan.md` (23 поста), `crm/vk_channel_queue.json`, `crm/vk_channel_publish.py`, `crm/build_vk_queue.py`, инструкция `crm/VK_CHANNEL.md`. Токен — только в `outreach/.env`/GitHub Secrets; VK может запретить `wall.post`.
 - Машины: ОСАГО, СТС и КАСКО в карточке; данные в `car.sts`/`car.kasko`, чипы документов и просмотр; тест Playwright на демо.
-- Топливо: `fuelSensorMode` (`liters`/`percent`); 750-я — бак 70 л, норма 15,6, режим `percent`; в карточке проценты, литры — для запаса и суммы.
+- Топливо: `fuelSensorMode` (`liters`/`percent`), `fuelManual` (ручной ввод вместо ГЛОНАСС); 750-я — бак 70 л, норма 15,6, режим `percent`; в карточке проценты, литры — для запаса и суммы.
 - ГЛОНАСС workflow добавлен в `main`; секреты GitHub Actions не добавлены (403 токена), нужны `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS`.
 - ГЛОНАСС: `sync_glonass.py` + `.github/workflows/glonass-sync.yml` каждые 5 минут; 6 ID; инструкция `crm/GLONASS_SYNC.md`; Render/UptimeRobot `/sync` для синка больше не нужны. Пароль ГЛОНАСС мог попасть в историю `инструкция.txt` — сменить.
 - Еженедельный лёгкий пакет восстановления: `daily_restore_email.py`, воскресенье 23:30 по Красноярску на `vsend15@mail.ru`; полный ZIP — по команде `--full`. Заполнение контекста: `python3 crm/context_usage.py`.
