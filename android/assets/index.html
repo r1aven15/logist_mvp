@@ -3124,6 +3124,11 @@ function carFuelPercent(car) {
   const tank = Math.max(1, num(car?.tank) || 60);
   const telemetryPercent = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelPercent) ? Number(telemetry.fuelPercent) : null;
   if (carFuelMode(car) === 'percent') {
+    if (!car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel)) {
+      const unit = String(telemetry.fuelUnit || '').toLowerCase();
+      if (unit.includes('л') || unit.includes('l')) return clamp((Number(telemetry.fuelLevel) / tank) * 100, 0, 100);
+      if (unit.includes('%')) return clamp(Number(telemetry.fuelLevel), 0, 100);
+    }
     if (telemetryPercent !== null) return clamp(telemetryPercent, 0, 100);
     const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : num(car?.fuelLevel);
     return clamp(raw, 0, 100);
