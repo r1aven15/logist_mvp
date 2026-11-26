@@ -42,6 +42,24 @@ TIMEZONE = int(os.getenv("GLONASS_TIMEZONE", "3"))
 FIREBASE_CREDENTIALS = os.getenv("FIREBASE_CREDENTIALS", "")
 
 
+def parse_tank_map(raw: str) -> dict[int, float]:
+    result: dict[int, float] = {}
+    for item in (raw or "").replace(" ", "").split(","):
+        if not item:
+            continue
+        vehicle_id, _, tank = item.partition(":")
+        try:
+            result[int(vehicle_id)] = float(tank)
+        except (TypeError, ValueError):
+            continue
+    return result
+
+
+# Fuel sensor values are litres. For a percent-mode vehicle, also store percent
+# using its known tank so the web UI can use the native unit for that car.
+FUEL_TANKS = parse_tank_map(os.getenv("GLONASS_FUEL_TANKS", "505725:70"))
+
+
 def norm(value: Any) -> str:
     return "".join(ch for ch in str(value or "").lower() if ch.isalnum())
 
@@ -171,11 +189,21 @@ class GlonassClient:
         return self.mileage_totals([vehicle_id], from_dt, to_dt).get(vehicle_id, 0.0)
 
     def last_data(self, vehicle_ids: list[int]) -> list[dict[str, Any]]:
-        data = self.post(
-            "/api/v3/vehicles/getlastdata",
-            {"vehiclesIds": vehicle_ids, "includeSensors": True},
-        )
-        return data if isinstance(data, list) else []
+        # The wiki email says vehicleIds, but the live endpoint accepts
+        # vehiclesIds; vehicleIds returns HTTP 400. Try both for compatibility.
+        last_error: Exception | None = None
+        for key in ("vehiclesIds", "vehicleIds"):
+            try:
+                data = self.post(
+                    "/api/v3/vehicles/getlastdata",
+                    {key: vehicle_ids, "includeSensors": True},
+                )
+                return data if isinstance(data, list) else []
+            except RuntimeError as error:
+                last_error = error
+                if "HTTP 400" not in str(error):
+                    raise
+        raise last_error or RuntimeError("getlastdata failed")
 
 
 def parse_vehicles(rows: list[dict[str, Any]]) -> dict[int, dict[str, Any]]:
@@ -229,9 +257,24 @@ def parse_fuel(rows: list[dict[str, Any]], sensor_name: str = FUEL_SENSOR) -> di
         except (TypeError, ValueError):
             continue
         sensors = row.get("sensors") or []
-        sensor = next((item for item in sensors if norm(item.get("name")) == wanted), None)
+        candidates = [
+            item
+            for item in sensors
+            if "топлив" in norm(item.get("name"))
+            or "fuel" in norm(item.get("name"))
+            or "flex" in norm(item.get("name"))
+        ]
+        sensor = next((item for item in candidates if norm(item.get("name")) == wanted), None)
         if sensor is None:
-            sensor = next((item for item in sensors if "топлив" in norm(item.get("name"))), None)
+            sensor = next(
+                (
+                    item
+                    for item in candidates
+                    if "температур" not in norm(item.get("name"))
+                    and "temp" not in norm(item.get("name"))
+                ),
+                None,
+            )
         if sensor is None:
             continue
         raw_value = sensor.get("rawValue")
@@ -283,6 +326,12 @@ def build_records(
             record["fuelLevel"] = fuel_row["fuelLevel"]
             record["fuelUnit"] = fuel_row["fuelUnit"]
             record["fuelSensor"] = fuel_row["sensorName"]
+            tank = FUEL_TANKS.get(vehicle_id)
+            if tank and tank > 0:
+                unit = str(fuel_row.get("fuelUnit") or "").lower()
+                percent = fuel_row["fuelLevel"] if "%" in unit else (fuel_row["fuelLevel"] / tank) * 100
+                record["fuelPercent"] = round(percent, 2)
+                record["fuelTank"] = tank
         records.append(record)
     return records
 

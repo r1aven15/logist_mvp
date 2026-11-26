@@ -34,6 +34,7 @@ jobs:
           GLONASS_PASSWORD: ${{ secrets.GLONASS_PASSWORD }}
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
           GLONASS_VEHICLE_IDS: "505725,542782,550744,577075,621945,655079"
+          GLONASS_FUEL_TANKS: "505725:70"
           GLONASS_TIMEZONE: "7"
           MODE: ${{ github.event.inputs.mode }}
         run: |
