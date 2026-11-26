@@ -23,6 +23,8 @@ GitHub Actions запускает `sync_glonass.py` каждые 5 минут. R
 
 ## Особенности API, проверено 26.11.2026
 
+- Документация: https://glonasssoft.ru/wiki/metody-api-dlya-raboty-s-glonasssoft
+- Хост API: https://hosting.glonasssoft.ru
 - `POST /api/v3/vehicles/getlastdata` принимает ключ **`vehiclesIds`**. Ключ `vehicleIds` из письма поддержки возвращает HTTP 400; в скрипте оставлен fallback на него.
 - Датчик топлива называется `Топливо`; `rawValue` — литры (`27.698...`), `displayValue` — `27.7 л`.
 - `POST /api/v3/vehicles/mileageAndMotohours` принимает `vehicleIds`; время возвращается в UTC, параметр `timezone` игнорируется.
