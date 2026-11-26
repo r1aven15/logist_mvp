@@ -377,6 +377,7 @@ h1,h2,h3,h4,p{margin-top:0}
 .cars-view.compact .car-card:not(.expanded) .car-metrics,
 .cars-view.compact .car-card:not(.expanded) .fuel-top,
 .cars-view.compact .car-card:not(.expanded) .progress,
+.cars-view.compact .car-card:not(.expanded) .car-docs,
 .cars-view.compact .car-card:not(.expanded) .insurance-line,
 .cars-view.compact .car-card:not(.expanded) .telemetry-note,
 .cars-view.compact .car-card:not(.expanded) .car-quick,
@@ -833,6 +834,13 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .insurance-line.warn{background:var(--warn-soft);color:var(--warn)}
 .insurance-line.danger{background:var(--danger-soft);color:var(--danger)}
 .insurance-line.none{background:var(--surface-2);color:var(--muted)}
+.car-docs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.doc-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--muted);font:inherit;font-size:10.5px;font-weight:750;line-height:1.25;cursor:pointer;text-align:left}
+.doc-chip .icon{width:12px;height:12px;flex-shrink:0}
+.doc-chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.doc-chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.doc-chip.danger{background:var(--danger-soft);color:var(--danger);border-color:transparent}
+.doc-chip.none{background:var(--surface-2);color:var(--muted)}
 .dash-alerts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:0 0 16px}
 .dash-alert{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;border-radius:14px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:650;line-height:1.35}
 .dash-alert .icon{width:16px;height:16px;flex-shrink:0;margin-top:1px}
@@ -1072,7 +1080,7 @@ body.auth-locked{overflow:hidden}
     <form id="authForm">
       <div class="auth-field">
         <label for="authEmail">Email (логин)</label>
-        <input id="authEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" value="Laurent2015@bk.ru" placeholder="client@example.ru" required>
+        <input id="authEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="client@example.ru" required>
       </div>
       <div class="auth-field">
         <label for="authPassword">Пароль</label>
@@ -1690,17 +1698,18 @@ body.auth-locked{overflow:hidden}
     </div>
     <div class="grid-2" style="margin-top:12px">
       <div class="field"><label for="carOdo">Пробег по спидометру, км</label><input class="input" type="number" id="carOdo" min="0" step="1" inputmode="numeric"><span class="hint-text" id="carOdoHint">Введите реальный пробег. К нему будет прибавляться километраж из ГЛОНАСС.</span></div>
-      <div class="field"><label for="carFuel">Топливо в баке, л</label><input class="input" type="number" id="carFuel" min="0" step="0.1" inputmode="decimal"><span class="hint-text" id="carFuelHint" hidden>Обновляется из ГЛОНАСС</span></div>
+      <div class="field"><label for="carFuel" id="carFuelLabel">Топливо в баке, л</label><input class="input" type="number" id="carFuel" min="0" step="0.1" inputmode="decimal"><span class="hint-text" id="carFuelHint" hidden>Обновляется из ГЛОНАСС</span></div>
     </div>
     <div class="grid-2" style="margin-top:12px">
       <div class="field"><label for="carTank">Объём бака, л</label><input class="input" type="number" id="carTank" min="1" step="1" value="60" inputmode="numeric"></div>
       <div class="field"><label for="carNorm">Норма расхода, л/100 км</label><input class="input" type="number" id="carNorm" min="0" step="0.1" value="15" inputmode="decimal"><span class="hint-text">Для прогноза запаса хода и анализа ГСМ.</span></div>
     </div>
+    <div class="field" style="margin-top:12px"><label for="carFuelMode">Датчик топлива</label><select class="input" id="carFuelMode"><option value="liters">Литры</option><option value="percent">Проценты</option></select><span class="hint-text">Как ГЛОНАСС отдаёт уровень: литры или проценты. Для процентов нужен объём бака.</span></div>
     <div class="odometer-diag" id="carOdoDiag"></div>
     <div class="form-section">
-      <div class="section-title"><svg class="icon icon-sm"><use href="#i-shield"/></svg> Страховка</div>
+      <div class="section-title"><svg class="icon icon-sm"><use href="#i-shield"/></svg> ОСАГО</div>
       <div class="grid-2">
-        <div class="field"><label for="insType">Тип страховки</label><select class="input" id="insType"><option>ОСАГО</option><option>КАСКО</option><option>Другое</option></select></div>
+        <div class="field"><label for="insType">Тип</label><select class="input" id="insType"><option>ОСАГО</option><option>Другое</option></select></div>
         <div class="field"><label for="insCompany">Страховая компания</label><input class="input" id="insCompany" placeholder="Например, РЕСО-Гарантия" autocomplete="off"></div>
       </div>
       <div class="field" style="margin-top:12px"><label for="insPolicy">Номер полиса</label><input class="input" id="insPolicy" placeholder="ХХХ 0123456789" autocomplete="off"></div>
@@ -1730,9 +1739,86 @@ body.auth-locked{overflow:hidden}
         <button class="btn btn-sm btn-ghost" type="button" id="insPdfRemove">Убрать</button>
       </div>
     </div>
+    <div class="form-section">
+      <div class="section-title"><svg class="icon icon-sm"><use href="#i-file"/></svg> СТС</div>
+      <div class="grid-2">
+        <div class="field"><label for="stsSeries">Серия</label><input class="input" id="stsSeries" placeholder="99 12" autocomplete="off"></div>
+        <div class="field"><label for="stsNumber">Номер</label><input class="input" id="stsNumber" placeholder="345678" autocomplete="off"></div>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label for="stsIssuedAt">Дата выдачи</label><input class="input" type="date" id="stsIssuedAt"></div>
+        <div class="field"><label for="stsIssuedBy">Кем выдан</label><input class="input" id="stsIssuedBy" placeholder="ГИБДД 2401" autocomplete="off"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label for="stsVin">VIN</label><input class="input" id="stsVin" placeholder="XLR..." autocomplete="off"></div>
+      <input type="file" id="stsScanFile" accept="image/*" capture="environment" hidden>
+      <input type="file" id="stsPdfFile" accept="application/pdf,.pdf" hidden>
+      <div class="scan-row" style="flex-wrap:wrap">
+        <button class="btn btn-sm" type="button" id="stsScanBtn"><svg class="icon icon-sm"><use href="#i-camera"/></svg> Сканировать СТС</button>
+        <button class="btn btn-sm" type="button" id="stsPdfBtn"><svg class="icon icon-sm"><use href="#i-file"/></svg> Загрузить PDF</button>
+        <span class="hint-text" id="stsScanStatus">Фото, PDF или вручную</span>
+      </div>
+      <div class="scan-preview" id="stsPreview" hidden>
+        <img id="stsPreviewImg" alt="Фото СТС">
+        <button class="btn btn-sm btn-ghost" type="button" id="stsPhotoRemove">Убрать фото</button>
+      </div>
+      <div class="pdf-attachment" id="stsPdfPreview" hidden>
+        <span class="pdf-badge">PDF</span>
+        <div class="pdf-meta"><b id="stsPdfName">СТС.pdf</b><span>Файл прикреплён к СТС</span></div>
+        <a class="btn btn-sm" id="stsPdfOpen" href="#" target="_blank" rel="noopener"><svg class="icon icon-sm"><use href="#i-file"/></svg> Открыть</a>
+        <button class="btn btn-sm btn-ghost" type="button" id="stsPdfRemove">Убрать</button>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="section-title"><svg class="icon icon-sm"><use href="#i-shield"/></svg> КАСКО</div>
+      <div class="grid-2">
+        <div class="field"><label for="kaskoCompany">Страховая компания</label><input class="input" id="kaskoCompany" placeholder="Например, РЕСО-Гарантия" autocomplete="off"></div>
+        <div class="field"><label for="kaskoPolicy">Номер полиса</label><input class="input" id="kaskoPolicy" placeholder="ХХХ 0123456789" autocomplete="off"></div>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label for="kaskoFrom">Дата начала</label><input class="input" type="date" id="kaskoFrom"></div>
+        <div class="field"><label for="kaskoTo">Дата окончания</label><input class="input" type="date" id="kaskoTo"></div>
+      </div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label for="kaskoCost">Сумма, ₽</label><input class="input" type="number" id="kaskoCost" min="0" step="0.01" inputmode="decimal"></div>
+        <div class="field"><label for="kaskoPaidAt">Дата оплаты</label><input class="input" type="date" id="kaskoPaidAt"></div>
+      </div>
+      <input type="file" id="kaskoScanFile" accept="image/*" capture="environment" hidden>
+      <input type="file" id="kaskoPdfFile" accept="application/pdf,.pdf" hidden>
+      <div class="scan-row" style="flex-wrap:wrap">
+        <button class="btn btn-sm" type="button" id="kaskoScanBtn"><svg class="icon icon-sm"><use href="#i-camera"/></svg> Сканировать полис</button>
+        <button class="btn btn-sm" type="button" id="kaskoPdfBtn"><svg class="icon icon-sm"><use href="#i-file"/></svg> Загрузить PDF</button>
+        <span class="hint-text" id="kaskoScanStatus">Фото, PDF или вручную</span>
+      </div>
+      <div class="scan-preview" id="kaskoPreview" hidden>
+        <img id="kaskoPreviewImg" alt="Фото КАСКО">
+        <button class="btn btn-sm btn-ghost" type="button" id="kaskoPhotoRemove">Убрать фото</button>
+      </div>
+      <div class="pdf-attachment" id="kaskoPdfPreview" hidden>
+        <span class="pdf-badge">PDF</span>
+        <div class="pdf-meta"><b id="kaskoPdfName">КАСКО.pdf</b><span>Файл прикреплён к КАСКО</span></div>
+        <a class="btn btn-sm" id="kaskoPdfOpen" href="#" target="_blank" rel="noopener"><svg class="icon icon-sm"><use href="#i-file"/></svg> Открыть</a>
+        <button class="btn btn-sm btn-ghost" type="button" id="kaskoPdfRemove">Убрать</button>
+      </div>
+    </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" data-close="carModal">Отмена</button>
       <button class="btn btn-primary" id="carSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛКА: ДОКУМЕНТ ================= -->
+<div class="modal-backdrop" id="docModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="docModalTitle">
+    <div class="modal-grab"></div>
+    <div class="modal-head">
+      <div><h3 id="docModalTitle">Документ</h3><p id="docModalSub"></p></div>
+      <button class="icon-btn sm" data-close="docModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div id="docModalBody"></div>
+    <div class="modal-foot">
+      <a class="btn btn-primary" id="docModalOpen" href="#" target="_blank" rel="noopener"><svg class="icon icon-sm"><use href="#i-file"/></svg> Открыть</a>
+      <button class="btn btn-ghost" data-close="docModal">Закрыть</button>
     </div>
   </div>
 </div>
@@ -2066,7 +2152,7 @@ body.auth-locked{overflow:hidden}
       <button class="icon-btn sm" data-close="orgModal" aria-label="Закрыть"><svg class="icon"><use href="#i-close"/></svg></button>
     </div>
     <input type="hidden" id="orgEditIndex">
-    <div class="field"><label for="orgName">Название</label><input class="input" id="orgName" placeholder="ИП Иванов или ООО Ромашка" autocomplete="off"></div>
+    <div class="field"><label for="orgName">Название</label><input class="input" id="orgName" placeholder="ИП Петров или ООО Пример" autocomplete="off"></div>
     <div class="modal-foot">
       <button class="btn btn-ghost" data-close="orgModal">Отмена</button>
       <button class="btn btn-primary" id="orgSave"><svg class="icon icon-sm"><use href="#i-check"/></svg> Сохранить</button>
@@ -2107,10 +2193,31 @@ body.auth-locked{overflow:hidden}
 /* ============================================================
    1. FIREBASE — конфигурация и ссылка на документ НЕ ИЗМЕНЕНЫ
    ============================================================ */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
+/* Offline demo build: Firebase SDK is not loaded, cloud calls are stubbed. */
+const initializeApp = () => ({});
+const getFirestore = () => ({});
+const doc = () => ({});
+const setDoc = async () => {};
+const onSnapshot = () => () => {};
+const getDoc = async () => ({ exists: () => false, data: () => ({}) });
+const collection = () => ({});
+const query = () => ({});
+const orderBy = () => ({});
+const limit = () => ({});
+const getDocs = async () => ({ docs: [] });
+const deleteDoc = async () => {};
+const serverTimestamp = () => null;
+const enableIndexedDbPersistence = async () => {};
+const getAuth = () => ({});
+const signInWithEmailAndPassword = async () => { throw new Error('demo'); };
+const onAuthStateChanged = () => () => {};
+const signOut = async () => {};
+const setPersistence = async () => {};
+const browserLocalPersistence = null;
+const getStorage = () => ({});
+const storageRef = () => ({});
+const uploadBytes = async () => ({ ref: {} });
+const getDownloadURL = async () => '';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYm9cYQxtOKHhm9pGLiW4kjJjGd8QPaC8",
@@ -2146,7 +2253,7 @@ let cloudStarted = false;
 let currentUser = null;
 
 const DEMO_KEY = 'autopark_demo_v2';
-const DEMO = new URLSearchParams(location.search).has('demo') || /\/demo[^/]*(\.html)?$/i.test(location.pathname);
+const DEMO = true; // standalone offline demo build
 
 /* ============================================================
    2. КОНСТАНТЫ И УТИЛИТЫ
@@ -2375,14 +2482,34 @@ function daysBetween(fromISO, toISO) {
   return Math.round((parseISO(toISO) - parseISO(fromISO)) / 86400000);
 }
 
+function policyStatus(policy, type) {
+  if (!policy?.to) return { status: 'none', label: `${type} не указано`, days: null };
+  const days = daysBetween(todayISO(), policy.to);
+  if (days < 0) return { status: 'danger', label: `${type} просрочено · ${fmtDate(policy.to)}`, days };
+  if (days <= 30) return { status: 'warn', label: `${type} до ${fmtDate(policy.to)} · ${days} дн.`, days };
+  return { status: 'ok', label: `${type} до ${fmtDate(policy.to)}`, days };
+}
+
 function insuranceStatus(car) {
-  const insurance = car?.insurance || {};
-  if (!insurance.to) return { status: 'none', label: 'Страховка не указана', days: null };
-  const type = insurance.type || 'ОСАГО';
-  const days = daysBetween(todayISO(), insurance.to);
-  if (days < 0) return { status: 'danger', label: `${type} просрочено · ${fmtDate(insurance.to)}`, days };
-  if (days <= 30) return { status: 'warn', label: `${type} до ${fmtDate(insurance.to)} · ${days} дн.`, days };
-  return { status: 'ok', label: `${type} до ${fmtDate(insurance.to)}`, days };
+  return policyStatus(car?.insurance || {}, car?.insurance?.type || 'ОСАГО');
+}
+
+function kaskoStatus(car) {
+  const kasko = car?.kasko || {};
+  if (!kasko.to) {
+    const hasData = Boolean(kasko.company || kasko.policy || kasko.photo || kasko.pdf);
+    return { status: hasData ? 'warn' : 'none', label: hasData ? 'КАСКО: не указан срок' : 'КАСКО не указано', days: null };
+  }
+  return policyStatus(kasko, 'КАСКО');
+}
+
+function stsStatus(car) {
+  const sts = car?.sts || {};
+  const hasNumber = Boolean(sts.series || sts.number);
+  const hasFile = Boolean(sts.photo || sts.pdf);
+  if (!hasNumber && !hasFile) return { status: 'none', label: 'СТС не указан', hasData: false };
+  if (!hasNumber) return { status: 'warn', label: 'СТС: файл прикреплён, номер не указан', hasData: true };
+  return { status: 'ok', label: `СТС ${[sts.series, sts.number].filter(Boolean).join(' ')}`.trim(), hasData: true };
 }
 
 function latestPart(carId, category) {
@@ -2484,7 +2611,7 @@ let state = {
   trips: [],
   warehouse: [],
   drivers: [],
-  organizations: ["ИП Иванов", "ООО Ромашка"],
+  organizations: ["ИП Петров", "ООО Пример"],
   theme: 'light',
   viewMode: 'grid',
   isNdsPayer: false,
@@ -2511,7 +2638,21 @@ function normalizeNdsRate(v) {
   return Math.round(n);
 }
 
-function normalizeInsurance(value) {
+function normalizePdf(value, defaultName = 'Документ.pdf') {
+  if (!value || typeof value !== 'object') return null;
+  const data = typeof value.data === 'string' ? value.data : '';
+  const url = typeof value.url === 'string' ? value.url : '';
+  if (!data && !url) return null;
+  return {
+    name: String(value.name || defaultName).trim() || defaultName,
+    type: String(value.type || 'application/pdf'),
+    size: Math.max(0, num(value.size)),
+    data,
+    url
+  };
+}
+
+function normalizeInsurance(value, defaultPdfName = 'Полис.pdf') {
   const insurance = value && typeof value === 'object' ? value : {};
   return {
     type: String(insurance.type || 'ОСАГО').trim() || 'ОСАГО',
@@ -2522,16 +2663,25 @@ function normalizeInsurance(value) {
     cost: Math.max(0, num(insurance.cost)),
     paidAt: normalizeDate(insurance.paidAt),
     photo: typeof insurance.photo === 'string' ? insurance.photo : '',
-    pdf: insurance.pdf && typeof insurance.pdf === 'object' && (typeof insurance.pdf.data === 'string' || typeof insurance.pdf.url === 'string')
-      ? {
-        name: String(insurance.pdf.name || 'Полис.pdf').trim() || 'Полис.pdf',
-        type: String(insurance.pdf.type || 'application/pdf'),
-        size: Math.max(0, num(insurance.pdf.size)),
-        data: typeof insurance.pdf.data === 'string' ? insurance.pdf.data : '',
-        url: typeof insurance.pdf.url === 'string' ? insurance.pdf.url : ''
-      }
-      : null
+    pdf: normalizePdf(insurance.pdf, defaultPdfName)
   };
+}
+
+function normalizeSts(value) {
+  const sts = value && typeof value === 'object' ? value : {};
+  return {
+    series: String(sts.series || '').trim(),
+    number: String(sts.number || '').trim(),
+    issuedAt: normalizeDate(sts.issuedAt),
+    issuedBy: String(sts.issuedBy || '').trim(),
+    vin: String(sts.vin || '').trim(),
+    photo: typeof sts.photo === 'string' ? sts.photo : '',
+    pdf: normalizePdf(sts.pdf, 'СТС.pdf')
+  };
+}
+
+function normalizeKasko(value) {
+  return { ...normalizeInsurance(value, 'КАСКО.pdf'), type: 'КАСКО' };
 }
 
 function normalizeDriverDoc(value) {
@@ -2662,12 +2812,19 @@ function normalizeState() {
     .filter(Boolean)));
 
   state.cars = state.cars.map(car => {
-    const insurance = normalizeInsurance(car.insurance);
+    let insurance = normalizeInsurance(car.insurance);
+    let kasko = normalizeKasko(car.kasko);
+    const sts = normalizeSts(car.sts);
     insurance.policy = insurance.policy || String(car.insuranceNumber || '').trim();
     insurance.company = insurance.company || String(car.insuranceCompany || '').trim();
     if (!insurance.cost && car.insuranceSum) insurance.cost = Math.max(0, num(car.insuranceSum));
     if (!insurance.pdf && typeof car.insurancePdf === 'string' && car.insurancePdf) {
       insurance.pdf = { name: 'Полис.pdf', type: 'application/pdf', size: 0, data: car.insurancePdf, url: '' };
+    }
+    const migratedKasko = !car.kasko && /каско/i.test(insurance.type);
+    if (migratedKasko) {
+      kasko = { ...insurance, type: 'КАСКО', pdf: normalizePdf(insurance.pdf, 'КАСКО.pdf') };
+      insurance = normalizeInsurance({ type: 'ОСАГО' });
     }
     return {
       ...car,
@@ -2687,12 +2844,15 @@ function normalizeState() {
       } : null),
       odometerLog: Array.isArray(car.odometerLog) ? car.odometerLog.slice(-20) : [],
       fuelLevel: Math.max(0, num(car.fuelLevel)),
+      fuelSensorMode: car.fuelSensorMode === 'percent' ? 'percent' : 'liters',
       tank: Math.max(1, num(car.tank) || 60),
       fuelNorm: (car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm)),
       insurance,
-      insuranceNumber: String(car.insuranceNumber || insurance.policy || '').trim(),
-      insuranceCompany: String(car.insuranceCompany || insurance.company || '').trim(),
-      insuranceSum: Math.max(0, num(car.insuranceSum ?? insurance.cost))
+      kasko,
+      sts,
+      insuranceNumber: String((migratedKasko ? '' : car.insuranceNumber) || insurance.policy || '').trim(),
+      insuranceCompany: String((migratedKasko ? '' : car.insuranceCompany) || insurance.company || '').trim(),
+      insuranceSum: Math.max(0, num(migratedKasko ? 0 : (car.insuranceSum ?? insurance.cost)))
     };
   });
 
@@ -2962,9 +3122,30 @@ function ensureOdometerAnchors(cars) {
   if (changed) saveNow();
 }
 
+function carFuelMode(car) {
+  return car?.fuelSensorMode === 'percent' ? 'percent' : 'liters';
+}
+
 function carFuel(car) {
   const telemetry = glonassForCar(car);
-  return telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : num(car?.fuelLevel);
+  const raw = telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
+  const value = raw !== null ? raw : num(car?.fuelLevel);
+  const tank = Math.max(1, num(car?.tank) || 60);
+  return carFuelMode(car) === 'percent' ? Math.max(0, (value / 100) * tank) : Math.max(0, value);
+}
+
+function carFuelPercent(car) {
+  const telemetry = glonassForCar(car);
+  const raw = telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
+  const value = raw !== null ? raw : num(car?.fuelLevel);
+  const tank = Math.max(1, num(car?.tank) || 60);
+  return carFuelMode(car) === 'percent' ? clamp(value, 0, 100) : clamp((value / tank) * 100, 0, 100);
+}
+
+function syncFuelModeInputs(car = null) {
+  const mode = $('#carFuelMode')?.value === 'percent' ? 'percent' : 'liters';
+  if ($('#carFuelLabel')) $('#carFuelLabel').textContent = mode === 'percent' ? 'Топливо в баке, %' : 'Топливо в баке, л';
+  if (car && $('#carFuel')) $('#carFuel').value = mode === 'percent' ? carFuelPercent(car) : carFuel(car);
 }
 
 function fmtSyncTime(value) {
@@ -2984,12 +3165,12 @@ function buildDemoState() {
   const today = now.getDate();
   const dateIn = (monthOffset, day) => isoLocal(new Date(y, m + monthOffset, day));
   const cars = [
-    { id: 'demo-car-1', name: 'Volvo FH 460', type: 'truck', plate: 'а123вс77', odometer: 412000, fuelLevel: 340, tank: 600, fuelNorm: 28, insurance: { type: 'ОСАГО', company: 'РЕСО-Гарантия', policy: 'ХХХ 0123456789', from: dateIn(-11, 16), to: dateIn(1, 15), cost: 32800, paidAt: dateIn(-11, 16), photo: '' } },
-    { id: 'demo-car-2', name: 'Ford Transit', type: 'van', plate: 'м812ор116', odometer: 184200, fuelLevel: 42, tank: 80, fuelNorm: 11, insurance: { type: 'ОСАГО', company: 'СОГАЗ', policy: 'ХХХ 9876543210', from: dateIn(-13, 11), to: dateIn(-1, 10), cost: 11400, paidAt: dateIn(-13, 11), photo: '' } },
+    { id: 'demo-car-1', name: 'Volvo FH 460', type: 'truck', plate: 'а123вс77', odometer: 412000, fuelLevel: 340, tank: 600, fuelNorm: 28, insurance: { type: 'ОСАГО', company: 'РЕСО-Гарантия', policy: 'ХХХ 0123456789', from: dateIn(-11, 16), to: dateIn(1, 15), cost: 32800, paidAt: dateIn(-11, 16), photo: '' }, sts: { series: '99 12', number: '345678', issuedAt: dateIn(-24, 15), issuedBy: 'ГИБДД 2401', vin: 'XLRTE47MS0E123456', photo: '', pdf: null }, kasko: { type: 'КАСКО', company: 'РЕСО-Гарантия', policy: 'КАСКО 1234567890', from: dateIn(-11, 16), to: dateIn(1, 15), cost: 42000, paidAt: dateIn(-11, 16), photo: '', pdf: null } },
+    { id: 'demo-car-2', name: 'Ford Transit', type: 'van', plate: 'м812ор116', odometer: 184200, fuelLevel: 42, tank: 80, fuelNorm: 11, insurance: { type: 'ОСАГО', company: 'СОГАЗ', policy: 'ХХХ 9876543210', from: dateIn(-13, 11), to: dateIn(-1, 10), cost: 11400, paidAt: dateIn(-13, 11), photo: '' }, sts: { series: '99 34', number: '567890', issuedAt: dateIn(-20, 10), issuedBy: 'ГИБДД 2401', vin: 'XLRTE47MS0E654321', photo: '', pdf: null } },
     { id: 'demo-car-3', name: 'KAMAZ 5490', type: 'truck', plate: 'е901кх16', odometer: 246800, fuelLevel: 280, tank: 500, fuelNorm: 32, insurance: { type: 'КАСКО', company: 'АльфаСтрахование', policy: 'ХХХ 5554443332', from: dateIn(-4, 21), to: dateIn(8, 20), cost: 24900, paidAt: dateIn(-4, 21), photo: '' } },
-    { id: 'demo-car-4', name: 'Hyundai Solaris', type: 'car', plate: 'о750тс124', odometer: 68200, fuelLevel: 28, tank: 50, fuelNorm: 7, insurance: { type: 'ОСАГО', company: 'ВСК', policy: 'ХХХ 1112223334', from: dateIn(-6, 12), to: dateIn(6, 11), cost: 8900, paidAt: dateIn(-6, 12), photo: '' } }
+    { id: 'demo-car-4', name: 'Hyundai Solaris', type: 'car', plate: 'а000аа24', odometer: 68200, fuelLevel: 28, tank: 50, fuelNorm: 7, insurance: { type: 'ОСАГО', company: 'ВСК', policy: 'ХХХ 1112223334', from: dateIn(-6, 12), to: dateIn(6, 11), cost: 8900, paidAt: dateIn(-6, 12), photo: '' } }
   ];
-  const organizations = ['ИП Иванов', 'ООО Ромашка', 'ООО Вектор'];
+  const organizations = ['ИП Петров', 'ООО Пример', 'ООО Вектор'];
   const driverProfiles = [
     {
       id: 'demo-driver-1', name: 'Иванов Пётр', phone: '+7 900 111-22-33', status: 'staff', payType: 'percent_income', rate: 30,
@@ -3611,6 +3792,8 @@ function renderDashboard() {
   state.cars.forEach(car => {
     const bucket = monthMap.get(monthKey(insurancePaidDate(car)));
     if (bucket) bucket.exp += num(car.insurance?.cost);
+    const kaskoBucket = monthMap.get(monthKey(kaskoPaidDate(car)));
+    if (kaskoBucket) kaskoBucket.exp += num(car.kasko?.cost);
   });
   renderBarChart($('#dashChart'), Array.from(monthMap.values()).map(d => ({
     ...d,
@@ -3785,14 +3968,18 @@ function carCard(car, index) {
   const monthIncome = sumField(monthTrips, 'income');
   const telemetry = glonassForCar(car);
   const odometer = carOdometer(car);
-  const fuel = carFuel(car);
+  const fuelLiters = carFuel(car);
+  const fuelPercent = carFuelPercent(car);
+  const fuelMode = carFuelMode(car);
   const dailyMileage = telemetry && hasNumber(telemetry.dailyMileage) ? Number(telemetry.dailyMileage) : null;
   const odometerKnown = carOdometer(car) > 0 || num(car.odometer) > 0 || (telemetry && hasNumber(telemetry.odometer));
   const insurance = insuranceStatus(car);
+  const kasko = kaskoStatus(car);
+  const sts = stsStatus(car);
   const tank = num(car.tank) || 60;
-  const fuelPct = clamp((fuel / tank) * 100, 0, 100);
+  const fuelPct = clamp(fuelPercent, 0, 100);
   const fuelClass = fuelPct <= 15 ? 'danger' : fuelPct <= 35 ? 'warn' : 'ok';
-  const range = num(car.fuelNorm) > 0 ? (fuel / num(car.fuelNorm)) * 100 : 0;
+  const range = num(car.fuelNorm) > 0 ? (fuelLiters / num(car.fuelNorm)) * 100 : 0;
 
   return `<article class="car-card" data-car-card="${esc(car.id)}" style="--i:${index}">
     <div class="car-head">
@@ -3808,21 +3995,25 @@ function carCard(car, index) {
       </div>
     </div>
     <div class="compact-summary">
-      <span class="compact-pill ${fuelClass}">${icon('fuel')} ${fmtLiters(fuel)} л</span>
+      <span class="compact-pill ${fuelClass}">${icon('fuel')} ${fuelMode === 'percent' ? `${fmtNum(fuelPercent)}%` : `${fmtLiters(fuelLiters)} л`}</span>
       <span class="compact-pill">${icon('gauge')} ${odometerKnown ? `${fmtNum(odometer)} км` : '—'}</span>
       ${['danger', 'warn'].includes(insurance.status) ? `<span class="compact-pill ${insurance.status}">${icon('shield')} ${insurance.status === 'danger' ? 'просрочена' : 'скоро'}</span>` : ''}
     </div>
     <div class="car-metrics">
       <div class="car-metric"><span>Пробег${telemetry ? (car.odometerSync ? ' · спидометр + ГЛОНАСС' : ' · ГЛОНАСС') : ''}</span><strong>${odometerKnown ? `${fmtNum(odometer)} <small>км</small>` : '—'}</strong></div>
-      <div class="car-metric"><span>Топливо${telemetry ? ' · ГЛОНАСС' : ''}</span><strong>${fmtLiters(fuel)} <small>л</small></strong></div>
+      <div class="car-metric"><span>Топливо${telemetry ? ' · ГЛОНАСС' : ''}</span><strong>${fuelMode === 'percent' ? `${fmtNum(fuelPercent)} <small>%</small>` : `${fmtLiters(fuelLiters)} <small>л</small>`}</strong></div>
     </div>
     ${dailyMileage !== null ? `<div class="telemetry-line">${icon('route', 'icon-sm')} За 24 ч по ГЛОНАСС: <b>${fmtNum(dailyMileage)} км</b></div>` : ''}
-    <div class="fuel-top"><span>Бак ${Math.round(fuelPct)}%</span><b>~${fmtNum(range)} км запаса</b></div>
+    <div class="fuel-top"><span>Бак ${Math.round(fuelPct)}%${fuelMode === 'percent' ? ` · ~${fmtLiters(fuelLiters)} л` : ''}</span><b>~${fmtNum(range)} км запаса</b></div>
     <div class="progress ${fuelClass} thin"><i style="width:${fuelPct}%"></i></div>
     <div class="insurance-line ${insurance.status}">${icon('shield', 'icon-sm')} ${esc(insurance.label)}</div>
+    <div class="car-docs">
+      <button type="button" class="doc-chip ${sts.status}" data-car-doc="sts" data-car-id="${esc(car.id)}" title="${esc(sts.label)}">${icon('file', 'icon-sm')} ${sts.hasData ? 'СТС' : 'СТС нет'}</button>
+      <button type="button" class="doc-chip ${kasko.status}" data-car-doc="kasko" data-car-id="${esc(car.id)}" title="${esc(kasko.label)}">${icon('shield', 'icon-sm')} ${kasko.status === 'none' ? 'КАСКО нет' : (car.kasko?.to ? `КАСКО до ${esc(fmtDate(car.kasko.to))}` : 'КАСКО')}</button>
+    </div>
     ${telemetry ? `<div class="telemetry-note">${icon('gauge', 'icon-sm')} ${car.odometerSync ? 'Пробег: ваш спидометр + км из ГЛОНАСС' : 'Пробег и топливо обновляются из ГЛОНАСС'}${telemetry.updatedAt ? ` · ${esc(fmtSyncTime(telemetry.updatedAt))}` : ''}</div>` : `<div class="car-quick">
       <label>Пробег, км<input type="number" min="0" step="1" data-car-quick="odometer" data-car-id="${esc(car.id)}" value="${num(car.odometer)}"></label>
-      <label>Топливо, л<input type="number" min="0" step="0.1" data-car-quick="fuelLevel" data-car-id="${esc(car.id)}" value="${num(car.fuelLevel)}"></label>
+      <label>Топливо, ${fuelMode === 'percent' ? '%' : 'л'}<input type="number" min="0" step="0.1" data-car-quick="fuelLevel" data-car-id="${esc(car.id)}" value="${fuelMode === 'percent' ? num(fuelPercent) : num(car.fuelLevel)}"></label>
     </div>`}
     <div class="car-foot">
       <span class="badge ${monthIncome > 0 ? 'ok' : ''}">${icon('wallet', 'icon-sm')} ${monthIncome > 0 ? fmtMoney(monthIncome) : 'нет доходов'} за месяц</span>
@@ -4514,10 +4705,17 @@ function reportDetailData(from, to) {
     return {
       title: titles.insurance,
       headers: ['Машина', 'Тип', 'Компания', 'Полис', 'С даты', 'По дату', 'Сумма', 'Статус', 'PDF'],
-      rows: rows.map(car => {
+      rows: rows.flatMap(car => {
+        const result = [];
         const insurance = car.insurance || {};
         const status = insuranceStatus(car);
-        return [car.name, insurance.type || 'ОСАГО', insurance.company || '—', insurance.policy || '—', insurance.from || '—', insurance.to || '—', fmtMoney(insurance.cost), status.label, insurance.pdf ? 'есть' : '—'];
+        result.push([car.name, insurance.type || 'ОСАГО', insurance.company || '—', insurance.policy || '—', insurance.from || '—', insurance.to || '—', fmtMoney(insurance.cost), status.label, insurance.pdf ? 'есть' : '—']);
+        const kasko = car.kasko || {};
+        if (kasko.company || kasko.policy || kasko.from || kasko.to || kasko.cost || kasko.pdf) {
+          const statusKasko = kaskoStatus(car);
+          result.push([car.name, 'КАСКО', kasko.company || '—', kasko.policy || '—', kasko.from || '—', kasko.to || '—', fmtMoney(kasko.cost), statusKasko.label, kasko.pdf ? 'есть' : '—']);
+        }
+        return result;
       })
     };
   }
@@ -4596,7 +4794,10 @@ function renderReports() {
   const insuranceExpense = state.cars.reduce((sum, car) => {
     if (reportFilters.carId && car.id !== reportFilters.carId) return sum;
     const paidAt = insurancePaidDate(car);
-    return sum + (paidAt && (!from || paidAt >= from) && (!to || paidAt <= to) ? num(car.insurance?.cost) : 0);
+    const kaskoPaidAt = kaskoPaidDate(car);
+    const insurance = paidAt && (!from || paidAt >= from) && (!to || paidAt <= to) ? num(car.insurance?.cost) : 0;
+    const kasko = kaskoPaidAt && (!from || kaskoPaidAt >= from) && (!to || kaskoPaidAt <= to) ? num(car.kasko?.cost) : 0;
+    return sum + insurance + kasko;
   }, 0);
   const expense = fuelExpense + partsExpense + insuranceExpense;
   const profit = income - expense;
@@ -4745,6 +4946,8 @@ function renderProfitTable(list, months, extras = {}) {
   state.cars.forEach(car => {
     const bucket = map.get(monthKey(insurancePaidDate(car)));
     if (bucket) bucket.expense += num(car.insurance?.cost);
+    const kaskoBucket = map.get(monthKey(kaskoPaidDate(car)));
+    if (kaskoBucket) kaskoBucket.expense += num(car.kasko?.cost);
   });
   const totals = { income: 0, expense: 0, profit: 0, tax: 0, net: 0 };
   const rows = Array.from(map.values()).map(month => {
@@ -5168,9 +5371,12 @@ function openCarModal(id = null) {
   $('#carPlate').value = car ? (car.plate || carPlate(car)) : '';
   const telemetry = car ? glonassForCar(car) : null;
   const insurance = car?.insurance || {};
+  const kasko = car?.kasko || {};
+  const sts = car?.sts || {};
   const baseOdo = car ? (hasNumber(car.odometerSync?.base) ? num(car.odometerSync.base) : num(car.odometer)) : 0;
   $('#carOdo').value = car ? Math.round(baseOdo) : '';
-  $('#carFuel').value = car ? carFuel(car) : '';
+  $('#carFuelMode').value = car ? carFuelMode(car) : 'liters';
+  syncFuelModeInputs(car || null);
   $('#carTank').value = car ? num(car.tank) : 60;
   $('#carNorm').value = car ? num(car.fuelNorm) : 15;
   $('#carOdo').disabled = false;
@@ -5191,7 +5397,7 @@ function openCarModal(id = null) {
   }
   $('#carFuelHint').hidden = !telemetry;
   $('#carFuelHint').textContent = telemetry ? 'Текущее значение из ГЛОНАСС. Ручное редактирование отключено.' : '';
-  $('#insType').value = insurance.type || 'ОСАГО';
+  $('#insType').value = ['ОСАГО', 'Другое'].includes(insurance.type) ? insurance.type : 'ОСАГО';
   $('#insCompany').value = insurance.company || car?.insuranceCompany || '';
   $('#insPolicy').value = insurance.policy || car?.insuranceNumber || '';
   $('#insFrom').value = insurance.from || '';
@@ -5205,6 +5411,31 @@ function openCarModal(id = null) {
   $('#insScanFile').value = '';
   $('#insPdfFile').value = '';
   $('#insScanStatus').textContent = 'Наведите камеру на QR/штрихкод полиса';
+  $('#stsSeries').value = sts.series || '';
+  $('#stsNumber').value = sts.number || '';
+  $('#stsIssuedAt').value = sts.issuedAt || '';
+  $('#stsIssuedBy').value = sts.issuedBy || '';
+  $('#stsVin').value = sts.vin || '';
+  stsPhotoDraft = sts.photo || '';
+  stsPdfDraft = sts.pdf || null;
+  stsPreviewMarkup();
+  stsPdfPreviewMarkup();
+  $('#stsScanFile').value = '';
+  $('#stsPdfFile').value = '';
+  $('#stsScanStatus').textContent = 'Фото, PDF или вручную';
+  $('#kaskoCompany').value = kasko.company || '';
+  $('#kaskoPolicy').value = kasko.policy || '';
+  $('#kaskoFrom').value = kasko.from || '';
+  $('#kaskoTo').value = kasko.to || '';
+  $('#kaskoCost').value = kasko.cost ? num(kasko.cost) : '';
+  $('#kaskoPaidAt').value = kasko.paidAt || '';
+  kaskoPhotoDraft = kasko.photo || '';
+  kaskoPdfDraft = kasko.pdf || null;
+  kaskoPreviewMarkup();
+  kaskoPdfPreviewMarkup();
+  $('#kaskoScanFile').value = '';
+  $('#kaskoPdfFile').value = '';
+  $('#kaskoScanStatus').textContent = 'Фото, PDF или вручную';
   openModal('carModal');
 }
 
@@ -5235,6 +5466,13 @@ function saveCar() {
     return;
   }
   const currentCar = id ? state.cars.find(c => c.id === id) : null;
+  const docDataSize = [insurancePhotoDraft, stsPhotoDraft, kaskoPhotoDraft, insurancePdfDraft?.data, stsPdfDraft?.data, kaskoPdfDraft?.data]
+    .filter(Boolean)
+    .reduce((sum, value) => sum + String(value).length, 0);
+  if (docDataSize > 900000) {
+    showToast('Файлы документов слишком большие для одной карточки. Уменьшите PDF или загрузите его в Storage.', 'error');
+    return;
+  }
   const telemetry = currentCar ? glonassForCar(currentCar) : null;
   const odometerValue = Math.max(0, num($('#carOdo').value));
   if (telemetry && hasNumber(telemetry.odometer) && odometerValue <= 0) {
@@ -5261,6 +5499,7 @@ function saveCar() {
     fuelLevel: telemetry && hasNumber(telemetry.fuelLevel)
       ? Math.max(0, Number(telemetry.fuelLevel))
       : Math.max(0, num($('#carFuel').value)),
+    fuelSensorMode: $('#carFuelMode').value === 'percent' ? 'percent' : 'liters',
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
     insuranceNumber: $('#insPolicy').value.trim(),
@@ -5276,6 +5515,26 @@ function saveCar() {
       paidAt: $('#insPaidAt').value,
       photo: insurancePhotoDraft,
       pdf: insurancePdfDraft
+    },
+    sts: {
+      series: $('#stsSeries').value.trim(),
+      number: $('#stsNumber').value.trim(),
+      issuedAt: $('#stsIssuedAt').value,
+      issuedBy: $('#stsIssuedBy').value.trim(),
+      vin: $('#stsVin').value.trim(),
+      photo: stsPhotoDraft,
+      pdf: stsPdfDraft
+    },
+    kasko: {
+      type: 'КАСКО',
+      company: $('#kaskoCompany').value.trim(),
+      policy: $('#kaskoPolicy').value.trim(),
+      from: $('#kaskoFrom').value,
+      to: $('#kaskoTo').value,
+      cost: Math.max(0, num($('#kaskoCost').value)),
+      paidAt: $('#kaskoPaidAt').value,
+      photo: kaskoPhotoDraft,
+      pdf: kaskoPdfDraft
     }
   };
   if (id) {
@@ -5334,6 +5593,10 @@ function updateCarQuick(input) {
    ============================================================ */
 let insurancePhotoDraft = '';
 let insurancePdfDraft = null;
+let stsPhotoDraft = '';
+let stsPdfDraft = null;
+let kaskoPhotoDraft = '';
+let kaskoPdfDraft = null;
 let toReceiptDraft = null;
 let driverLicenseDraft = null;
 let driverLicenseFiles = { front: null, back: null };
@@ -5347,6 +5610,10 @@ function partsInRange(from, to) {
 
 function insurancePaidDate(car) {
   return car?.insurance?.paidAt || car?.insurance?.from || '';
+}
+
+function kaskoPaidDate(car) {
+  return car?.kasko?.paidAt || car?.kasko?.from || '';
 }
 
 function insuranceInRange(from, to) {
@@ -5393,6 +5660,39 @@ function insurancePdfPreviewMarkup() {
   $('#insPdfOpen').href = href;
   box.hidden = false;
 }
+
+function docPhotoPreviewMarkup(photo, previewId, imageId) {
+  const preview = document.getElementById(previewId);
+  const image = document.getElementById(imageId);
+  if (!preview || !image) return;
+  if (photo) {
+    image.src = photo;
+    preview.hidden = false;
+  } else {
+    image.removeAttribute('src');
+    preview.hidden = true;
+  }
+}
+
+function docPdfPreviewMarkup(file, boxId, nameId, openId) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  const href = file?.url || file?.data || '';
+  if (!href) {
+    box.hidden = true;
+    return;
+  }
+  const name = document.getElementById(nameId);
+  if (name) name.textContent = file.name || 'Документ.pdf';
+  const open = document.getElementById(openId);
+  if (open) open.href = href;
+  box.hidden = false;
+}
+
+function stsPreviewMarkup() { docPhotoPreviewMarkup(stsPhotoDraft, 'stsPreview', 'stsPreviewImg'); }
+function stsPdfPreviewMarkup() { docPdfPreviewMarkup(stsPdfDraft, 'stsPdfPreview', 'stsPdfName', 'stsPdfOpen'); }
+function kaskoPreviewMarkup() { docPhotoPreviewMarkup(kaskoPhotoDraft, 'kaskoPreview', 'kaskoPreviewImg'); }
+function kaskoPdfPreviewMarkup() { docPdfPreviewMarkup(kaskoPdfDraft, 'kaskoPdfPreview', 'kaskoPdfName', 'kaskoPdfOpen'); }
 
 function parseInsuranceText(raw) {
   const text = String(raw || '').replace(/ё/gi, 'е');
@@ -5549,6 +5849,96 @@ async function handleInsuranceScan(file) {
   }
 }
 
+async function handleDocPdf(file, { folder, defaultName, setDraft, refresh, statusId }) {
+  const status = document.getElementById(statusId);
+  if (!file) return;
+  let attached = false;
+  if (!DEMO && currentUser) {
+    try {
+      const storage = getStorage(app);
+      const safeName = String(file.name || defaultName).replace(/[^\w.\-а-яА-Я]+/gi, '_');
+      const objectRef = storageRef(storage, `${folder}/${currentUser.uid}/${Date.now()}-${safeName}`);
+      const snapshot = await uploadBytes(objectRef, file, { contentType: file.type || 'application/pdf' });
+      const url = await getDownloadURL(snapshot.ref);
+      setDraft({ name: file.name || defaultName, type: file.type || 'application/pdf', size: file.size || 0, url });
+      refresh();
+      attached = true;
+    } catch (error) {
+      console.warn('Document PDF upload error, using local copy:', error);
+    }
+  }
+  if (!attached) {
+    try {
+      const data = await fileToDataURL(file);
+      if (data.length <= 800000) {
+        setDraft({ name: file.name || defaultName, type: file.type || 'application/pdf', size: file.size || 0, data });
+        refresh();
+        attached = true;
+      }
+    } catch (error) {
+      console.warn('Document PDF attach error:', error);
+    }
+  }
+  if (status) status.textContent = attached
+    ? 'PDF прикреплён. Данные можно ввести вручную.'
+    : 'PDF больше 600 КБ — прикрепите файл меньше или введите данные вручную.';
+}
+
+async function handleDocPhoto(file, { setDraft, refresh, statusId }) {
+  const status = document.getElementById(statusId);
+  if (!file) return;
+  if (status) status.textContent = 'Обрабатываю фото…';
+  try {
+    const photo = await compressImage(file);
+    setDraft(photo);
+    refresh();
+    if (status) status.textContent = 'Фото прикреплено. Данные можно ввести вручную.';
+  } catch (error) {
+    console.error('Document photo error:', error);
+    if (status) status.textContent = 'Не удалось обработать фото. Введите данные вручную.';
+  }
+}
+
+async function handleStsPdf(file) {
+  return handleDocPdf(file, { folder: 'documents/sts', defaultName: 'СТС.pdf', setDraft: value => { stsPdfDraft = value; }, refresh: stsPdfPreviewMarkup, statusId: 'stsScanStatus' });
+}
+async function handleStsPhoto(file) {
+  return handleDocPhoto(file, { setDraft: value => { stsPhotoDraft = value; }, refresh: stsPreviewMarkup, statusId: 'stsScanStatus' });
+}
+async function handleKaskoPdf(file) {
+  return handleDocPdf(file, { folder: 'documents/kasko', defaultName: 'КАСКО.pdf', setDraft: value => { kaskoPdfDraft = value; }, refresh: kaskoPdfPreviewMarkup, statusId: 'kaskoScanStatus' });
+}
+async function handleKaskoPhoto(file) {
+  return handleDocPhoto(file, { setDraft: value => { kaskoPhotoDraft = value; }, refresh: kaskoPreviewMarkup, statusId: 'kaskoScanStatus' });
+}
+
+function showCarDocument(carId, kind) {
+  const car = state.cars.find(item => item.id === carId);
+  if (!car) return;
+  const doc = kind === 'sts' ? car.sts : kind === 'kasko' ? car.kasko : car.insurance;
+  const title = kind === 'sts' ? 'СТС' : kind === 'kasko' ? 'КАСКО' : 'ОСАГО';
+  const status = kind === 'sts' ? stsStatus(car) : kind === 'kasko' ? kaskoStatus(car) : insuranceStatus(car);
+  const photo = doc?.photo || '';
+  const pdf = doc?.pdf || null;
+  if (!photo && !pdf) {
+    showToast(`${title} не прикреплён — добавьте фото, PDF или данные`, 'info');
+    openCarModal(car.id);
+    return;
+  }
+  const pdfHref = pdf?.url || pdf?.data || '';
+  const parts = [];
+  if (photo) parts.push(`<img src="${photo}" alt="${esc(title)}" style="width:100%;display:block;border-radius:12px">`);
+  if (pdf) parts.push(`<div class="pdf-attachment" style="margin-top:12px"><span class="pdf-badge">PDF</span><div class="pdf-meta"><b>${esc(pdf.name || `${title}.pdf`)}</b><span>Файл прикреплён</span></div></div>`);
+  parts.push(`<div class="hint-text" style="margin-top:12px">${esc(status.label || '')}</div>`);
+  $('#docModalTitle').textContent = `${title} · ${car.name}`;
+  $('#docModalSub').textContent = status.label || '';
+  $('#docModalBody').innerHTML = parts.join('');
+  const open = $('#docModalOpen');
+  open.href = pdfHref || photo;
+  open.textContent = pdf ? 'Открыть PDF' : 'Открыть фото';
+  openModal('docModal');
+}
+
 function renderDashAlerts() {
   const box = $('#dashAlerts');
   if (!box) return;
@@ -5557,6 +5947,10 @@ function renderDashAlerts() {
     const insurance = insuranceStatus(car);
     if (insurance.status === 'danger' || insurance.status === 'warn') {
       alerts.push({ status: insurance.status, text: `${car.name}: ${insurance.label}`, tab: 'cars' });
+    }
+    const kasko = kaskoStatus(car);
+    if (kasko.status === 'danger' || kasko.status === 'warn') {
+      alerts.push({ status: kasko.status, text: `${car.name}: ${kasko.label}`, tab: 'cars' });
     }
     MAINTENANCE_KEYS.forEach(category => {
       const maintenance = maintenanceStatus(car, category);
@@ -5585,7 +5979,7 @@ function renderServiceKpis() {
     const maintenance = maintenanceStatus(car, category);
     if (maintenance.status === 'danger' || maintenance.status === 'warn') due.push({ car, maintenance });
   }));
-  const insuranceDue = state.cars.filter(car => ['danger', 'warn'].includes(insuranceStatus(car).status));
+  const insuranceDue = state.cars.filter(car => ['danger', 'warn'].includes(insuranceStatus(car).status) || ['danger', 'warn'].includes(kaskoStatus(car).status));
   box.innerHTML = [
     kpiCard({ i: 0, iconName: 'wrench', label: 'Расходы на запчасти', value: fmtMoney(total), sub: `${(state.parts || []).length} ${plural((state.parts || []).length, ['запись', 'записи', 'записей'])}` }),
     kpiCard({ i: 1, iconName: 'receipt', label: 'За этот месяц', value: fmtMoney(monthCost), sub: `${partsInMonth(month).length} ${plural(partsInMonth(month).length, ['замена', 'замены', 'замен'])}` }),
@@ -5828,16 +6222,26 @@ function renderServiceInsurance() {
   box.innerHTML = `<div class="table-wrap responsive-wrap">
     <table class="data-table responsive-table">
       <thead><tr><th>Машина</th><th>Полис</th><th>Действует до</th><th>Статус</th><th></th></tr></thead>
-      <tbody>${state.cars.map(car => {
+      <tbody>${state.cars.flatMap(car => {
         const insurance = car.insurance || {};
         const status = insuranceStatus(car);
-        return `<tr>
+        const insuranceRow = `<tr>
           <td data-label="Машина"><b>${esc(car.name)}</b></td>
           <td data-label="Полис">${esc(insurance.type || 'ОСАГО')}${insurance.company ? ` · ${esc(insurance.company)}` : ''}<span class="part-sub">${esc(insurance.policy || 'номер не указан')}${insurance.pdf ? ' · PDF прикреплён' : ''}</span></td>
           <td data-label="Действует до">${insurance.to ? fmtDate(insurance.to) : '—'}</td>
           <td data-label="Статус"><span class="reminder-status ${status.status}">${statusText[status.status]}</span></td>
           <td class="num" data-label=""><button class="icon-btn sm" data-edit-car="${esc(car.id)}" title="Изменить страховку">${icon('edit', 'icon-sm')}</button></td>
         </tr>`;
+        const kasko = car.kasko || {};
+        if (!(kasko.company || kasko.policy || kasko.from || kasko.to || kasko.cost || kasko.pdf)) return [insuranceRow];
+        const statusKasko = kaskoStatus(car);
+        return [insuranceRow, `<tr>
+          <td data-label="Машина"><b>${esc(car.name)}</b></td>
+          <td data-label="Полис">КАСКО${kasko.company ? ` · ${esc(kasko.company)}` : ''}<span class="part-sub">${esc(kasko.policy || 'номер не указан')}${kasko.pdf ? ' · PDF прикреплён' : ''}</span></td>
+          <td data-label="Действует до">${kasko.to ? fmtDate(kasko.to) : '—'}</td>
+          <td data-label="Статус"><span class="reminder-status ${statusKasko.status}">${statusText[statusKasko.status]}</span></td>
+          <td class="num" data-label=""><button class="icon-btn sm" data-edit-car="${esc(car.id)}" title="Изменить КАСКО">${icon('edit', 'icon-sm')}</button></td>
+        </tr>`];
       }).join('')}</tbody>
     </table>
   </div>`;
@@ -7709,7 +8113,7 @@ function bindEvents() {
   });
 
   $('#notifyCheck')?.addEventListener('click', () => { renderNotifications({ forceToast: true }); toggleNotifyPanel(true); });
-  $('#notifyTest')?.addEventListener('click', () => showToast('Пример: Газель т445ук124 · Масло двигателя — осталось 800 км', 'info'));
+  $('#notifyTest')?.addEventListener('click', () => showToast('Пример: Газель · Масло двигателя — осталось 800 км', 'info'));
   $('#notifyEnabled')?.addEventListener('change', event => {
     state.notificationsEnabled = event.target.checked;
     queueSave();
@@ -7813,6 +8217,57 @@ function bindEvents() {
     insurancePdfPreviewMarkup();
     const status = $('#insScanStatus');
     if (status) status.textContent = 'PDF откреплён. Можно загрузить другой.';
+  });
+  $('#stsScanBtn')?.addEventListener('click', () => $('#stsScanFile').click());
+  $('#stsPdfBtn')?.addEventListener('click', () => $('#stsPdfFile').click());
+  $('#stsPdfFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleStsPdf(file);
+  });
+  $('#stsScanFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleStsPhoto(file);
+  });
+  $('#stsPhotoRemove')?.addEventListener('click', () => {
+    stsPhotoDraft = '';
+    stsPreviewMarkup();
+  });
+  $('#stsPdfRemove')?.addEventListener('click', () => {
+    stsPdfDraft = null;
+    stsPdfPreviewMarkup();
+    const status = $('#stsScanStatus');
+    if (status) status.textContent = 'PDF откреплён. Можно загрузить другой.';
+  });
+  $('#kaskoScanBtn')?.addEventListener('click', () => $('#kaskoScanFile').click());
+  $('#kaskoPdfBtn')?.addEventListener('click', () => $('#kaskoPdfFile').click());
+  $('#kaskoPdfFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleKaskoPdf(file);
+  });
+  $('#kaskoScanFile')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) await handleKaskoPhoto(file);
+  });
+  $('#kaskoPhotoRemove')?.addEventListener('click', () => {
+    kaskoPhotoDraft = '';
+    kaskoPreviewMarkup();
+  });
+  $('#kaskoPdfRemove')?.addEventListener('click', () => {
+    kaskoPdfDraft = null;
+    kaskoPdfPreviewMarkup();
+    const status = $('#kaskoScanStatus');
+    if (status) status.textContent = 'PDF откреплён. Можно загрузить другой.';
+  });
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-car-doc]');
+    if (!button) return;
+    event.preventDefault();
+    event.stopPropagation();
+    showCarDocument(button.dataset.carId, button.dataset.carDoc);
   });
   $('#authReveal')?.addEventListener('click', () => {
     const input = $('#authPassword');
@@ -8021,6 +8476,10 @@ function bindEvents() {
     const driver = findDriverByName(event.target.value);
     if (!driver?.carId) return;
     if (state.cars.some(car => car.id === driver.carId)) $('#tripCar').value = driver.carId;
+  });
+  $('#carFuelMode')?.addEventListener('change', () => {
+    const car = state.cars.find(c => c.id === $('#carEditId').value);
+    syncFuelModeInputs(car || null);
   });
 
   window.addEventListener('hashchange', () => {
