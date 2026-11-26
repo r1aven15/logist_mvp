@@ -26,9 +26,9 @@
 - Рабочее приложение: `index.html` (корень сайта), `app.html` (PWA, `noindex`).
 - Демо: `demo.html`, `demo-krsk.html`, `demo-standalone.html`, `demo-krsk-standalone.html`. Это офлайн-сборка: `DEMO = true`, Firebase SDK не загружается.
 - Презентации: `offer-krsk.html` / `offer-krsk.pdf`, `max.html` / `max-presentation.pdf`.
-- Скачивание: `download.html`, APK v1.9 в корне проекта.
+- Скачивание: `download.html`, APK v2.0 в корне проекта (v1.9 сохранён).
 - CRM и боты: `crm/` (`max_bot.py`, `chat.html`, `knowledge.json`, `max_channel_*`), `outreach/` (рассылка), `sync_glonass.py`.
-- Android: `android/` (старая v1.4); актуальный APK v1.9 лежит в корне.
+- Android: `android/` (assets обновлены до v2.0); актуальный APK v2.0 лежит в корне, v1.9 сохранён рядом.
 - Данные: `data/firestore-main_data.json`, `data/firestore-backups.json` (реальные, не публиковать).
 - Секреты: `secrets/CREDENTIALS.md`, `.secrets/` (не публиковать).
 
@@ -111,7 +111,7 @@
 - Публичный бэкап с секретами — риск. Владимир решил пока не убирать.
 - Скиллы из другого чата — обсудить позже.
 - 750-я машина: бак принят 70 л (может быть 80), норма 15,6 л/100 км, режим процентов; после завтрашнего теста уточнить фактический бак и расход.
-- APK v1.9 и `android/assets/` не пересобраны под СТС/КАСКО; веб-приложение и демо обновлены. При необходимости собрать новый APK.
+- APK v2.0 пересобран (versionCode 10, versionName 2.0, та же подпись): внутри СТС/КАСКО, топливо в процентах и ручной ввод. Runtime-тест на Android-устройстве не проводился — только проверка `aapt`/`apksigner` и asset-файлов.
 - PDF-документы: если Firebase Storage недоступен, файлы хранятся data URL; в карточке стоит лимит ~900 КБ на все файлы.
 - GitHub Actions: добавить секреты `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS` — без них workflow падает с `GLONASS_LOGIN / GLONASS_PASSWORD are not set`.
 - ГЛОНАСС: сменить пароль, добавить GitHub Secrets; workflow уже в `main`, расписание включится после секретов. Healthchecks.io — по желанию.
