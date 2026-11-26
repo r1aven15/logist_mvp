@@ -21,7 +21,7 @@
 
 - Проект: `/workspace/project`
 - GitHub: `https://github.com/r1aven15/logist_mvp`
-- Публичный сайт: `https://r1aven15.github.io/logist_mvp/` (обновлён 26.11.2026, `gh-pages` commit `fcabd2e`, service worker `v11`).
+- Публичный сайт: `https://r1aven15.github.io/logist_mvp/` (обновлён 26.11.2026, `gh-pages` commit `f1e26ea`, service worker `v12`).
 - Превью для теста: `https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/demo-krsk.html`
 - Рабочее приложение: `index.html` (корень сайта), `app.html` (PWA, `noindex`).
 - Демо: `demo.html`, `demo-krsk.html`, `demo-standalone.html`, `demo-krsk-standalone.html`. Это офлайн-сборка: `DEMO = true`, Firebase SDK не загружается.
