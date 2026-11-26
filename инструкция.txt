@@ -1,3 +1,5 @@
+> Актуально: синхронизация ГЛОНАСС — GitHub Actions `.github/workflows/glonass-sync.yml`, см. `crm/GLONASS_SYNC.md`. Render/UptimeRobot для синка больше не нужны.
+
 # ПРОЕКТ: Газель-Контроль
 
 ## Описание
@@ -13,8 +15,8 @@
 
 ## Переменные окружения (Environment Variables на Render)
 - `FIREBASE_CREDENTIALS` = JSON-ключ сервисного аккаунта Firebase.
-- `GLONASS_LOGIN` = laurentnov
-- `GLONASS_PASSWORD` = Ab_1801202101
+- `GLONASS_LOGIN` = <логин ГЛОНАСС>
+- `GLONASS_PASSWORD` = <пароль ГЛОНАСС>
 
 ## Структура базы данных (Firestore)
 Документ `gazelle_app/main_data` содержит поля:
