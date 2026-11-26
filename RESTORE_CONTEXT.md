@@ -21,7 +21,7 @@
 
 - Проект: `/workspace/project`
 - GitHub: `https://github.com/r1aven15/logist_mvp`
-- Публичный сайт: `https://r1aven15.github.io/logist_mvp/`
+- Публичный сайт: `https://r1aven15.github.io/logist_mvp/` (обновлён 26.11.2026, `gh-pages` commit `d626ff9`).
 - Превью для теста: `https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/demo-krsk.html`
 - Рабочее приложение: `index.html` (корень сайта), `app.html` (PWA, `noindex`).
 - Демо: `demo.html`, `demo-krsk.html`, `demo-standalone.html`, `demo-krsk-standalone.html`. Это офлайн-сборка: `DEMO = true`, Firebase SDK не загружается.
@@ -63,7 +63,7 @@
 
 ## ГЛОНАСС-автоматика
 
-- Workflow `.github/workflows/glonass-sync.yml` добавлен в **main** (PR #2, merge `c4fa8dc`).
+- Workflow `.github/workflows/glonass-sync.yml` добавлен в **main** (PR #2, merge `f42c6fb`).
 - Секреты GitHub Actions **не добавлены**: токен OpenHands получил `403 Resource not accessible by integration` на API секретов. Нужно вручную добавить `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS`.
 - После добавления: Actions → **GLONASS sync** → Run workflow (`probe`, затем `sync`); расписание каждые 5 минут.
 - Пароль ГЛОНАСС мог попасть в историю — сменить и обновить секрет.
@@ -76,15 +76,15 @@
 - Инструкция: `crm/GLONASS_SYNC.md`.
 - Старая схема Render + UptimeRobot `/sync` больше не нужна для синка; UptimeRobot можно оставить для мониторинга сайта.
 - Секреты GitHub: `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS`, необязательно `HEALTHCHECK_URL`.
-- Ручной синк 26.11.2026 08:53 UTC: 750-я машина — 39.29 л, `glonass_sync/status` — `ok=true`, 6 машин.
+- Ручной синк 26.11.2026 08:53 UTC: 750-я машина — 39.29 (сырое значение, в новой версии 39,29%), `glonass_sync/status` — `ok=true`, 6 машин.
 - Безопасность: в `инструкция.txt` был пароль ГЛОНАСС. Текущая версия очищена, но история GitHub могла сохранить старый — пароль нужно сменить.
 
-## Текущее состояние на 2026-11-25
+## Текущее состояние на 2026-11-26
 
 - В рабочей базе 6 Газелей и 2 организации. Рейсы, ГСМ, склад и водители пока пустые.
 - MAX-бот работает под супервизором: `crm/run_max_bot.sh`, PID супервизора в `crm/.max_bot.pid`, лог `crm/max_bot.log`. При падении бот поднимается сам.
 - GitHub Actions `max-channel.yml`: cron `*/30 * * * *`, публикации без дублей.
-- GitHub Actions `glonass-sync.yml`: cron `*/5 * * * *`, синхронизация ГЛОНАСС.
+- GitHub Actions `glonass-sync.yml`: добавлен в `main` (PR #2, merge `f42c6fb`), cron `*/5 * * * *`; пока падает без секретов `GLONASS_LOGIN` / `GLONASS_PASSWORD` / `FIREBASE_CREDENTIALS`.
 - Демо переведено в офлайн-режим, данные вымышленные (Volvo, Ford, KAMAZ, Hyundai; 37 рейсов). Реальные названия организаций и номера машин убраны.
 - Со страницы входа убран предзаполненный email.
 - APK v1.9 восстановлен, ссылка в `download.html` исправлена.
@@ -97,11 +97,11 @@
 - `download.html`: `outreach-kit.zip` и старые ссылки `backup/...` отдают 404.
 - Публичный бэкап с секретами — риск. Владимир решил пока не убирать.
 - Скиллы из другого чата — обсудить позже.
-- 750-я машина: проверить реальный объём бака и норму расхода; в карточке они не заполнены, приложение считает по умолчанию 60 л и 15 л/100 км.
+- 750-я машина: бак принят 70 л (может быть 80), норма 15,6 л/100 км, режим процентов; после завтрашнего теста уточнить фактический бак и расход.
 - APK v1.9 и `android/assets/` не пересобраны под СТС/КАСКО; веб-приложение и демо обновлены. При необходимости собрать новый APK.
 - PDF-документы: если Firebase Storage недоступен, файлы хранятся data URL; в карточке стоит лимит ~900 КБ на все файлы.
 - GitHub Actions: добавить секреты `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS` — без них workflow падает с `GLONASS_LOGIN / GLONASS_PASSWORD are not set`.
-- ГЛОНАСС: сменить пароль, добавить GitHub Secrets, включить расписание после merge в `main`, настроить Healthchecks.io.
+- ГЛОНАСС: сменить пароль, добавить GitHub Secrets; workflow уже в `main`, расписание включится после секретов. Healthchecks.io — по желанию.
 - При желании добавить в демо 2–3 вымышленные Газели и продукты.
 - Корень `index.html` открывает рабочее приложение, а не демо. Если нужно, сделать редирект.
 
