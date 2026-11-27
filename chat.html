@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Помощник — Автопарк Контроль</title>
+<style>
+  :root{--bg:#f4f5fa;--text:#171a2b;--muted:#667085;--brand:#6d28d9;--line:#e7e9f2}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:
+    radial-gradient(700px 400px at 10% -10%,#ddd6fe 0,transparent 60%),
+    radial-gradient(600px 360px at 95% 0,#cffafe 0,transparent 55%),var(--bg);color:var(--text);min-height:100vh}
+  .wrap{max-width:760px;margin:0 auto;padding:22px 14px 40px}
+  .head{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+  .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--brand),#4f46e5);display:grid;place-items:center;box-shadow:0 10px 24px rgba(109,40,217,.25)}
+  .head b{display:block;font-size:16px}.head small{color:var(--muted);font-size:12px}
+  .chat{background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:22px;box-shadow:0 18px 45px rgba(15,23,42,.1);overflow:hidden}
+  .messages{padding:18px;display:flex;flex-direction:column;gap:10px;min-height:430px;max-height:60vh;overflow-y:auto}
+  .msg{max-width:86%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+  .msg.bot{background:#f5f3ff;color:#312e81;border-bottom-left-radius:5px;align-self:flex-start}
+  .msg.user{background:linear-gradient(135deg,var(--brand),#4f46e5);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+  .msg a{color:#4f46e5}.msg.user a{color:#fff}
+  .meta{font-size:11px;color:var(--muted);margin:0 18px 8px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;padding:0 18px 12px}
+  .chip{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer}
+  .chip:hover{border-color:#c4b5fd;background:#faf5ff}
+  .composer{display:flex;gap:8px;padding:14px 18px 18px;border-top:1px solid #f1f3f8;background:#fff}
+  .composer input{flex:1;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;font-size:14px;outline:none}
+  .composer input:focus{border-color:#a78bfa;box-shadow:0 0 0 3px #ede9fe}
+  .composer button{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,var(--brand),#4f46e5);color:#fff;font-weight:800;cursor:pointer}
+  .foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:12px}
+  .foot a{color:var(--brand);font-weight:700;text-decoration:none}
+  @media(max-width:520px){.wrap{padding:12px 8px 28px}.messages{min-height:52vh}.msg{max-width:92%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
+    <div><b>Помощник «Автопарк Контроль»</b><small>отвечает на частые вопросы · это бот</small></div>
+  </div>
+  <div class="chat">
+    <div class="messages" id="messages">
+      <div class="msg bot">Здравствуйте! Я автоматический помощник. Спросите про цены, демо, 1С/Excel, сервер, налоги или телематику. На сложный вопрос подключится Владимир.</div>
+    </div>
+    <div class="chips">
+      <button class="chip">Сколько стоит?</button>
+      <button class="chip">Что с 1С и Excel?</button>
+      <button class="chip">Можно на нашем сервере?</button>
+      <button class="chip">Покажите демо</button>
+    </div>
+    <form class="composer" id="form">
+      <input id="input" autocomplete="off" placeholder="Напишите вопрос…" aria-label="Вопрос">
+      <button type="submit">Отправить</button>
+    </form>
+  </div>
+  <div class="meta">Если вопрос сложный, бот передаст его Владимиру. Он не принимает решения по цене и договору.</div>
+  <div class="foot"><span>Владимир Анисимов · +7 983 502-45-66</span><a href="mailto:vsend15@mail.ru?subject=Вопрос%20по%20Автопарк%20Контроль">Написать Владимиру</a></div>
+</div>
+<script>
+let data = null;
+const messages = document.getElementById('messages');
+const input = document.getElementById('input');
+const form = document.getElementById('form');
+
+function esc(s){return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function linkify(s){return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');}
+function add(text, who){
+  const el = document.createElement('div');
+  el.className = 'msg ' + who;
+  el.innerHTML = linkify(text);
+  messages.appendChild(el);
+  messages.scrollTop = messages.scrollHeight;
+}
+function findAnswer(text){
+  if(!data) return 'База знаний ещё загружается. Напишите Владимиру: +7 983 502-45-66.';
+  const q = text.toLowerCase().replaceAll('ё','е');
+  let best = null, score = 0;
+  for(const item of data.items){
+    const s = item.keywords.filter(k => q.includes(k.toLowerCase().replaceAll('ё','е'))).length;
+    if(s > score){best = item; score = s;}
+  }
+  return best ? best.answer : data.fallback;
+}
+function ask(text){
+  const q = text.trim();
+  if(!q) return;
+  add(q, 'user');
+  setTimeout(() => add(findAnswer(q), 'bot'), 250);
+}
+form.addEventListener('submit', e => { e.preventDefault(); ask(input.value); input.value = ''; input.focus(); });
+document.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => ask(b.textContent)));
+fetch('knowledge.json').then(r => r.json()).then(d => {
+  data = d;
+  document.querySelector('.head b').textContent = d.bot.name;
+}).catch(() => {
+  add('Не удалось загрузить базу знаний. Откройте страницу через http-сервер: python3 -m http.server.', 'bot');
+});
+</script>
+</body>
+</html>
