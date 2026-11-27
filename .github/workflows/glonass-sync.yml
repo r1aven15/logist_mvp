@@ -1,4 +1,5 @@
 name: GLONASS sync
+# Schedule keepalive 2026-11-27: refresh scheduled workflow registration
 
 on:
   schedule:
