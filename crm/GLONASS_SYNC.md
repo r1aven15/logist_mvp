@@ -64,6 +64,14 @@ UptimeRobot можно оставить только для сайта, но н�
 3. Workflow пингует URL после успешного синка.
 4. Если синка не было 10–15 минут — Healthchecks пришлёт письмо/Telegram.
 
+## Инцидент 27.11.2026
+
+- Два запуска workflow (`workflow_dispatch` 26.11 14:50 UTC и `schedule` 26.11 23:23 UTC) упали за 10–16 секунд.
+- Лог: `ERROR Sync failed: GLONASS_LOGIN / GLONASS_PASSWORD are not set`.
+- Причина не в ГЛОНАСС: repository secrets не добавлены, переменные в job пустые. `FIREBASE_CREDENTIALS` тоже пустой.
+- Локальный синк 27.11 01:16 UTC обновил 6 машин, `glonass_sync/status` — `ok=true`, `errors=[]`.
+- До добавления секретов автоматического обновления каждые 5 минут нет; локальный запуск — разовый.
+
 ## Если ошибка
 
 - `741947: no fuel sensor` или `851155: no mileage` — это новые машины без настроенных датчиков. В workflow указаны только 6 рабочих ID; если добавляешь новую — добавь её ID в `GLONASS_VEHICLE_IDS`.
