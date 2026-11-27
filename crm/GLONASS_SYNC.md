@@ -43,7 +43,7 @@ Settings → Secrets and variables → Actions → New repository secret:
 
 ## Проверка
 
-1. Actions → **GLONASS sync** → Run workflow.
+1. Actions → **MAX channel posts** → Run workflow (job `glonass`) или старый **GLONASS sync** → Run workflow.
 2. `mode = probe` — только чтение, без записи.
 3. `mode = sync` — запись в Firestore.
 4. В приложении открой «ГЛОНАСС» — статус должен стать зелёным, топливо обновится.
@@ -99,3 +99,14 @@ UptimeRobot можно оставить только для сайта, но н�
 - 27.11.2026 13:20 UTC: сырые `fuelLevel=34.21` л, `fuelPercent=48.87`; приложение показывает это значение без поправки.
 - Поправка `fuelOffset` удалена по просьбе Владимира. Если датчик завышает, калибровать на стороне ГЛОНАСС.
 
+
+## Локальный fallback
+
+Если GitHub Actions не запускает расписание, в workspace работает `crm/glonass_loop.sh`:
+
+```bash
+pgrep -af crm/glonass_loop.sh
+nohup crm/glonass_loop.sh >/dev/null 2>&1 &
+```
+
+Цикл синхронизирует ГЛОНАСС каждые 5 минут. PID: `crm/.glonass_loop.pid`, лог: `crm/glonass_loop.log`.

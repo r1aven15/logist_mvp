@@ -100,7 +100,7 @@
 
 - В рабочей базе 6 Газелей и 2 организации. Рейсы, ГСМ, склад и водители пока пустые.
 - MAX-бот работает под супервизором: `crm/run_max_bot.sh`, PID супервизора в `crm/.max_bot.pid`, лог `crm/max_bot.log`. При падении бот поднимается сам.
-- GitHub Actions `max-channel.yml`: cron `*/30 * * * *`, публикации без дублей.
+- GitHub Actions `max-channel.yml`: cron `*/30 * * * *` для MAX-постов и `*/5 * * * *` для job `glonass` (синк ГЛОНАСС).
 - GitHub Actions `glonass-sync.yml`: работает, cron `*/5 * * * *`; секреты добавлены, run `46001862659` успешен.
 - Демо переведено в офлайн-режим, данные вымышленные (Volvo, Ford, KAMAZ, Hyundai; 37 рейсов). Реальные названия организаций и номера машин убраны.
 - Со страницы входа убран предзаполненный email.
@@ -179,4 +179,4 @@
 - Проверить заполнение контекста: `python3 crm/context_usage.py`.
 - Если контейнер выключен, письмо не уйдёт. Для гарантии нужен GitHub Actions или внешний cron.
 
-- 27.11.2026 12:49 UTC: GitHub Actions secrets configured; GLONASS sync run `46001862659` success; automatic sync every 5 minutes.
+- 27.11.2026: GitHub Actions secrets configured; GLONASS sync manual run success; автозапуск job `glonass` в `max-channel.yml` каждые 5 минут.
