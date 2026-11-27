@@ -10,8 +10,9 @@
 
 - Проект: `/workspace/project`; ветка `openhands/restore-2026-11-25`; сайт: https://r1aven15.github.io/logist_mvp/
 - Рабочее приложение: `index.html` и `app.html`; Firestore `gazelle_app/main_data`; Firebase project `gazzele-to`.
-- GitHub Actions `GLONASS sync`: каждые 5 минут, секреты уже добавлены; последний ручной запуск успешен. Если данных нет — запустить workflow вручную:
-  `POST /repos/r1aven15/logist_mvp/actions/workflows/glonass-sync.yml/dispatches` с `{"ref":"main","inputs":{"mode":"sync"}}`.
+- GitHub Actions: job `glonass` в `MAX channel posts` настроен на каждые 5 минут; старый `GLONASS sync` — ручной. Если GitHub-расписание молчит, в workspace работает локальный цикл `crm/glonass_loop.sh` (каждые 5 минут).
+- Проверить/запустить локальный цикл: `pgrep -af crm/glonass_loop.sh`; если нет — `nohup crm/glonass_loop.sh >/dev/null 2>&1 &`.
+- Ручной запуск: `POST /repos/r1aven15/logist_mvp/actions/workflows/glonass-sync.yml/dispatches` с `{"ref":"main","inputs":{"mode":"sync"}}`.
 - 750-я (`glonass_505725`): показывать **сырые данные ГЛОНАСС**, без поправки. Последний синк: 34,05 л / 48,87%. Если датчик врёт — это калибровка на стороне ГЛОНАСС, не менять формулу приложения.
 - ВК: сообщество `club243705360`, 44 запланированных поста (2 в день) до 19.12.2026; первый пост `https://vk.com/wall-243705360_2`. Не дублировать посты.
 - Карточки товаров ВК **не делать** — Владимир сказал пока не заниматься.
