@@ -2828,7 +2828,7 @@ function normalizeState() {
       odometerLog: Array.isArray(car.odometerLog) ? car.odometerLog.slice(-20) : [],
       fuelLevel: Math.max(0, num(car.fuelLevel)),
       fuelManual: Boolean(car.fuelManual),
-      fuelSensorMode: car.fuelSensorMode === 'percent' || (isFuelTestCar && resolvedTank >= 70) ? 'percent' : 'liters',
+      fuelSensorMode: car.fuelSensorMode === 'percent' ? 'percent' : 'liters',
       fuelReserve: clamp(num(car.fuelReserve), 0, Math.max(0, resolvedTank - 1)),
       tank: resolvedTank,
       fuelNorm: isFuelTestCar && (!num(car.fuelNorm) || num(car.fuelNorm) === 15) ? 15.6 : ((car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm))),
@@ -5486,7 +5486,8 @@ function saveCar() {
     return;
   }
   const telemetry = currentCar ? glonassForCar(currentCar) : null;
-  const odometerValue = Math.max(0, num($('#carOdo').value));
+  const odometerInput = Math.max(0, num($('#carOdo').value));
+  const odometerValue = odometerInput > 0 ? odometerInput : (currentCar ? carOdometer(currentCar) : 0);
   if (telemetry && hasNumber(telemetry.odometer) && odometerValue <= 0) {
     showToast('Введите реальный пробег по спидометру', 'error');
     $('#carOdo').focus();
