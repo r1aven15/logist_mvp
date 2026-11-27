@@ -209,11 +209,12 @@ def build_manifest(zip_name: str | None, files: list[Path]) -> dict:
             "site": "https://r1aven15.github.io/logist_mvp/",
             "github": "https://github.com/r1aven15/logist_mvp",
             "branch": "https://github.com/r1aven15/logist_mvp/tree/openhands/restore-2026-11-25",
-            "preview_demo": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/demo-krsk.html",
-            "preview_offer": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/offer-krsk.html",
-            "preview_offer_pdf": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/offer-krsk.pdf",
-            "preview_max": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/max.html",
-            "preview_max_pdf": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/max-presentation.pdf",
+            "preview_app": "https://r1aven15.github.io/logist_mvp/app.html",
+            "preview_demo": "https://r1aven15.github.io/logist_mvp/demo-krsk.html",
+            "preview_offer": "https://r1aven15.github.io/logist_mvp/offer-krsk.html",
+            "preview_offer_pdf": "https://r1aven15.github.io/logist_mvp/offer-krsk.pdf",
+            "preview_max": "https://r1aven15.github.io/logist_mvp/max.html",
+            "preview_max_pdf": "https://r1aven15.github.io/logist_mvp/max-presentation.pdf",
             "restore_pack": "https://r1aven15.github.io/logist_mvp/restore/autopark-restore-2026-11-27.zip",
             "restore_page": "https://r1aven15.github.io/logist_mvp/restore/",
             "restore_prompt": "https://r1aven15.github.io/logist_mvp/RESTORE_PROMPT.md",
@@ -299,6 +300,7 @@ def send_email(zip_path: Path | None, manifest: dict, recipient: str, full: bool
 {archive_line}
 
 Ссылки:
+- Рабочее приложение: {links.get('preview_app')}
 - Презентация: {links.get('preview_offer')}
 - PDF презентации: {links.get('preview_offer_pdf')}
 - Короткая версия: {links.get('preview_max')}
@@ -310,9 +312,9 @@ def send_email(zip_path: Path | None, manifest: dict, recipient: str, full: bool
 Контекст сейчас: {context_line}.
 
 Что важно по проекту:
-- GitHub Actions: GLONASS sync каждые 5 минут, секреты добавлены, последний run успешен.
-- VK: сообщество club243705360, 44 поста (2 в день) до 19.12.2026; первый пост уже опубликован.
-- 750: данные ГЛОНАСС без поправки; последний синк 34,21 л / 48,87%. Главное — регулярное обновление; при необходимости калибровать датчик на стороне ГЛОНАСС.
+- ГЛОНАСС: job в GitHub Actions + локальный цикл каждые 5 минут; последний синк 34,05 л / 48,76%.
+- VK: сообщество club243705360, 44 поста (2 в день) до 19.12.2026; карточки товаров пока не делаем.
+- 750: данные ГЛОНАСС без поправки; в карточке выбран режим «Литры». Если датчик завышает — калибровать на стороне ГЛОНАСС.
 
 Как продолжить в новом чате:
 «Прочитай /workspace/project/RESTORE_CONTEXT.md и продолжай».

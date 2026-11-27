@@ -13,7 +13,14 @@
 - GitHub Actions: job `glonass` в `MAX channel posts` настроен на каждые 5 минут; старый `GLONASS sync` — ручной. Если GitHub-расписание молчит, в workspace работает локальный цикл `crm/glonass_loop.sh` (каждые 5 минут).
 - Проверить/запустить локальный цикл: `pgrep -af crm/glonass_loop.sh`; если нет — `nohup crm/glonass_loop.sh >/dev/null 2>&1 &`.
 - Ручной запуск: `POST /repos/r1aven15/logist_mvp/actions/workflows/glonass-sync.yml/dispatches` с `{"ref":"main","inputs":{"mode":"sync"}}`.
-- 750-я (`glonass_505725`): показывать **сырые данные ГЛОНАСС**, без поправки. Последний синк: 34,05 л / 48,87%. Если датчик врёт — это калибровка на стороне ГЛОНАСС, не менять формулу приложения.
+
+Презентации (постоянные ссылки GitHub Pages, не workspace):
+- Полная: https://r1aven15.github.io/logist_mvp/offer-krsk.html
+- PDF: https://r1aven15.github.io/logist_mvp/offer-krsk.pdf
+- Короткая: https://r1aven15.github.io/logist_mvp/max.html
+- PDF короткой: https://r1aven15.github.io/logist_mvp/max-presentation.pdf
+- Демо: https://r1aven15.github.io/logist_mvp/demo-krsk.html
+- 750-я (`glonass_505725`): показывать **сырые данные ГЛОНАСС**, без поправки; режим карточки — **литры**. Последний синк: 34,05 л / 48,76%. Если датчик врёт — это калибровка на стороне ГЛОНАСС, не менять формулу приложения.
 - ВК: сообщество `club243705360`, 44 запланированных поста (2 в день) до 19.12.2026; первый пост `https://vk.com/wall-243705360_2`. Не дублировать посты.
 - Карточки товаров ВК **не делать** — Владимир сказал пока не заниматься.
 - Google/Firebase Web API key в `firebaseConfig` — публичный по природе; доступ ограничен по доменам в Google Cloud. Не удалять `firebaseConfig` и `DOC_REF`: без них приложение сломается.
