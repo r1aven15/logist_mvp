@@ -186,8 +186,9 @@ def build_manifest(zip_name: str | None, files: list[Path]) -> dict:
         "index.html", "app.html", "download.html", "offer-krsk.html", "max.html",
         "RESTORE_CONTEXT.md", "README_RESTORE.md", "restore.py",
         "server/requirements.txt", "crm/max_bot.py", "crm/run_max_bot.sh",
-        "crm/context_usage.py", "crm/vk_channel_publish.py", "crm/build_vk_queue.py",
-        "crm/vk_content_plan.md", "crm/VK_CHANNEL.md",
+        "crm/context_usage.py", "crm/vk_channel_publish.py", "crm/vk_second_stream.py",
+        "crm/build_vk_queue.py", "crm/vk_content_plan.md", "crm/VK_CHANNEL.md",
+        "crm/vk_market_cards.md", "crm/SECURITY.md",
         "sync_glonass.py", ".github/workflows/glonass-sync.yml", "crm/GLONASS_SYNC.md",
     ]
     key_info = {}
@@ -302,6 +303,11 @@ def send_email(zip_path: Path | None, manifest: dict, recipient: str, full: bool
 - GitHub-ветка: {links.get('branch')}
 
 Контекст сейчас: {context_line}.
+
+Что важно по проекту:
+- GitHub Actions: GLONASS sync каждые 5 минут, секреты добавлены, последний run успешен.
+- VK: сообщество club243705360, 44 поста (2 в день) до 19.12.2026; первый пост уже опубликован.
+- 750: датчик завышает, включена поправка −24,5 л; приложение показывает ≈9,6 л / 13,8%. Фактический расход 27.11 ≈18 л/100 км.
 
 Как продолжить в новом чате:
 «Прочитай /workspace/project/RESTORE_CONTEXT.md и продолжай».
