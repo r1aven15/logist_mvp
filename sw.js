@@ -1,4 +1,4 @@
-const CACHE = 'autopark-shell-v18';
+const CACHE = 'autopark-shell-v19';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {

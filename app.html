@@ -1706,7 +1706,6 @@ body.auth-locked{overflow:hidden}
       <div class="field"><label for="carNorm">Норма расхода, л/100 км</label><input class="input" type="number" id="carNorm" min="0" step="0.1" value="15" inputmode="decimal"><span class="hint-text">Для прогноза запаса хода и анализа ГСМ.</span></div>
     </div>
     <div class="field" style="margin-top:12px"><label for="carReserve">Резерв / несливаемый остаток, л</label><input class="input" type="number" id="carReserve" min="0" step="0.1" value="0" inputmode="decimal"><span class="hint-text">Если датчик показывает общий объём, укажите остаток, который не считается запасом хода.</span></div>
-    <div class="field" style="margin-top:12px"><label for="carFuelOffset">Поправка датчика топлива, л</label><input class="input" type="number" id="carFuelOffset" min="-200" max="200" step="0.1" value="0" inputmode="decimal"><span class="hint-text">Если датчик завышает — укажите минус, если занижает — плюс. Применяется к литрам из ГЛОНАСС.</span></div>
     <div class="field" style="margin-top:12px"><label for="carFuelMode">Датчик топлива</label><select class="input" id="carFuelMode"><option value="liters">Литры</option><option value="percent">Проценты</option></select><span class="hint-text">Как ГЛОНАСС отдаёт уровень: литры или проценты. Для процентов нужен объём бака.</span></div>
     <label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:13px;color:var(--muted);cursor:pointer"><input type="checkbox" id="carFuelManual" style="margin-top:2px"><span><b style="color:var(--text)">Ручной ввод топлива</b><br>Не использовать ГЛОНАСС для топлива этой машины — например, когда датчик врёт или синка нет.</span></label>
     <div class="odometer-diag" id="carOdoDiag"></div>
@@ -2832,7 +2831,6 @@ function normalizeState() {
       fuelManual: Boolean(car.fuelManual),
       fuelSensorMode: car.fuelSensorMode === 'percent' || (isFuelTestCar && resolvedTank >= 70) ? 'percent' : 'liters',
       fuelReserve: clamp(num(car.fuelReserve), 0, Math.max(0, resolvedTank - 1)),
-      fuelOffset: clamp(num(car.fuelOffset), -resolvedTank, resolvedTank),
       tank: resolvedTank,
       fuelNorm: isFuelTestCar && (!num(car.fuelNorm) || num(car.fuelNorm) === 15) ? 15.6 : ((car.fuelNorm === undefined || car.fuelNorm === null || car.fuelNorm === '') ? 15 : Math.max(0, num(car.fuelNorm))),
       insurance,
@@ -3127,9 +3125,8 @@ function carFuel(car) {
   const capacity = carFuelCapacity(car);
   if (carFuelMode(car) === 'percent') return Math.max(0, (carFuelPercent(car) / 100) * capacity);
   const telemetry = glonassForCar(car);
-  const offset = num(car?.fuelOffset);
   const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
-  if (raw !== null) return Math.max(0, raw + offset - carFuelReserve(car));
+  if (raw !== null) return Math.max(0, raw - carFuelReserve(car));
   const percent = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelPercent) ? Number(telemetry.fuelPercent) : null;
   return Math.max(0, percent !== null ? (percent / 100) * capacity : num(car?.fuelLevel));
 }
@@ -3138,21 +3135,20 @@ function carFuelPercent(car) {
   const telemetry = glonassForCar(car);
   const capacity = carFuelCapacity(car);
   const reserve = carFuelReserve(car);
-  const offset = num(car?.fuelOffset);
   const telemetryPercent = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelPercent) ? Number(telemetry.fuelPercent) : null;
   if (carFuelMode(car) === 'percent') {
     if (!car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel)) {
       const unit = String(telemetry.fuelUnit || '').toLowerCase();
-      if (unit.includes('л') || unit.includes('l')) return clamp(((Number(telemetry.fuelLevel) + offset - reserve) / capacity) * 100, 0, 100);
-      if (unit.includes('%')) return clamp(Number(telemetry.fuelLevel) + (offset / capacity) * 100, 0, 100);
+      if (unit.includes('л') || unit.includes('l')) return clamp(((Number(telemetry.fuelLevel) - reserve) / capacity) * 100, 0, 100);
+      if (unit.includes('%')) return clamp(Number(telemetry.fuelLevel), 0, 100);
     }
-    if (telemetryPercent !== null) return clamp(telemetryPercent + (offset / capacity) * 100, 0, 100);
+    if (telemetryPercent !== null) return clamp(telemetryPercent, 0, 100);
     const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : num(car?.fuelLevel);
     return clamp(raw, 0, 100);
   }
   const raw = !car?.fuelManual && telemetry && hasNumber(telemetry.fuelLevel) ? Number(telemetry.fuelLevel) : null;
-  if (raw !== null) return clamp(((raw + offset - reserve) / capacity) * 100, 0, 100);
-  if (telemetryPercent !== null) return clamp(telemetryPercent + (offset / capacity) * 100, 0, 100);
+  if (raw !== null) return clamp(((raw - reserve) / capacity) * 100, 0, 100);
+  if (telemetryPercent !== null) return clamp(telemetryPercent, 0, 100);
   return clamp((num(car?.fuelLevel) / capacity) * 100, 0, 100);
 }
 
@@ -5396,7 +5392,6 @@ function openCarModal(id = null) {
   $('#carTank').value = car ? num(car.tank) : 60;
   $('#carNorm').value = car ? num(car.fuelNorm) : 15;
   $('#carReserve').value = car ? num(car.fuelReserve) : 0;
-  $('#carFuelOffset').value = car ? num(car.fuelOffset) : 0;
   $('#carOdo').disabled = false;
   $('#carFuel').disabled = !!telemetry && !car?.fuelManual;
   $('#carOdoHint').hidden = false;
@@ -5523,7 +5518,6 @@ function saveCar() {
     fuelSensorMode: $('#carFuelMode').value === 'percent' ? 'percent' : 'liters',
     tank: Math.max(1, num($('#carTank').value) || 60),
     fuelReserve: Math.max(0, num($('#carReserve').value)),
-    fuelOffset: clamp(num($('#carFuelOffset').value), -Math.max(1, num($('#carTank').value) || 60), Math.max(1, num($('#carTank').value) || 60)),
     fuelNorm: Math.max(0, num($('#carNorm').value)),
     insuranceNumber: $('#insPolicy').value.trim(),
     insuranceCompany: $('#insCompany').value.trim(),
