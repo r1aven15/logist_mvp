@@ -384,7 +384,6 @@ h1,h2,h3,h4,p{margin-top:0}
 .cars-view.compact .car-card:not(.expanded) .car-quick,
 .cars-view.compact .car-card:not(.expanded) .car-foot,
 .cars-view.compact .car-card:not(.expanded) .telemetry-line{display:none}
-.cars-view.compact .car-card:not(.expanded) .car-actions{display:none}
 .cars-view.compact .car-card:not(.expanded) .car-head{margin-bottom:8px}
 .cars-view.compact .compact-summary{display:flex;flex-wrap:wrap;gap:5px}
 .cars-view.compact .car-card.expanded{grid-column:span 2}
@@ -620,7 +619,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
 .modal-head h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.025em}
 .modal-head p{margin:3px 0 0;font-size:11.5px;color:var(--muted)}
-.modal-foot{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+.modal-foot{display:flex;justify-content:flex-end;gap:9px;margin-top:20px;position:sticky;bottom:0;z-index:2;background:var(--surface-solid);padding-top:12px}
 .preview-box{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:13px;background:var(--accent-soft);margin-top:4px}
 .preview-box span{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .preview-box b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
