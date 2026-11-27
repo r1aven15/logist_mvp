@@ -188,7 +188,7 @@ def build_manifest(zip_name: str | None, files: list[Path]) -> dict:
         "server/requirements.txt", "crm/max_bot.py", "crm/run_max_bot.sh",
         "crm/context_usage.py", "crm/vk_channel_publish.py", "crm/vk_second_stream.py",
         "crm/build_vk_queue.py", "crm/vk_content_plan.md", "crm/VK_CHANNEL.md",
-        "crm/vk_market_cards.md", "crm/SECURITY.md",
+        "crm/vk_market_cards.md", "crm/SECURITY.md", "RESTORE_PROMPT.md",
         "sync_glonass.py", ".github/workflows/glonass-sync.yml", "crm/GLONASS_SYNC.md",
     ]
     key_info = {}
@@ -214,6 +214,9 @@ def build_manifest(zip_name: str | None, files: list[Path]) -> dict:
             "preview_offer_pdf": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/offer-krsk.pdf",
             "preview_max": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/max.html",
             "preview_max_pdf": "https://work-1-qmwmshdyxpybwoko.prod-runtime.all-hands.dev/max-presentation.pdf",
+            "restore_pack": "https://r1aven15.github.io/logist_mvp/restore/autopark-restore-2026-11-27.zip",
+            "restore_page": "https://r1aven15.github.io/logist_mvp/restore/",
+            "restore_prompt": "https://r1aven15.github.io/logist_mvp/RESTORE_PROMPT.md",
         },
     }
     if zip_name:
@@ -301,6 +304,8 @@ def send_email(zip_path: Path | None, manifest: dict, recipient: str, full: bool
 - Короткая версия: {links.get('preview_max')}
 - PDF короткой версии: {links.get('preview_max_pdf')}
 - GitHub-ветка: {links.get('branch')}
+- Пакет восстановления без секретов: {links.get('restore_pack')}
+- Промпт для нового чата: {links.get('restore_prompt')}
 
 Контекст сейчас: {context_line}.
 
@@ -331,7 +336,7 @@ def send_email(zip_path: Path | None, manifest: dict, recipient: str, full: bool
     message["Subject"] = f"Автопарк Контроль — {suffix} {date_human}"
     message.set_content(body)
 
-    attachments = [BASE_DIR / "RESTORE_CONTEXT.md", BACKUP_DIR / "MANIFEST.json"]
+    attachments = [BASE_DIR / "RESTORE_CONTEXT.md", BASE_DIR / "RESTORE_PROMPT.md", BACKUP_DIR / "MANIFEST.json"]
     if zip_path:
         attachments.append(zip_path)
     for path in attachments:
