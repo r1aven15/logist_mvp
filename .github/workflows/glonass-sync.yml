@@ -2,8 +2,6 @@ name: GLONASS sync
 # Schedule keepalive 2026-11-27: refresh scheduled workflow registration
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       mode:

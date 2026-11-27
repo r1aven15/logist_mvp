@@ -5,6 +5,9 @@ on:
     # Every 30 minutes: the publisher skips posts already present in the channel,
     # so a delayed or missed run safely catches up instead of duplicating.
     - cron: "*/30 * * * *"
+    # Every 5 minutes: GLONASS telemetry refresh. The publish job is skipped
+    # for this schedule; the glonass job runs instead.
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       slot:
@@ -18,6 +21,7 @@ concurrency:
 
 jobs:
   publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/30 * * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -31,3 +35,23 @@ jobs:
           SLOT: ${{ github.event.inputs.slot }}
           START_DATE: "2026-11-24"
         run: python3 crm/max_channel_publish.py --slot "${SLOT:-auto}"
+
+  glonass:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/5 * * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install "firebase-admin>=6.5.0,<7"
+      - name: Sync GLONASS to Firestore
+        env:
+          GLONASS_LOGIN: ${{ secrets.GLONASS_LOGIN }}
+          GLONASS_PASSWORD: ${{ secrets.GLONASS_PASSWORD }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+          GLONASS_VEHICLE_IDS: "505725,542782,550744,577075,621945,655079"
+          GLONASS_TIMEZONE: "7"
+        run: python3 sync_glonass.py
