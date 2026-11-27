@@ -8,7 +8,7 @@
 - Не удалять бэкапы без прямой команды.
 - Не публиковать `secrets/`, `.secrets/`, `data/`, `crm/.env`, `outreach/.env`.
 - Рабочее приложение: `index.html`, `app.html` (Firebase). Демо: `demo*.html` — офлайн-сборка без Firebase SDK.
-- ВКонтакте: `crm/vk_content_plan.md` (23 поста), `crm/vk_channel_queue.json`, `crm/vk_channel_publish.py`, `crm/build_vk_queue.py`, инструкция `crm/VK_CHANNEL.md`. Токен — только в `outreach/.env`/GitHub Secrets; VK может запретить `wall.post`.
+- ВКонтакте: `crm/vk_content_plan.md` (23 поста), `crm/vk_channel_queue.json`, `crm/vk_channel_publish.py`, `crm/build_vk_queue.py`, инструкция `crm/VK_CHANNEL.md`. Сообщество `club243705360` (ID 243705360); пост 1 опубликован 27.11.2026, посты 2–23 запланированы с 28.11 по 19.12.2026. Токен — только в `.secrets/vk.env`/GitHub Secrets.
 - Машины: ОСАГО, СТС и КАСКО в карточке; данные в `car.sts`/`car.kasko`, чипы документов и просмотр; тест Playwright на демо.
 - Топливо: `fuelSensorMode` (`liters`/`percent`), `fuelManual` (ручной ввод вместо ГЛОНАСС); 750-я — бак 70 л, норма 15,6, режим `percent`; ГЛОНАСС отдаёт литры, для 750 пишется `fuelPercent` (27.7 л → 39.57%), приложение берёт процент; `GLONASS_FUEL_TANKS=505725:70`.
 - ГЛОНАСС workflow добавлен в `main`; секреты GitHub Actions не добавлены (403 токена), нужны `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS`. 26.11.2026 оба запуска упали с `GLONASS_LOGIN / GLONASS_PASSWORD are not set`; локальный синк 27.11 01:16 UTC обновил 6 машин.

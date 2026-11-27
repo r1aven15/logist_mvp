@@ -65,7 +65,7 @@ def save_state(state: dict) -> None:
 
 
 def next_post(queue: list[dict], state: dict) -> dict | None:
-    posted = set(state.get("posted", []))
+    posted = set(state.get("posted", [])) | set(state.get("scheduled", []))
     for post in queue:
         if post["id"] not in posted:
             return post
@@ -118,8 +118,9 @@ def main() -> int:
 
     if args.list:
         posted = set(state.get("posted", []))
+        scheduled = set(state.get("scheduled", []))
         for post in queue:
-            mark = "✓" if post["id"] in posted else " "
+            mark = "✓" if post["id"] in posted else "◷" if post["id"] in scheduled else " "
             print(f"[{mark}] {post['id']:>2}. {post['title']}")
         return 0
 
@@ -133,8 +134,8 @@ def main() -> int:
             log("Все посты уже опубликованы. Сбрось состояние: --reset-state")
             return 0
 
-    if post["id"] in state.get("posted", []) and not args.force:
-        log(f"Пост {post['id']} уже опубликован. Для повтора добавь --force.")
+    if (post["id"] in state.get("posted", []) or post["id"] in state.get("scheduled", [])) and not args.force:
+        log(f"Пост {post['id']} уже опубликован или запланирован. Для повтора добавь --force.")
         return 0
 
     print(f"Пост {post['id']}/{len(queue)}: {post['title']}")
