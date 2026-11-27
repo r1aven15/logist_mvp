@@ -166,3 +166,5 @@
 - Полный ZIP — по команде: `python3 daily_restore_email.py --send --full`.
 - Проверить заполнение контекста: `python3 crm/context_usage.py`.
 - Если контейнер выключен, письмо не уйдёт. Для гарантии нужен GitHub Actions или внешний cron.
+
+- 27.11.2026 12:49 UTC: GitHub Actions secrets configured; GLONASS sync run `46001862659` success; automatic sync every 5 minutes.

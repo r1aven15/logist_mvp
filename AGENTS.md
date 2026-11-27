@@ -15,3 +15,5 @@
 - ГЛОНАСС: `sync_glonass.py` + `.github/workflows/glonass-sync.yml` каждые 5 минут; 6 ID; инструкция `crm/GLONASS_SYNC.md`; Render/UptimeRobot `/sync` для синка больше не нужны. Живой API проверен 26.11.2026: `getlastdata` принимает `vehiclesIds` (`vehicleIds` → 400), датчик `Топливо` отдаёт литры; для 750 пишется `fuelPercent`. Пароль ГЛОНАСС мог попасть в историю `инструкция.txt` — сменить.
 - Еженедельный лёгкий пакет восстановления: `daily_restore_email.py`, воскресенье 23:30 по Красноярску на `vsend15@mail.ru`; полный ZIP — по команде `--full`. Заполнение контекста: `python3 crm/context_usage.py`.
 - Незакрытое: бухгалтер просил проверить расчёт маршрута в последнем обновлении; ссылки `outreach-kit.zip` и старые `backup/...` в `download.html`; скиллы из другого чата.
+
+- 27.11.2026: GitHub Actions secrets configured; GLONASS sync success (`46001862659`); auto sync every 5 min. VK secrets also set.
