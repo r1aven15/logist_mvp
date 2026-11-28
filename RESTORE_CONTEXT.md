@@ -77,7 +77,7 @@
 
 - Синхронизация: GitHub Actions `.github/workflows/glonass-sync.yml`, каждые 5 минут.
 - 6 рабочих ID: `505725,542782,550744,577075,621945,655079`.
-- Скрипт: `sync_glonass.py`; пишет только `glonass_vehicles/*` и `glonass_sync/status`, не трогает `gazelle_app/main_data`.
+- Скрипт: `sync_glonass.py`; пишет `glonass_vehicles/*`, `glonass_sync/status` и обновляет в `gazelle_app/main_data` только `cars[].odometer` / `cars[].fuelLevel` по имени (merge, без изменения структуры).
 - Инструкция: `crm/GLONASS_SYNC.md`.
 - Старая схема Render + UptimeRobot `/sync` больше не нужна для синка; UptimeRobot можно оставить для мониторинга сайта.
 - Секреты GitHub: `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS`, необязательно `HEALTHCHECK_URL`.

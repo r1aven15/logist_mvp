@@ -16,7 +16,7 @@ GitHub Actions запускает `sync_glonass.py` каждые 5 минут. R
 
 - Workflow: `.github/workflows/glonass-sync.yml`
 - Скрипт: `sync_glonass.py`
-- Что обновляет: `glonass_vehicles/*` и `glonass_sync/status`; `gazelle_app/main_data` не трогает.
+- Что обновляет: `glonass_vehicles/*`, `glonass_sync/status` и `gazelle_app/main_data` — у машин по имени обновляются только `odometer` и `fuelLevel` (`set(..., merge=True)`). Структура документа и остальные поля не меняются.
 - Какие машины: 6 настроенных ID — `505725,542782,550744,577075,621945,655079`.
 - Время: `GLONASS_TIMEZONE=7` (Красноярск).
 - Топливо: API отдаёт **литры**. Для 750-й (`505725`, бак 70 л) скрипт дополнительно пишет `fuelPercent`; в `GLONASS_FUEL_TANKS` указано `505725:70`.
@@ -98,6 +98,7 @@ UptimeRobot можно оставить только для сайта, но н�
 - Run `46001862659` — success; автоматический синк каждые 5 минут.
 - 27.11.2026 13:20 UTC: сырые `fuelLevel=34.05` л, `fuelPercent=48.76`; приложение показывает это значение без поправки.
 - Поправка `fuelOffset` удалена по просьбе Владимира. Режим 750-й — `liters`, сохраняется. Если датчик завышает, калибровать на стороне ГЛОНАСС.
+- `sync_glonass.py` теперь пишет и в `gazelle_app/main_data` (по имени), и в `glonass_vehicles`; запись в `main_data` идёт транзакцией и только по полям `odometer` / `fuelLevel`.
 
 
 ## Локальный fallback

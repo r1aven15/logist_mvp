@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """GLONASSSoft -> Firestore telemetry sync.
 
-Reads mileage and fuel level for the configured vehicles and writes them to
-`glonass_vehicles/{vehicleId}`. It never reads or writes
-`gazelle_app/main_data`, so the accounting document is untouched.
+Reads mileage and fuel level for the configured vehicles and writes:
+- `glonass_vehicles/{vehicleId}` for the app's telemetry panel;
+- `gazelle_app/main_data` cars[].odometer / cars[].fuelLevel, matching by name,
+  so older clients and direct Firestore readers see the same raw GLONASS data.
+
+The main_data write uses a merge and only touches the matched car fields.
 
 Usage:
     python sync_glonass.py --probe        # print parsed values, no Firestore write
     python sync_glonass.py --dry-run      # fetch + log, no Firestore write
-    python sync_glonass.py                # fetch + write telemetry
+    python sync_glonass.py                # fetch + write telemetry and main_data
 """
 
 from __future__ import annotations
@@ -40,6 +43,7 @@ MILEAGE_DIVISOR = float(os.getenv("GLONASS_MILEAGE_DIVISOR", "1"))
 FUEL_SENSOR = os.getenv("GLONASS_FUEL_SENSOR", "Топливо")
 TIMEZONE = int(os.getenv("GLONASS_TIMEZONE", "3"))
 FIREBASE_CREDENTIALS = os.getenv("FIREBASE_CREDENTIALS", "")
+WRITE_MAIN_DATA = os.getenv("GLONASS_WRITE_MAIN_DATA", "1").strip().lower() not in {"0", "false", "no", "off"}
 
 
 def parse_tank_map(raw: str) -> dict[int, float]:
@@ -349,6 +353,60 @@ def parse_dt(value: Any) -> datetime | None:
         return None
 
 
+def update_main_data(
+    db: Any,
+    firestore_module: Any,
+    records: list[dict[str, Any]],
+) -> list[str]:
+    """Merge telemetry into gazelle_app/main_data cars by name.
+
+    Firestore stores cars as an array, so the whole array is rewritten in one
+    transaction. Other document fields and unmatched cars are left untouched.
+    """
+    if not records:
+        return []
+    ref = db.collection("gazelle_app").document("main_data")
+    by_name = {norm(record.get("name")): record for record in records if norm(record.get("name"))}
+    by_plate = {
+        norm(record.get("plate") or record.get("vehicleNumber")): record
+        for record in records
+        if norm(record.get("plate") or record.get("vehicleNumber"))
+    }
+
+    @firestore_module.transactional
+    def apply(transaction: Any) -> list[str]:
+        snapshot = ref.get(transaction=transaction)
+        if not snapshot.exists:
+            LOG.warning("main_data document does not exist; telemetry written only")
+            return []
+        data = snapshot.to_dict() or {}
+        cars = data.get("cars")
+        if not isinstance(cars, list):
+            LOG.warning("main_data has no cars array; telemetry written only")
+            return []
+        updated: list[str] = []
+        for car in cars:
+            if not isinstance(car, dict):
+                continue
+            record = by_name.get(norm(car.get("name"))) or by_plate.get(norm(car.get("plate")))
+            if not record:
+                continue
+            changed = False
+            if record.get("odometer") is not None:
+                car["odometer"] = round(float(record["odometer"]), 2)
+                changed = True
+            if record.get("fuelLevel") is not None:
+                car["fuelLevel"] = round(float(record["fuelLevel"]), 2)
+                changed = True
+            if changed:
+                updated.append(str(car.get("name") or car.get("id") or "?"))
+        if updated:
+            transaction.set(ref, {"cars": cars}, merge=True)
+        return updated
+
+    return apply(db.transaction())
+
+
 def write_firestore(
     records: list[dict[str, Any]],
     errors: list[str],
@@ -409,6 +467,9 @@ def write_firestore(
         },
         merge=True,
     )
+    if WRITE_MAIN_DATA:
+        updated = update_main_data(db, firestore, records)
+        LOG.info("Updated main_data cars: %s", ", ".join(updated) if updated else "none")
 
 
 def run(args: argparse.Namespace) -> int:
@@ -424,17 +485,28 @@ def run(args: argparse.Namespace) -> int:
         raise RuntimeError("No vehicle IDs configured and /vehicles/find returned nothing")
 
     now = datetime.now(timezone.utc)
-    mileage_rows = client.mileage(vehicle_ids, now - timedelta(hours=24), now, sampling=86400)
+    local_tz = timezone(timedelta(hours=TIMEZONE))
+    day_start = now.astimezone(local_tz).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
+    mileage_rows = client.mileage(vehicle_ids, day_start, now, sampling=86400)
     fuel_rows = client.last_data(vehicle_ids)
     mileage = parse_mileage(mileage_rows, MILEAGE_FIELD, MILEAGE_DIVISOR)
     fuel = parse_fuel(fuel_rows, FUEL_SENSOR)
+    for vehicle_id in vehicle_ids:
+        if vehicle_id not in mileage:
+            # An idle vehicle legitimately has no mileage periods since 00:00.
+            mileage[vehicle_id] = {
+                "mileage": 0.0,
+                "raw": 0.0,
+                "field": MILEAGE_FIELD,
+                "periodStart": iso_utc(day_start),
+                "periodEnd": iso_utc(now),
+            }
+            LOG.warning("%s: no mileage period since day start; using 0", vehicle_id)
     plate_map = json.loads(os.getenv("GLONASS_VEHICLE_MAP", "{}") or "{}")
     records = build_records(vehicle_ids, vehicles, mileage, fuel, plate_map)
 
     errors: list[str] = []
     for vehicle_id in vehicle_ids:
-        if vehicle_id not in mileage:
-            errors.append(f"{vehicle_id}: no mileage")
         if vehicle_id not in fuel:
             errors.append(f"{vehicle_id}: no fuel sensor '{FUEL_SENSOR}'")
     for record in records:
