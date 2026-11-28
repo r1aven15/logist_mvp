@@ -4013,7 +4013,7 @@ function carCard(car, index) {
       <div class="car-metric"><span>Пробег${telemetry ? (car.odometerSync ? ' · спидометр + ГЛОНАСС' : ' · ГЛОНАСС') : ''}</span><strong>${odometerKnown ? `${fmtNum(odometer)} <small>км</small>` : '—'}</strong></div>
       <div class="car-metric"><span>Топливо${fuelFromTelemetry ? ' · ГЛОНАСС' : car.fuelManual ? ' · вручную' : ''}</span><strong>${fuelMode === 'percent' ? `${fmtNum(fuelPercent)} <small>%</small>` : `${fmtLiters(fuelLiters)} <small>л</small>`}</strong></div>
     </div>
-    ${dailyMileage !== null ? `<div class="telemetry-line">${icon('route', 'icon-sm')} За 24 ч по ГЛОНАСС: <b>${fmtNum(dailyMileage)} км</b></div>` : ''}
+    ${dailyMileage !== null ? `<div class="telemetry-line">${icon('route', 'icon-sm')} За сегодня по ГЛОНАСС: <b>${fmtNum(dailyMileage)} км</b></div>` : ''}
     <div class="fuel-top"><span>Бак ${Math.round(fuelPct)}%${fuelMode === 'percent' ? ` · ~${fmtLiters(fuelLiters)} л` : ''}</span><b>~${fmtNum(range)} км запаса</b></div>
     <div class="progress ${fuelClass} thin"><i style="width:${fuelPct}%"></i></div>
     <div class="insurance-line ${insurance.status}">${icon('shield', 'icon-sm')} ${esc(insurance.label)}</div>
