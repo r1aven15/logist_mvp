@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Автопарк Контроль — презентация для MAX</title>
+<style>
+  :root{
+    --ink:#14172a; --muted:#5f6b85; --line:#e6e9f4;
+    --violet:#6d28d9; --indigo:#4f46e5; --cyan:#0891b2;
+    --ok:#047857; --warn:#b45309;
+    --soft:#f6f7fc;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:#e9ecf6;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    line-height:1.38;-webkit-font-smoothing:antialiased;
+  }
+  .page{
+    width:210mm;height:297mm;margin:0 auto;background:#fff;overflow:hidden;
+    position:relative;padding:11mm 13mm 9mm;page-break-after:always;
+    background:
+      radial-gradient(620px 300px at 8% -8%,#e9e2ff 0,transparent 62%),
+      radial-gradient(520px 300px at 100% 0,#d9f7fb 0,transparent 58%),
+      #fff;
+  }
+  .page:last-child{page-break-after:auto}
+  .page:before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,0) 72%,rgba(246,247,252,.8) 100%);
+  }
+  .page > *{position:relative;z-index:1}
+
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:6mm}
+  .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--indigo));display:grid;place-items:center;box-shadow:0 8px 20px rgba(109,40,217,.25);flex-shrink:0}
+  .top b{font-size:13px;display:block;letter-spacing:-.1px}
+  .top small{display:block;color:var(--muted);font-size:9.2px;margin-top:.4mm}
+  .top .pill{margin-left:auto;font-size:8.2px;font-weight:800;color:#5b21b6;background:#f3efff;border:1px solid #e4dcff;border-radius:999px;padding:2.2mm 3mm;white-space:nowrap}
+  .jump{font-size:8.2px;font-weight:850;color:#312e81;text-decoration:none;background:#fff;border:1px solid #dfe5ff;border-radius:999px;padding:2.2mm 3mm;white-space:nowrap}
+  .jump:hover{background:#eef2ff}
+
+  .badge{display:inline-flex;align-items:center;gap:1.6mm;padding:1.5mm 2.8mm;border-radius:999px;background:#f5f3ff;color:#5b21b6;font-size:8.2px;font-weight:800;margin-bottom:2.8mm;letter-spacing:.1px}
+  .badge i{width:1.8mm;height:1.8mm;border-radius:50%;background:#7c3aed;display:inline-block}
+
+  h1{font-size:35px;line-height:1.01;letter-spacing:-1.15px;margin:0 0 3mm;max-width:175mm;font-weight:850}
+  h1 span{background:linear-gradient(135deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:11.2px;line-height:1.48;color:var(--muted);margin:0 0 4mm;max-width:174mm}
+
+  .hero{display:grid;grid-template-columns:1.28fr .72fr;gap:4mm;align-items:stretch;margin-bottom:4.5mm}
+  .shot{border-radius:4mm;overflow:hidden;border:1px solid #fff;box-shadow:0 14px 30px rgba(15,23,42,.14);background:#fff;min-height:48mm;position:relative}
+  .shot img{display:block;width:100%;height:48mm;object-fit:cover;object-position:top left}
+  .shot:after{content:"Дашборд · демо";position:absolute;left:3mm;bottom:3mm;background:rgba(20,23,42,.82);color:#fff;font-size:7.2px;font-weight:700;padding:1.3mm 2mm;border-radius:99px;backdrop-filter:blur(6px)}
+  .facts{display:grid;gap:2.2mm}
+  .fact{background:rgba(255,255,255,.86);border:1px solid #fff;border-radius:3.5mm;padding:2.7mm 3mm;box-shadow:0 5px 14px rgba(15,23,42,.06)}
+  .fact b{display:block;font-size:14.5px;letter-spacing:-.35px;line-height:1.1}
+  .fact span{font-size:8.1px;color:var(--muted);display:block;margin-top:.6mm}
+
+  h2{font-size:14.2px;letter-spacing:-.25px;margin:0 0 2.2mm;font-weight:850}
+  .section-note{font-size:8.4px;color:var(--muted);margin:-1mm 0 2.2mm}
+  .features{display:grid;grid-template-columns:1fr 1fr;gap:1.35mm 4mm;margin-bottom:3.8mm}
+  .feature{position:relative;padding:1.4mm 0 1.4mm 5mm;font-size:9.1px;color:#2f3a52;border-bottom:1px solid #f0f2f9}
+  .feature:before{content:"";position:absolute;left:0;top:2.2mm;width:1.8mm;height:1.8mm;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan))}
+  .feature b{color:var(--ink)}
+  .feature.hot{background:linear-gradient(90deg,rgba(109,40,217,.07),rgba(8,145,178,.04));border:1px solid #e8e1ff;border-radius:2.5mm;padding-left:5mm;padding-right:2mm;border-bottom:1px solid #e8e1ff}
+  .feature.hot:after{content:"new";font-size:6.5px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:#6d28d9;background:#ede9fe;border-radius:99px;padding:.8mm 1.5mm;margin-left:1.5mm;vertical-align:1px}
+
+  .audience{font-size:8.7px;line-height:1.45;color:#475467;background:#f7f5ff;border:1px solid #eee8ff;border-radius:3mm;padding:2.4mm 3mm;margin:0 0 2.4mm}
+  .audience b{color:#3b1c7a}
+  .positioning{display:flex;gap:2.6mm;align-items:flex-start;background:linear-gradient(105deg,#fbfaff,#f0fdfa);border:1px solid #e6defe;border-radius:3mm;padding:2.4mm 3mm;margin:0 0 3mm;font-size:8.5px;line-height:1.42;color:#3f3a5a}
+  .positioning .mark{width:6.4mm;height:6.4mm;border-radius:2mm;background:linear-gradient(135deg,#6d28d9,#0891b2);color:#fff;display:grid;place-items:center;font-size:9px;font-weight:900;flex-shrink:0}
+  .positioning b{color:#3b1c7a}
+
+  .prices{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4mm;margin:1.8mm 0 2.6mm}
+  .price{border:1px solid var(--line);border-radius:3.5mm;padding:2.8mm 3mm;background:#fff;box-shadow:0 3px 10px rgba(15,23,42,.035)}
+  .price small{display:block;font-size:7.4px;font-weight:900;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);margin-bottom:.8mm}
+  .price b{font-size:14.5px;letter-spacing:-.45px;white-space:nowrap}
+  .price span{display:block;font-size:7.8px;color:var(--muted);margin-top:.8mm}
+  .price.mid{border-color:#d9d0ff;background:linear-gradient(180deg,#fbfaff,#fff)}
+
+  .note{font-size:8.1px;line-height:1.42;color:#475467;background:#f8fafc;border:1px solid #eef2f7;border-radius:2.8mm;padding:2.2mm 2.8mm;margin:0 0 2.8mm}
+  .note b{color:#344054}
+
+  .steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2mm;margin:1.6mm 0 2.6mm}
+  .step{background:#fff;border:1px solid var(--line);border-radius:3.2mm;padding:2.6mm 2.8mm}
+  .step b{display:inline-grid;place-items:center;width:5.4mm;height:5.4mm;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--indigo));color:#fff;font-size:7.4px;margin-bottom:1.1mm}
+  .step span{display:block;font-size:8.2px;line-height:1.38;color:#344054}
+
+  .cta{background:linear-gradient(135deg,#1d1147,#312e81 56%,#0e7490);color:#fff;border-radius:4mm;padding:3.6mm 4mm;display:flex;justify-content:space-between;gap:4mm;align-items:center;box-shadow:0 12px 24px rgba(49,46,129,.18)}
+  .cta b{display:block;font-size:12.6px;margin-bottom:.8mm;letter-spacing:-.2px}
+  .cta p{margin:0;font-size:8.2px;color:#ddd6fe;line-height:1.4}
+  .cta .links{display:flex;gap:2mm;flex-wrap:wrap;justify-content:flex-end}
+  .cta .link{background:#fff;color:#312e81;border-radius:2.3mm;padding:2.2mm 3mm;font-size:8px;font-weight:850;text-decoration:none;white-space:nowrap}
+  .cta .link.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.28)}
+  .contact{display:flex;justify-content:space-between;gap:4mm;margin-top:2.4mm;font-size:8.2px;color:#475467}
+  .contact b{color:#14172a}
+  .foot{margin-top:1.5mm;color:#98a2b3;font-size:7.2px;line-height:1.35}
+
+  /* Page 2 */
+  .page2 .top{margin-bottom:4.5mm}
+  .page2 h1{font-size:29px;max-width:180mm;margin-bottom:2.4mm}
+  .page2 .lead{max-width:180mm;margin-bottom:4mm}
+  .warehouse{display:grid;grid-template-columns:1.12fr .88fr;gap:4.2mm;margin-bottom:3.4mm}
+  .panel{background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:4mm;padding:3.2mm;box-shadow:0 8px 22px rgba(15,23,42,.06)}
+  .panel h3{font-size:11px;margin:0 0 1mm;letter-spacing:-.15px}
+  .panel .sub{font-size:7.8px;color:var(--muted);margin:0 0 2.4mm}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1.8mm;margin-bottom:2.4mm}
+  .kpi{background:#f7f8fd;border:1px solid #eef0f8;border-radius:2.6mm;padding:2mm 2.2mm}
+  .kpi small{display:block;font-size:6.8px;text-transform:uppercase;letter-spacing:.35px;color:var(--muted);font-weight:850;margin-bottom:.5mm}
+  .kpi b{font-size:12.4px;letter-spacing:-.3px}
+  .kpi.warn b{color:#b45309}
+  .stock{border-top:1px solid #eef0f8}
+  .stock-row{display:grid;grid-template-columns:1.35fr .45fr .55fr .55fr;gap:1.5mm;align-items:center;padding:1.8mm 0;border-bottom:1px solid #f1f3fa;font-size:7.8px}
+  .stock-row.head{font-size:6.6px;text-transform:uppercase;letter-spacing:.35px;color:var(--muted);font-weight:850;padding-top:1.2mm}
+  .stock-row .name{font-weight:750;color:#1f2937}
+  .stock-row .name span{display:block;font-weight:400;color:var(--muted);font-size:6.9px;margin-top:.2mm}
+  .stock-row .num{text-align:right;white-space:nowrap}
+  .stock-row .status{font-size:6.6px;font-weight:850;text-align:right;white-space:nowrap}
+  .status.ok{color:#047857}
+  .status.low{color:#b45309}
+  .status.bad{color:#be123c}
+  .driver-row{display:grid;grid-template-columns:1.35fr .72fr .62fr .9fr;gap:1.5mm;align-items:center;padding:2.1mm 0;border-bottom:1px solid #f1f3fa;font-size:7.8px}
+  .driver-row.head{font-size:6.6px;text-transform:uppercase;letter-spacing:.35px;color:var(--muted);font-weight:850;padding-top:1.2mm}
+  .driver-row .name{font-weight:750;color:#1f2937}
+  .driver-row .name span{display:block;font-weight:400;color:var(--muted);font-size:6.9px;margin-top:.2mm}
+  .driver-row .num{text-align:right;white-space:nowrap}
+  .driver-row .license{font-size:6.6px;font-weight:850;text-align:right;white-space:nowrap}
+  .driver-row .license.ok{color:#047857}
+  .driver-row .license.warn{color:#b45309}
+  .driver-row .license.bad{color:#be123c}
+  .driver-note{font-size:6.8px;color:#98a2b3;margin-top:1.4mm}
+  .driver-shot{display:grid;grid-template-columns:1fr 1fr;gap:2.4mm;margin-bottom:2.6mm}
+  .driver-shot .doc{position:relative;min-height:28mm;border-radius:3mm;border:1px dashed #d8d5ee;background:linear-gradient(135deg,#fbfaff,#f4fdff);display:grid;place-items:center;text-align:center;color:#6b7280;font-size:7px;line-height:1.35;padding:2mm}
+  .driver-shot .doc b{display:block;color:#312e81;font-size:7.6px;margin-bottom:.6mm}
+  .driver-shot .doc:after{content:"фото";position:absolute;right:2mm;bottom:2mm;font-size:5.8px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:#5b21b6;background:#ede9fe;border-radius:99px;padding:.7mm 1.4mm}
+  .stock-foot{font-size:6.8px;color:#98a2b3;margin-top:1.4mm}
+  .benefits{display:grid;gap:2.2mm}
+  .benefit{display:flex;gap:2.2mm;align-items:flex-start;padding:2mm 0;border-bottom:1px solid #f0f2f9}
+  .benefit:last-child{border-bottom:none}
+  .benefit .ico{width:6.4mm;height:6.4mm;border-radius:2mm;background:linear-gradient(135deg,#ede9fe,#cffafe);display:grid;place-items:center;flex-shrink:0;font-size:8px;font-weight:900;color:#5b21b6}
+  .benefit b{display:block;font-size:8.4px;margin-bottom:.3mm}
+  .benefit span{font-size:7.8px;line-height:1.36;color:#475467}
+  .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:1.4mm;align-items:center;background:#fbfaff;border:1px solid #eee8ff;border-radius:3mm;padding:2.4mm 2.8mm;margin-bottom:3mm}
+  .flow .node{font-size:7.6px;font-weight:750;color:#3b1c7a;text-align:center}
+  .flow .arrow{font-size:9px;color:#a78bfa}
+  .flow .node small{display:block;font-weight:400;color:var(--muted);font-size:6.8px;margin-top:.3mm}
+  .case{display:flex;gap:2.6mm;align-items:flex-start;background:#f8fafc;border:1px solid #e9edf5;border-radius:3mm;padding:2.4mm 3mm;margin:0 0 3mm;font-size:8.2px;line-height:1.42;color:#475467}
+  .case b{color:#1f2937}
+  .case .tag{font-size:6.6px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;color:#5b21b6;background:#ede9fe;border-radius:99px;padding:1mm 1.8mm;white-space:nowrap;margin-top:.2mm}
+  .use-cases{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2mm;margin:0 0 3mm}
+  .use-case{background:#fff;border:1px solid var(--line);border-radius:3mm;padding:2.4mm 2.6mm}
+  .use-case b{display:block;font-size:8.2px;margin-bottom:.5mm}
+  .use-case span{display:block;font-size:7.4px;line-height:1.35;color:var(--muted)}
+  .page2 .prices{margin-bottom:2.2mm}
+  .page2 .note{margin-bottom:2.2mm}
+
+  @media screen and (max-width:900px){
+    body{background:#fff}
+    .page{width:100%;height:auto;min-height:0;padding:20px;overflow:visible}
+    .hero,.warehouse{grid-template-columns:1fr}
+    .shot img{height:auto;max-height:260px}
+    .features{grid-template-columns:1fr}
+    .prices,.steps3{grid-template-columns:1fr}
+    .cta{flex-direction:column;align-items:flex-start}
+    .contact{flex-direction:column;gap:1mm}
+    .flow{grid-template-columns:1fr}
+    .flow .arrow{transform:rotate(90deg);text-align:center}
+  }
+  @page{size:A4;margin:0}
+  @media print{
+    html,body{background:#fff}
+    .page{margin:0;width:210mm;height:297mm;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .page:last-child{page-break-after:auto}
+    .cta,.fact,.price,.shot,.note,.panel,.feature.hot{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= СТРАНИЦА 1 ================= -->
+<section class="page page1">
+  <div class="top">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
+    <div><b>Автопарк Контроль</b><small>учёт транспорта · 2026 · Красноярск</small></div>
+    <div class="pill">● демо без установки</div>
+    <a class="jump" href="#drivers">Водители →</a>
+    <a class="jump" href="#warehouse">Склад →</a>
+  </div>
+
+  <div class="badge"><i></i> Для автопарков 5–50 машин</div>
+  <h1>Весь автопарк<br><span>в одном окне</span></h1>
+  <p class="lead">Рейсы, топливо, склад, сервис, водители, прибыль и налоги. Не только Газели — грузовики, фургоны, легковые, автобусы и спецтехника. Выгрузка в 1С и Excel.</p>
+
+  <div class="hero">
+    <div class="shot"><img src="offer-preview.png" alt="Дашборд Автопарк Контроль"></div>
+    <div class="facts">
+      <div class="fact"><b>2 490 ₽</b><span>от / мес, хостинг включён</span></div>
+      <div class="fact"><b>1С / Excel</b><span>выгрузка рейсов и сводки</span></div>
+      <div class="fact"><b>ГЛОНАСС</b><span>и другие телематики через адаптер</span></div>
+    </div>
+  </div>
+
+  <h2>Что внутри</h2>
+  <div class="section-note">Один контур: рейс → топливо → склад → сервис → деньги → отчёт.</div>
+  <div class="features">
+    <div class="feature"><b>Дашборд:</b> пробег, топливо, доход и расход</div>
+    <div class="feature"><b>Рейсы:</b> дата, машина, водитель, маршрут, доход, бензин</div>
+    <div class="feature hot"><b>Склад:</b> остатки, минимумы, приход и списание</div>
+    <div class="feature"><b>Сервис:</b> ТО, запчасти, напоминания</div>
+    <div class="feature hot"><b>Водители:</b> карточка, права и сроки, машина, оплата, НДФЛ/НПД</div>
+    <div class="feature"><b>Прибыль</b> по каждой машине и организации</div>
+    <div class="feature"><b>Налоги 2026:</b> УСН 6/15%, НДС 22%, лимиты</div>
+    <div class="feature"><b>Отчёты:</b> ИП/ООО, водители, месяцы, CSV/1С</div>
+  </div>
+
+  <div class="audience"><b>Для кого:</b> транспортные компании, автопарки, ИП, бухгалтеры и интеграторы 1С. Партнёрам — отдельные условия сотрудничества.</div>
+
+  <div class="positioning"><div class="mark">↗</div><div><b>Не только программа.</b> Опыт в разных сферах: транспорт, производство, склад, услуги. Смотрю, как устроена фирма, где теряются время и деньги, и перевожу рутину в понятную систему. «Автопарк Контроль» — первый отраслевой кейс; логика настраивается под смены, выработку, склад, вахту и другие процессы.</div></div>
+
+  <h2>Цены</h2>
+  <div class="prices">
+    <div class="price"><small>Старт</small><b>2 490 ₽/мес</b><span>до 5 машин · 1 пользователь</span></div>
+    <div class="price mid"><small>Парк</small><b>4 990 ₽/мес</b><span>до 15 машин · до 3 пользователей</span></div>
+    <div class="price"><small>Бизнес</small><b>8 990 ₽/мес</b><span>до 30 машин · до 5 пользователей</span></div>
+  </div>
+  <div class="note"><b>Важно:</b> в тарифах «облако» хостинг включён. Размещение на сервере клиента — отдельная настройка: сервер, домен и администрирование оплачивает клиент. Прямая интеграция с 1С через API — отдельный проект. Демо работает в облаке.</div>
+
+  <h2>Как начать</h2>
+  <div class="steps3">
+    <div class="step"><b>1</b><span>Откройте демо и посмотрите дашборд, рейсы и склад.</span></div>
+    <div class="step"><b>2</b><span>Созвонимся на 10 минут — покажу на вашем примере.</span></div>
+    <div class="step"><b>3</b><span>Настроим парк, водителей и выгрузку в 1С/Excel.</span></div>
+  </div>
+
+  <div class="cta">
+    <div><b>Показать демо и полную презентацию?</b><p>Открывается в браузере без установки. Покажу 10 минут на вашем примере.</p></div>
+    <div class="links"><a class="link" href="demo-krsk.html">Демо →</a><a class="link ghost" href="offer-krsk.html">Презентация →</a></div>
+  </div>
+  <div class="contact"><span><b>Владимир Анисимов</b> · автоматизация бизнеса</span><span>+7 983 502-45-66 · vsend15@mail.ru</span></div>
+  <div class="foot">Демо-данные вымышленные. Программа не заменяет бухгалтера; налоговые расчёты носят справочный характер. Обновлено 27.11.2026.</div>
+</section>
+
+<!-- ================= СТРАНИЦА 2 ================= -->
+<section class="page page2" id="warehouse">
+  <div class="top">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
+    <div><b>Автопарк Контроль</b><small>склад · сервис · рейсы</small></div>
+    <div class="pill">● склад в версии 3.3</div>
+    <a class="jump" href="#drivers">Водители →</a>
+  </div>
+
+  <div class="badge"><i></i> Новый модуль</div>
+  <h1>Склад перестаёт быть<br><span>«чёрной дырой»</span></h1>
+  <p class="lead">Масло, фильтры, тормоза, шины и инструмент — в одном списке. Видно, что есть, чего не хватает и сколько денег лежит в остатках. Без поездок «на всякий случай» и покупок «на глаз».</p>
+
+  <div class="warehouse">
+    <div class="panel">
+      <h3>Остатки склада</h3>
+      <p class="sub">Пример демо-данных: 3 позиции, 1 заканчивается</p>
+      <div class="kpis">
+        <div class="kpi"><small>Позиций</small><b>3</b></div>
+        <div class="kpi warn"><small>Заканчивается</small><b>1</b></div>
+        <div class="kpi"><small>Стоимость остатка</small><b>34 900 ₽</b></div>
+      </div>
+      <div class="stock">
+        <div class="stock-row head"><span>Позиция</span><span class="num">Остаток</span><span class="num">Минимум</span><span class="status">Статус</span></div>
+        <div class="stock-row"><span class="name">Масло моторное 5W-30<span>Стеллаж 1 · для Volvo и KAMAZ</span></span><span class="num">18 л</span><span class="num">10 л</span><span class="status ok">в норме</span></div>
+        <div class="stock-row"><span class="name">Фильтр масляный<span>Стеллаж 2</span></span><span class="num">4 шт</span><span class="num">5 шт</span><span class="status low">пора заказать</span></div>
+        <div class="stock-row"><span class="name">Колодки передние<span>Стеллаж 3</span></span><span class="num">2 компл</span><span class="num">1 компл</span><span class="status ok">в норме</span></div>
+      </div>
+      <div class="stock-foot">Демо-данные. В приложении — ваши позиции, цены и места хранения.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Что это даёт</h3>
+      <p class="sub">Не «ещё одна таблица», а контроль закупок и ремонтов</p>
+      <div class="benefits">
+        <div class="benefit"><div class="ico">₽</div><div><b>Видно замороженные деньги</b><span>Стоимость остатка и позиции, которые лежат без движения.</span></div></div>
+        <div class="benefit"><div class="ico">!</div><div><b>Предупреждение до простоя</b><span>Когда остаток ниже минимума — позиция подсвечивается.</span></div></div>
+        <div class="benefit"><div class="ico">↔</div><div><b>Связка с сервисом</b><span>Списали масло или фильтр на ТО — остаток обновился.</span></div></div>
+        <div class="benefit"><div class="ico">↓</div><div><b>Выгрузка в CSV</b><span>Для закупки, бухгалтерии и сверки с поставщиком.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="node">Рейс<small>машина, водитель, доход</small></div><div class="arrow">→</div>
+    <div class="node">Топливо и ТО<small>чеки, запчасти, работы</small></div><div class="arrow">→</div>
+    <div class="node">Склад<small>остаток, минимум, закупка</small></div>
+  </div>
+
+  <div class="case"><span class="tag">пример</span><div><b>5 машин, 3 водителя, 1 бухгалтер.</b> Сверка пробега, чеков и зарплат занимала 6 часов в неделю — стала 45 минут. Склад показывает, что заканчивается, до того как рейс встал. Это пример из пилота, а не обещание для каждого парка.</div></div>
+
+  <div class="use-cases">
+    <div class="use-case"><b>Автопаркам</b><span>5–50 машин: рейсы, топливо, склад, сервис и прибыль по каждой машине.</span></div>
+    <div class="use-case"><b>Бухгалтерам</b><span>Отчёты по ИП/ООО, водителям и месяцам, налоги и выгрузка в 1С/Excel.</span></div>
+    <div class="use-case"><b>Партнёрам</b><span>Интеграторы 1С, сервисы и бухгалтерские фирмы — отдельные условия.</span></div>
+  </div>
+
+  <h2>Тарифы</h2>
+  <div class="prices">
+    <div class="price"><small>Старт</small><b>2 490 ₽/мес</b><span>до 5 машин · 1 пользователь</span></div>
+    <div class="price mid"><small>Парк</small><b>4 990 ₽/мес</b><span>до 15 машин · до 3 пользователей</span></div>
+    <div class="price"><small>Бизнес</small><b>8 990 ₽/мес</b><span>до 30 машин · до 5 пользователей</span></div>
+  </div>
+  <div class="note"><b>В тарифах «облако» хостинг включён.</b> Сервер клиента, домен и администрирование — отдельно. Прямая интеграция с 1С через API — отдельный проект.</div>
+
+  <div class="cta">
+    <div><b>Показать склад на демо-данных?</b><p>10 минут — и видно, как это работает на вашем парке. Сначала разбор процесса, потом решение. Без установки.</p></div>
+    <div class="links"><a class="link" href="demo-krsk.html">Открыть демо →</a><a class="link ghost" href="max-presentation.pdf">Скачать PDF</a></div>
+  </div>
+  <div class="contact"><span><b>Владимир Анисимов</b> · автоматизация бизнеса</span><span>+7 983 502-45-66 · vsend15@mail.ru</span></div>
+  <div class="foot">Демо-данные вымышленные. Программа не заменяет бухгалтера; налоговые расчёты носят справочный характер. Обновлено 27.11.2026.</div>
+</section>
+
+<!-- ================= СТРАНИЦА 3 ================= -->
+<section class="page page2 page3" id="drivers">
+  <div class="top">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7.5h10.5v8H3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 10.5H18l3 3v2h-7.5z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.7" stroke="white" stroke-width="1.8"/></svg></div>
+    <div><b>Автопарк Контроль</b><small>водители · права · выплаты</small></div>
+    <div class="pill">● контроль допуска</div>
+    <a class="jump" href="#warehouse">← Склад</a>
+    <a class="jump" href="demo-krsk.html">Демо →</a>
+  </div>
+
+  <div class="badge"><i></i> Водители и права</div>
+  <h1>Водитель, права и выплата<br><span>в одной карточке</span></h1>
+  <p class="lead">Профиль, телефон, статус, машина, оплата и обе стороны прав. Срок действия виден сразу: зелёный — можно ставить рейс, жёлтый — пора обновить, красный — допуска нет. Данные можно распознать по фото, штрихкоду или вставить текстом.</p>
+
+  <div class="warehouse">
+    <div class="panel">
+      <h3>Карточка водителя</h3>
+      <p class="sub">Фото прав, срок и допуск — без папок и переписок</p>
+      <div class="driver-shot">
+        <div class="doc"><b>Лицевая сторона</b>Фото или скан прав<br>номер, категории, срок</div>
+        <div class="doc"><b>Обратная сторона</b>Фото или скан<br>кем выданы</div>
+      </div>
+      <div class="driver-row head"><span>Водитель</span><span>Статус</span><span class="num">Рейсов</span><span class="license">Права</span></div>
+      <div class="driver-row"><span class="name">Иванов Пётр<span>Volvo FH 460</span></span><span>В штате</span><span class="num">1</span><span class="license ok">до 12.04.2029</span></div>
+      <div class="driver-row"><span class="name">Петров Сергей<span>Ford Transit</span></span><span>Самозанятый</span><span class="num">1</span><span class="license warn">20 дн.</span></div>
+      <div class="driver-row"><span class="name">Сидоров Алексей<span>KAMAZ 5490</span></span><span>ИП</span><span class="num">1</span><span class="license bad">просрочены</span></div>
+      <div class="driver-note">Демо-данные. В приложении — ваши водители и реальные сроки.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Что под контролем</h3>
+      <p class="sub">Не только «список людей», а допуск к работе и деньги</p>
+      <div class="benefits">
+        <div class="benefit"><div class="ico">Ф</div><div><b>Права с двух сторон</b><span>Фото хранится в карточке, а не в галерее телефона.</span></div></div>
+        <div class="benefit"><div class="ico">OCR</div><div><b>Распознавание данных</b><span>Штрихкод, текст с фото или ручная вставка — номер, категории и срок.</span></div></div>
+        <div class="benefit"><div class="ico">!</div><div><b>Напоминание о сроке</b><span>За 30 дней — жёлтый статус, после — красный и уведомление.</span></div></div>
+        <div class="benefit"><div class="ico">₽</div><div><b>Выплаты и налоги</b><span>Процент, оклад, за рейс, НДФЛ/НПД и сумма к выплате.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="node">Права<small>фото, номер, срок</small></div><div class="arrow">→</div>
+    <div class="node">Допуск к рейсу<small>зелёный / жёлтый / красный</small></div><div class="arrow">→</div>
+    <div class="node">Выплата<small>рейсы, налог, к выплате</small></div>
+  </div>
+
+  <div class="case"><span class="tag">пример</span><div><b>Проверка прав перед рейсом.</b> Раньше срок смотрели в бумажной папке или в переписке. Теперь карточка сразу показывает, у кого права заканчиваются, а у кого уже просрочены. Это пример из пилота, а не обещание для каждого парка.</div></div>
+
+  <div class="use-cases">
+    <div class="use-case"><b>Диспетчеру</b><span>Видно, кого можно ставить на рейс, а кого нельзя.</span></div>
+    <div class="use-case"><b>Бухгалтеру</b><span>Ставка, рейсы, налог и сумма к выплате — в одном расчёте.</span></div>
+    <div class="use-case"><b>Руководителю</b><span>Сроки прав, статусы и загрузка водителей без звонков.</span></div>
+  </div>
+
+  <h2>Как это работает</h2>
+  <div class="steps3">
+    <div class="step"><b>1</b><span>Заполните карточку и сфотографируйте права с двух сторон.</span></div>
+    <div class="step"><b>2</b><span>Проверьте распознанные номер, категории и срок действия.</span></div>
+    <div class="step"><b>3</b><span>Смотрите статус допуска и считайте выплату за месяц.</span></div>
+  </div>
+
+  <div class="cta">
+    <div><b>Открыть демо и посмотреть карточку водителя?</b><p>10 минут — и видно, как работают права, допуск и выплаты на демо-данных. Без установки.</p></div>
+    <div class="links"><a class="link" href="demo-krsk.html">Открыть демо →</a><a class="link ghost" href="max-presentation.pdf">Скачать PDF</a></div>
+  </div>
+  <div class="contact"><span><b>Владимир Анисимов</b> · автоматизация бизнеса</span><span>+7 983 502-45-66 · vsend15@mail.ru</span></div>
+  <div class="foot">Демо-данные вымышленные. Программа не заменяет бухгалтера; налоговые расчёты носят справочный характер. Обновлено 27.11.2026.</div>
+</section>
+
+</body>
+</html>

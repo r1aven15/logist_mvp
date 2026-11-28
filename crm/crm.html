@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CargoHunt CRM</title>
+<style>
+  :root{
+    --bg:#f5f6fb;--card:#ffffff;--text:#15172b;--muted:#69708a;--line:#e7e9f2;
+    --brand:#6d28d9;--brand2:#4f46e5;--ok:#0f9f6e;--warn:#b45309;--danger:#dc2626;
+    --shadow:0 14px 34px rgba(20,24,50,.08);--radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(900px 500px at 10% -10%,#ede9fe 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  button,input,select,textarea{font:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 70px}
+  .top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:18px}
+  h1{margin:0;font-size:30px;letter-spacing:-.8px}
+  .sub{color:var(--muted);margin:4px 0 0;font-size:13px}
+  .btn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:10px 14px;font-weight:750;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .btn:hover{border-color:#c9c4ee}
+  .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border:0}
+  .btn.ghost{background:transparent}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 18px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .stat small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:800}
+  .stat b{display:block;font-size:26px;margin-top:3px;letter-spacing:-.6px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .toolbar input,.toolbar select{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;color:var(--text);outline:none}
+  .toolbar input{flex:1;min-width:180px}
+  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+  .lead{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,border-color .15s}
+  .lead:hover{transform:translateY(-2px);border-color:#c9c4ee}
+  .lead-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .lead h3{margin:5px 0 2px;font-size:17px;letter-spacing:-.3px}
+  .lead p{margin:0;color:var(--muted);font-size:12px}
+  .badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+  .badge[data-source="Telegram"]{background:#e0f2fe;color:#075985}.badge[data-source="2GIS"]{background:#f3e8ff;color:#6b21a8}
+  .status{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;background:#f1f5f9;color:#475569;white-space:nowrap}
+  .status.new{background:#dbeafe;color:#1d4ed8}.status.contacted{background:#fef3c7;color:#92400e}.status.replied{background:#dcfce7;color:#166534}.status.won{background:#bbf7d0;color:#166534}.status.lost{background:#fee2e2;color:#991b1b}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin:11px 0 8px;color:var(--muted);font-size:12px}
+  .note{color:var(--muted);font-size:12px;border-top:1px dashed var(--line);padding-top:9px;margin-top:9px;max-height:54px;overflow:hidden}
+  .empty{padding:40px;text-align:center;color:var(--muted);grid-column:1/-1}
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal.open{display:flex}
+  .modal-card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.25);width:100%;max-width:720px;max-height:92vh;overflow:auto;padding:22px}
+  .modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+  .modal-head h2{margin:0;font-size:22px;letter-spacing:-.5px}
+  .x{border:0;background:#f1f5f9;color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .field{background:#f8f9fe;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .field small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-weight:800;margin-bottom:3px}
+  .field b{font-size:13px;word-break:break-word}
+  .form{margin-top:14px}
+  .form label{display:block;font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:0 0 5px}
+  .form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fbfbff;color:var(--text);outline:none}
+  .form textarea{resize:vertical;min-height:90px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:80}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media(max-width:720px){.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.top{flex-direction:column}.modal{padding:0;align-items:flex-end}.modal-card{border-radius:22px 22px 0 0;max-height:94vh}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>CRM — заявки</h1><p class="sub">Лиды из Telegram, 2GIS и сайтов. Нажми на карточку, чтобы открыть и скопировать сообщение.</p></div>
+    <div><button class="btn" id="refresh">Обновить</button></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><small>Всего</small><b id="sTotal">—</b></div>
+    <div class="stat"><small>Новые</small><b id="sNew">—</b></div>
+    <div class="stat"><small>Заявки Telegram</small><b id="sTg">—</b></div>
+    <div class="stat"><small>С email</small><b id="sMail">—</b></div>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" placeholder="Поиск: компания, имя, телефон, email…">
+    <select id="status"><option value="">Все статусы</option><option value="new">Новые</option><option value="contacted">Написал</option><option value="replied">Ответил</option><option value="won">Клиент</option><option value="lost">Отказ</option></select>
+    <select id="source"><option value="">Все источники</option><option value="Telegram">Telegram</option><option value="2GIS">2GIS</option><option value="Сайт">Сайт</option></select>
+  </div>
+
+  <div class="list" id="list"><div class="empty">Загрузка…</div></div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-head"><div><span class="badge" id="mSource">—</span><h2 id="mCompany">—</h2><p class="sub" id="mSegment"></p></div><button class="x" id="close">✕</button></div>
+    <div class="grid">
+      <div class="field"><small>Контакт</small><b id="mContact">—</b></div>
+      <div class="field"><small>Телефон</small><b id="mPhone">—</b></div>
+      <div class="field"><small>Email</small><b id="mEmail">—</b></div>
+      <div class="field"><small>Город / адрес</small><b id="mCity">—</b></div>
+      <div class="field"><small>Парк</small><b id="mFleet">—</b></div>
+      <div class="field"><small>Источник</small><b id="mNotes">—</b></div>
+    </div>
+    <div class="form">
+      <label for="mStatus">Статус</label>
+      <select id="mStatus"><option value="new">Новый</option><option value="contacted">Написал</option><option value="replied">Ответил</option><option value="won">Клиент</option><option value="lost">Отказ</option></select>
+    </div>
+    <div class="form">
+      <label for="mText">Что написать</label>
+      <textarea id="mText" rows="6"></textarea>
+    </div>
+    <div class="form">
+      <label for="mNotesEdit">Заметки</label>
+      <textarea id="mNotesEdit" rows="2"></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="copyText">Копировать текст</button>
+      <button class="btn" id="copyPhone">Копировать телефон</button>
+      <a class="btn" id="mMail" href="#">Email</a>
+      <a class="btn" id="mTg" href="#" target="_blank" rel="noopener">Telegram</a>
+      <button class="btn" id="save">Сохранить</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const state={leads:[],current:null};
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const moneyPhone=v=>String(v||'').replace(/[^\d+]/g,'');
+const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)};
+
+function suggest(l){
+  const name=l.contact||'коллеги';
+  if(l.source==='Telegram' || l.chat_id){
+    return `Здравствуйте, ${name}! Спасибо за заявку по учёту автопарка. Уточните, пожалуйста, сколько у вас машин и какой тип перевозок — покажу демо на вашем примере. Владимир, +7 983 502-45-66.`;
+  }
+  if(l.email){
+    return `Здравствуйте, ${name}! Пишу по поводу учёта транспорта: рейсы, водители, ГСМ, доходы/расходы и налоги в одной программе. Могу показать демо на вашем примере. Владимир, +7 983 502-45-66.`;
+  }
+  return `Здравствуйте! Звоню по поводу учёта автопарка. Подскажите, сколько у вас машин и как сейчас ведёте рейсы? Владимир, +7 983 502-45-66.`;
+}
+
+function render(){
+  const q=$('search').value.trim().toLowerCase(), st=$('status').value, src=$('source').value;
+  const rows=state.leads.filter(l=>{
+    if(st && l.status!==st) return false;
+    if(src && l.source!==src) return false;
+    if(!q) return true;
+    return [l.company,l.contact,l.phone,l.email,l.notes,l.segment,l.city].join(' ').toLowerCase().includes(q);
+  });
+  $('sTotal').textContent=state.leads.length;
+  $('sNew').textContent=state.leads.filter(l=>l.status==='new').length;
+  $('sTg').textContent=state.leads.filter(l=>l.source==='Telegram').length;
+  $('sMail').textContent=state.leads.filter(l=>l.email).length;
+  $('list').innerHTML=rows.map(l=>`
+    <article class="lead" data-id="${esc(l.id)}">
+      <div class="lead-top"><div><span class="badge" data-source="${esc(l.source)}">${esc(l.source||'Лид')}</span><h3>${esc(l.company||'Без названия')}</h3><p>${esc(l.segment||l.city||'')}</p></div><span class="status ${esc(l.status)}">${esc(l.status||'new')}</span></div>
+      <div class="meta"><span>${esc(l.contact||'—')}</span><span>${esc(l.phone||'—')}</span><span>${esc(l.email||'')}</span></div>
+      <div class="note">${esc(l.notes||'')}</div>
+    </article>`).join('') || '<div class="empty">Ничего не найдено</div>';
+}
+
+function openLead(id){
+  const l=state.leads.find(x=>x.id===id); if(!l) return;
+  state.current=l;
+  $('mSource').textContent=l.source||'Лид'; $('mSource').dataset.source=l.source||'';
+  $('mCompany').textContent=l.company||'Без названия';
+  $('mSegment').textContent=l.segment||'';
+  $('mContact').textContent=l.contact||'—';
+  $('mPhone').textContent=l.phone||'—';
+  $('mEmail').textContent=l.email||'—';
+  $('mCity').textContent=[l.city,l.address].filter(Boolean).join(', ')||'—';
+  $('mFleet').textContent=l.fleet||'—';
+  $('mNotes').textContent=l.source_id||'—';
+  $('mStatus').value=l.status||'new';
+  $('mNotesEdit').value=l.notes||'';
+  $('mText').value=suggest(l);
+  const phone=moneyPhone(l.phone);
+  $('copyPhone').style.display=phone?'inline-flex':'none';
+  $('mMail').style.display=l.email?'inline-flex':'none';
+  $('mMail').href='mailto:'+encodeURIComponent(l.email||'');
+  const tg=l.chat_id?('tg://user?id='+l.chat_id):(l.username&&/^[A-Za-z0-9_]+$/.test(l.username)?('https://t.me/'+l.username):'');
+  $('mTg').style.display=tg?'inline-flex':'none'; $('mTg').href=tg||'#';
+  $('modal').classList.add('open');
+}
+
+async function copyText(text,label){
+  try{await navigator.clipboard.writeText(text);toast(label+' скопировано');}
+  catch(e){const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();toast(label+' скопировано');}
+}
+
+async function save(){
+  const l=state.current; if(!l) return;
+  const status=$('mStatus').value, notes=$('mNotesEdit').value;
+  const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:l.id,status,notes})});
+  if(!r.ok){toast('Не сохранилось');return;}
+  l.status=status; l.notes=notes; render(); toast('Сохранено');
+}
+
+async function load(){
+  try{
+    const r=await fetch('/api/leads',{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    state.leads=data.leads||[];
+    render();
+  }catch(e){$('list').innerHTML='<div class="empty">Ошибка загрузки: '+esc(e.message)+'</div>';}
+}
+
+$('list').addEventListener('click',e=>{const card=e.target.closest('[data-id]');if(card)openLead(card.dataset.id)});
+$('close').onclick=()=>$('modal').classList.remove('open');
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')$('modal').classList.remove('open')});
+$('refresh').onclick=load;
+$('search').oninput=render; $('status').onchange=render; $('source').onchange=render;
+$('copyText').onclick=()=>copyText($('mText').value,'Сообщение');
+$('copyPhone').onclick=()=>copyText($('mPhone').textContent,'Телефон');
+$('save').onclick=save;
+load();
+</script>
+</body>
+</html>

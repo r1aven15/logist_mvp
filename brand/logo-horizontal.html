@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;width:1600px;height:500px;overflow:hidden;background:#0B1020}
+  .wrap{position:relative;width:1600px;height:500px;display:flex;align-items:center;gap:58px;padding:0 88px;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(124,60,255,.38), transparent 38%),
+      radial-gradient(circle at 92% 100%, rgba(32,217,255,.22), transparent 42%),
+      linear-gradient(135deg,#0B1020 0%,#141A2F 58%,#0B1020 100%);
+    font-family:"DejaVu Sans",Arial,sans-serif;}
+  .grid{position:absolute;inset:0;opacity:.10;background-image:radial-gradient(circle,#fff 1px,transparent 1.5px);background-size:56px 56px;}
+  .mark{width:330px;height:330px;flex:0 0 330px;position:relative;z-index:2}
+  .copy{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px}
+  .name{font-size:78px;line-height:1;letter-spacing:-2.5px;font-weight:700;color:#fff;white-space:nowrap}
+  .name span{background:linear-gradient(135deg,#C4B5FF,#22D9FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tag{font-size:23px;letter-spacing:5.5px;font-weight:600;color:#9FB0D0;text-transform:uppercase}
+  .line{width:96px;height:4px;border-radius:4px;background:linear-gradient(90deg,#8B5CFF,#22D9FF);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grid"></div>
+  <svg class="mark" viewBox="0 0 760 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#8B5CFF"/><stop offset=".55" stop-color="#5B7CFF"/><stop offset="1" stop-color="#22D9FF"/>
+      </linearGradient>
+      <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#C4B5FF" stop-opacity=".95"/><stop offset=".55" stop-color="#6E8CFF" stop-opacity=".65"/><stop offset="1" stop-color="#22D9FF" stop-opacity=".25"/>
+      </linearGradient>
+    </defs>
+    <path d="M 174 470 A 206 206 0 1 1 586 470" stroke="url(#ring)" stroke-width="34" stroke-linecap="round" opacity=".8"/>
+    <circle cx="586" cy="470" r="17" fill="#22D9FF"/>
+    <rect x="252" y="474" width="84" height="148" rx="42" fill="url(#g)" opacity=".92"/>
+    <rect x="378" y="390" width="84" height="232" rx="42" fill="url(#g)"/>
+    <rect x="504" y="286" width="84" height="336" rx="42" fill="url(#g)"/>
+    <path d="M 236 634 C 338 596 420 516 520 414" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" opacity=".9"/>
+    <path d="M 520 414 L 456 430 M 520 414 L 504 478" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 222 670 H 620" stroke="#FFFFFF" stroke-width="6" opacity=".22" stroke-linecap="round"/>
+  </svg>
+  <div class="copy">
+    <div class="name">Бизнес-<span>Помощник</span></div>
+    <div class="tag">Оптимизация бизнеса</div>
+    <div class="line"></div>
+  </div>
+</div>
+</body>
+</html>

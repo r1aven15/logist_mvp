@@ -1,0 +1,3 @@
+# Example: weekdays at 09:00, prepare leads/drafts and show the queue.
+# Install with: crontab -e
+0 9 * * 1-5 /workspace/project/crm/daily.sh >> /tmp/autopark-crm.log 2>&1

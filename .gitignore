@@ -1,0 +1,32 @@
+# secrets and credentials — never publish
+.secrets/
+secrets/
+backup/
+*.bundle
+*.keystore
+*.jks
+__pycache__/
+*.pyc
+*.pyo
+android/build/autopark.keystore
+crm/.env
+outreach/.env
+
+# real data and lead lists — local only
+data/
+crm/leads.csv
+crm/companies-2gis.csv
+crm/telegram_leads.csv
+crm/candidates.csv
+crm/queue.csv
+crm/config.json
+crm/*.log
+crm/.*.pid
+crm/.max_marker
+crm/.max_channel_state.json
+crm/.telegram_offset
+crm/.daily_restore_last
+crm/.vk_channel_state.json
+outreach/recipients.csv
+outreach/prospects-krsk.csv
+outreach/sent.log

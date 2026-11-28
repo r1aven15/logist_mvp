@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Publish three queued posts per day to the MAX channel.
 
-Slots are 10:00, 15:00 and 20:00 Krasnoyarsk (UTC+7).
+Slots are 08:00, 15:00 and 20:00 Krasnoyarsk (UTC+7).
 The next slot is stored on disk, so a restart does not duplicate a post.
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ STATE_FILE = BASE / ".max_channel_state.json"
 API = "https://platform-api.max.ru"
 CHANNEL_ID = -81571822668314
 LOCAL_TZ = timezone(timedelta(hours=7))
-SLOTS = [(10, 0), (15, 0), (20, 0)]
+SLOTS = [(8, 0), (15, 0), (20, 0)]
 STOP_AFTER = os.getenv("MAX_CHANNEL_STOP_AFTER", "2026-11-23")
 
 

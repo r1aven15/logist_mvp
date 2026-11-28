@@ -16,9 +16,19 @@ GitHub Actions запускает `sync_glonass.py` каждые 5 минут. R
 
 - Workflow: `.github/workflows/glonass-sync.yml`
 - Скрипт: `sync_glonass.py`
-- Что обновляет: `glonass_vehicles/*` и `glonass_sync/status`; `gazelle_app/main_data` не трогает.
+- Что обновляет: `glonass_vehicles/*`, `glonass_sync/status` и `gazelle_app/main_data` — у машин по имени обновляются только `odometer` и `fuelLevel` (`set(..., merge=True)`). Структура документа и остальные поля не меняются.
 - Какие машины: 6 настроенных ID — `505725,542782,550744,577075,621945,655079`.
 - Время: `GLONASS_TIMEZONE=7` (Красноярск).
+- Топливо: API отдаёт **литры**. Для 750-й (`505725`, бак 70 л) скрипт дополнительно пишет `fuelPercent`; в `GLONASS_FUEL_TANKS` указано `505725:70`.
+
+## Особенности API, проверено 26.11.2026
+
+- Документация: https://glonasssoft.ru/wiki/metody-api-dlya-raboty-s-glonasssoft
+- Хост API: https://hosting.glonasssoft.ru
+- `POST /api/v3/vehicles/getlastdata` принимает ключ **`vehiclesIds`**. Ключ `vehicleIds` из письма поддержки возвращает HTTP 400; в скрипте оставлен fallback на него.
+- Датчик топлива называется `Топливо`; `rawValue` — литры (`27.698...`), `displayValue` — `27.7 л`.
+- `POST /api/v3/vehicles/mileageAndMotohours` принимает `vehicleIds`; время возвращается в UTC, параметр `timezone` игнорируется.
+- `POST /api/v3/fuelcards/transactions` — история топливных транзакций, пока не используется.
 
 ## Секреты GitHub
 
@@ -33,7 +43,7 @@ Settings → Secrets and variables → Actions → New repository secret:
 
 ## Проверка
 
-1. Actions → **GLONASS sync** → Run workflow.
+1. Actions → **MAX channel posts** → Run workflow (job `glonass`) или старый **GLONASS sync** → Run workflow.
 2. `mode = probe` — только чтение, без записи.
 3. `mode = sync` — запись в Firestore.
 4. В приложении открой «ГЛОНАСС» — статус должен стать зелёным, топливо обновится.
@@ -54,6 +64,21 @@ UptimeRobot можно оставить только для сайта, но н�
 3. Workflow пингует URL после успешного синка.
 4. Если синка не было 10–15 минут — Healthchecks пришлёт письмо/Telegram.
 
+## Инцидент 27.11.2026
+
+- Два запуска workflow (`workflow_dispatch` 26.11 14:50 UTC и `schedule` 26.11 23:23 UTC) упали за 10–16 секунд.
+- Лог: `ERROR Sync failed: GLONASS_LOGIN / GLONASS_PASSWORD are not set`.
+- Причина не в ГЛОНАСС: repository secrets не добавлены, переменные в job пустые. `FIREBASE_CREDENTIALS` тоже пустой.
+- Локальный синк 27.11 01:16 UTC обновил 6 машин, `glonass_sync/status` — `ok=true`, `errors=[]`.
+- До добавления секретов автоматического обновления каждые 5 минут нет; локальный запуск — разовый.
+
+## Топливо 750: литры, остаток до заправки и скачки
+
+- Датчик `Топливо` отдаёт **литры общего объёма** (`rawValue`, `displayValue` = `26.59 л`), не проценты.
+- По тесту 27.11: залито 50 л, израсходовано 40 л, в баке 26.59 л. Это сходится: **16.59 л было в баке до заправки** + 50 − 40 = 26.59. «10 л» — это остаток от 50 л, без учёта того, что было до заправки.
+- Приложение показывает 26.59 л / 38% при баке 70 л; это корректно. Резерв по умолчанию **0**; поле «Резерв / несливаемый остаток» нужно только если часть объёма действительно не считается запасом хода.
+- Сырое значение датчика при включённом зажигании скачет: 26.59 → 21.90 → 29.29 → 26.59 л. Для ровных показаний нужно сглаживание; сейчас используется последнее значение.
+
 ## Если ошибка
 
 - `741947: no fuel sensor` или `851155: no mileage` — это новые машины без настроенных датчиков. В workflow указаны только 6 рабочих ID; если добавляешь новую — добавь её ID в `GLONASS_VEHICLE_IDS`.
@@ -63,6 +88,26 @@ UptimeRobot можно оставить только для сайта, но н�
 
 ## Текущее состояние после ручного синка
 
-- 750-я машина (`505725`): **39.29** — сырое значение датчика; в новой версии приложения это **39.29%** при баке 70 л.
+- 750-я машина (`505725`): датчик отдаёт **27.7 л**, это **39.57%** при баке 70 л. В `glonass_vehicles` хранятся `fuelLevel=27.7`, `fuelUnit=л`, `fuelPercent=39.57`; приложение в процентном режиме берёт `fuelPercent`.
+- Раньше в документе лежало `39.29` с единицей `л` — это была уже пересчитанная величина, а не сырые литры; теперь единицы согласованы.
 - `glonass_sync/status`: `ok = true`, `errors = []`, `vehicles = 6`.
 - Приложение получает обновление через Firestore onSnapshot; если открыто — обновится само, иначе перезагрузи страницу.
+## Статус 27.11.2026 12:49 UTC
+
+- GitHub Actions secrets `GLONASS_LOGIN`, `GLONASS_PASSWORD`, `FIREBASE_CREDENTIALS` добавлены.
+- Run `46001862659` — success; автоматический синк каждые 5 минут.
+- 27.11.2026 13:20 UTC: сырые `fuelLevel=34.05` л, `fuelPercent=48.76`; приложение показывает это значение без поправки.
+- Поправка `fuelOffset` удалена по просьбе Владимира. Режим 750-й — `liters`, сохраняется. Если датчик завышает, калибровать на стороне ГЛОНАСС.
+- `sync_glonass.py` теперь пишет и в `gazelle_app/main_data` (по имени), и в `glonass_vehicles`; запись в `main_data` идёт транзакцией и только по полям `odometer` / `fuelLevel`.
+
+
+## Локальный fallback
+
+Если GitHub Actions не запускает расписание, в workspace работает `crm/glonass_loop.sh`:
+
+```bash
+pgrep -af crm/glonass_loop.sh
+nohup crm/glonass_loop.sh >/dev/null 2>&1 &
+```
+
+Цикл синхронизирует ГЛОНАСС каждые 5 минут. PID: `crm/.glonass_loop.pid`, лог: `crm/glonass_loop.log`.

@@ -1,0 +1,13 @@
+[Unit]
+Description=CargoHunt Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/workspace/project/crm
+ExecStart=/usr/bin/python3 /workspace/project/crm/telegram_bot.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
